@@ -1,0 +1,3 @@
+back:
+critical:
+    - '(critical|urgent)'
