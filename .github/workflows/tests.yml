@@ -3,8 +3,10 @@ name: tests
 on:
   push:
     branches: [ main, dev ]
+    paths: [ src, test ]
   pull_request:
     branches: [ main, dev ]
+    paths: [ src, test ]
 
 jobs:
   tests:
