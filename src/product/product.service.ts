@@ -1,12 +1,42 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from '@app/product/product.entity';
-import { Repository } from 'typeorm';
+import { DeleteResult, InsertResult, Repository, UpdateResult } from 'typeorm';
+import { CrudServiceInterface } from '@app/interfaces/crud-service.interface';
 
 @Injectable()
-export class ProductService {
+export class ProductService implements CrudServiceInterface<Product> {
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
   ) {}
+
+  create(
+    entity: Product,
+  ): Promise<void> | Promise<Product> | Promise<InsertResult> {
+    return this.productRepository.save(entity);
+  }
+
+  delete(entity: Product): Promise<void> | Promise<DeleteResult> {
+    return this.productRepository.delete(entity);
+  }
+
+  deleteFromId(id: string | number): Promise<void> | Promise<DeleteResult> {
+    return this.productRepository.delete(id);
+  }
+
+  find(id: string | number): Promise<Product> | Product {
+    return this.productRepository.findOne(id);
+  }
+
+  findAll(): Product[] | Promise<Product[]> {
+    return this.productRepository.find();
+  }
+
+  update(
+    id: string | number,
+    entity: Product,
+  ): Promise<void> | Promise<Product> | Promise<UpdateResult> {
+    return this.productRepository.update(id, entity);
+  }
 }
