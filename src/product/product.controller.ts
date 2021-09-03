@@ -16,8 +16,10 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 
+@ApiTags('Products')
 @Controller('product')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
