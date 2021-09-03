@@ -9,8 +9,8 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ProductService } from '@app/product/product.service';
-import { Product } from '@app/product/product.entity';
+import { ProductService } from '@app/product/services/product.service';
+import { Product } from '@app/product/entities/product.entity';
 import {
   ApiBody,
   ApiCreatedResponse,
