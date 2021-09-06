@@ -1,11 +1,12 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiProperty, ApiResponseProperty } from '@nestjs/swagger';
+import { ProductCategory } from '@app/product/entities/product-category.entity';
 
 @Entity()
 export class Product {
   @ApiResponseProperty()
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id?: string;
 
   @ApiProperty({ required: true })
   @Column()
@@ -22,4 +23,7 @@ export class Product {
   @ApiProperty({ required: true })
   @Column({ type: 'float' })
   price: number;
+
+  @ManyToOne(() => ProductCategory)
+  category: ProductCategory;
 }

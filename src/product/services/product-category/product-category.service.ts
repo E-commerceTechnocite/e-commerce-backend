@@ -22,11 +22,9 @@ export class ProductCategoryService implements ProductCategoryServiceInterface {
   create(
     entity: ProductCategoryDto,
   ): Promise<void> | Promise<ProductCategory> | Promise<InsertResult> {
-    // transformer du DTO vers l'entité  ProductCategoryDto >> ProductCategory
     const target: ProductCategory = {
       label: entity.label,
     };
-    // faire persister l'entité dans la db
     return this.repository.save(target);
   }
 

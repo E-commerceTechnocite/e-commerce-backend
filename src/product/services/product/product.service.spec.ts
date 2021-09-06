@@ -9,6 +9,7 @@ describe('ProductService', () => {
   // Mock implementation for the product repository
   let repository: Repository<Product>;
   const item: Product = {
+    category: undefined,
     title: 'title',
     reference: '1234',
     price: 39.99,

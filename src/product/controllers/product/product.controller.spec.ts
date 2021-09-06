@@ -6,13 +6,14 @@ import {
 } from '@app/product/services/product/product.service';
 import { Product } from '@app/product/entities/product.entity';
 import { DeleteResult, InsertResult, UpdateResult } from 'typeorm';
+import { ProductDto } from '@app/product/dto/product/product.dto';
 
 describe('ProductController', () => {
   let controller: ProductController;
   // Mock implementation of the product service
   const service: ProductServiceInterface = {
     create(
-      entity: Product,
+      entity: Product | ProductDto,
     ): Promise<void> | Promise<Product> | Promise<InsertResult> {
       return Promise.resolve(undefined);
     },
@@ -27,7 +28,7 @@ describe('ProductController', () => {
     },
     update(
       id: string | number,
-      entity: Product,
+      entity: Product | ProductDto,
     ): Promise<void> | Promise<Product> | Promise<UpdateResult> {
       return Promise.resolve(undefined);
     },
@@ -36,6 +37,7 @@ describe('ProductController', () => {
     },
   };
   const item: Product = {
+    category: undefined,
     price: 39.99,
     reference: '1234',
     title: 'title',

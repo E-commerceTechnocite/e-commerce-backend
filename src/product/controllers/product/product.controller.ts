@@ -18,6 +18,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { ProductDto } from '@app/product/dto/product/product.dto';
 
 @ApiTags('Products')
 @Controller('product')
@@ -43,7 +44,7 @@ export class ProductController {
   @ApiResponse({ type: Product })
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async create(@Body() product: Product): Promise<any> {
+  async create(@Body() product: ProductDto): Promise<any> {
     return this.productService.create(product);
   }
 
@@ -51,7 +52,7 @@ export class ProductController {
   @Patch(':id')
   async update(
     @Param('id') id: string,
-    @Body() product: Product,
+    @Body() product: ProductDto,
   ): Promise<any> {
     return this.productService.update(id, product);
   }
