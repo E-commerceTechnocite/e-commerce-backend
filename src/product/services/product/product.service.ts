@@ -4,8 +4,11 @@ import { Product } from '@app/product/entities/product.entity';
 import { DeleteResult, InsertResult, Repository, UpdateResult } from 'typeorm';
 import { CrudServiceInterface } from '@app/interfaces/crud-service.interface';
 
+export interface ProductServiceInterface
+  extends CrudServiceInterface<Product> {}
+
 @Injectable()
-export class ProductService implements CrudServiceInterface<Product> {
+export class ProductService implements ProductServiceInterface {
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
