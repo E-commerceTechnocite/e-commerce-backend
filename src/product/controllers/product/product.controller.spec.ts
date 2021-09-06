@@ -12,27 +12,22 @@ describe('ProductController', () => {
   let controller: ProductController;
   // Mock implementation of the product service
   const service: ProductServiceInterface = {
-    create(
-      entity: Product | ProductDto,
-    ): Promise<void> | Promise<Product> | Promise<InsertResult> {
+    create(entity: Product | ProductDto): Promise<void> {
       return Promise.resolve(undefined);
     },
-    delete(entity: Product): Promise<void> | Promise<DeleteResult> {
+    delete(entity: Product): Promise<void> {
       return Promise.resolve(undefined);
     },
-    find(id: string | number): Promise<Product> | Product {
-      return undefined;
-    },
-    findAll(): Product[] | Promise<Product[]> {
-      return undefined;
-    },
-    update(
-      id: string | number,
-      entity: Product | ProductDto,
-    ): Promise<void> | Promise<Product> | Promise<UpdateResult> {
+    find(id: string | number): Promise<Product> {
       return Promise.resolve(undefined);
     },
-    deleteFromId(id: string | number): Promise<void> | Promise<DeleteResult> {
+    findAll(): Promise<Product[]> {
+      return Promise.resolve([]);
+    },
+    update(id: string | number, entity: Product | ProductDto): Promise<void> {
+      return Promise.resolve(undefined);
+    },
+    deleteFromId(id: string | number): Promise<void> {
       return Promise.resolve(undefined);
     },
   };

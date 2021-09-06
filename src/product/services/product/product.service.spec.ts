@@ -3,6 +3,7 @@ import { ProductService } from '@app/product/services/product/product.service';
 import { Product } from '@app/product/entities/product.entity';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { ProductCategory } from '@app/product/entities/product-category.entity';
 
 describe('ProductService', () => {
   let service: ProductService;
@@ -22,6 +23,7 @@ describe('ProductService', () => {
       providers: [
         ProductService,
         { provide: getRepositoryToken(Product), useClass: Repository },
+        { provide: getRepositoryToken(ProductCategory), useClass: Repository },
       ],
     }).compile();
     service = module.get<ProductService>(ProductService);
