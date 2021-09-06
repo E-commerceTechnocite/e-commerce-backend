@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { ProductModule } from '@app/product/product.module';
-import { ProductCategoryService } from '@app/product/services/product-category/product-category.service';
 
 @Module({
   imports: [
@@ -19,6 +18,5 @@ import { ProductCategoryService } from '@app/product/services/product-category/p
     }),
     ProductModule,
   ],
-  providers: [ProductCategoryService],
 })
 export class ApplicationModule {}
