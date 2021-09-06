@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CrudServiceInterface } from '@app/interfaces/crud-service.interface';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
-import { DeleteResult, InsertResult, Repository, UpdateResult } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductCategoryDto } from '@app/product/dto/product-category/product-category.dto';
 
@@ -19,38 +19,33 @@ export class ProductCategoryService implements ProductCategoryServiceInterface {
     private readonly repository: Repository<ProductCategory>,
   ) {}
 
-  create(
-    entity: ProductCategoryDto,
-  ): Promise<void> | Promise<ProductCategory> | Promise<InsertResult> {
+  async create(entity: ProductCategoryDto): Promise<void> {
     const target: ProductCategory = {
       label: entity.label,
     };
-    return this.repository.save(target);
+    await this.repository.save(target);
   }
 
-  delete(entity: ProductCategory): Promise<void> | Promise<DeleteResult> {
-    return this.repository.delete(entity);
+  async delete(entity: ProductCategory): Promise<void> {
+    await this.repository.delete(entity);
   }
 
-  deleteFromId(id: string | number): Promise<void> | Promise<DeleteResult> {
-    return this.repository.delete(id);
+  async deleteFromId(id: string | number): Promise<void> {
+    await this.repository.delete(id);
   }
 
-  find(id: string | number): Promise<ProductCategory> | ProductCategory {
+  find(id: string | number): Promise<ProductCategory> {
     return this.repository.findOne(id);
   }
 
-  findAll(): ProductCategory[] | Promise<ProductCategory[]> {
+  findAll(): Promise<ProductCategory[]> {
     return this.repository.find();
   }
 
-  update(
-    id: string | number,
-    entity: ProductCategoryDto,
-  ): Promise<void> | Promise<ProductCategory> | Promise<UpdateResult> {
+  async update(id: string | number, entity: ProductCategoryDto): Promise<void> {
     const target: ProductCategory = {
       label: entity.label,
     };
-    return this.repository.update(id, target);
+    await this.repository.update(id, target);
   }
 }

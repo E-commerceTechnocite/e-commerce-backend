@@ -44,21 +44,23 @@ export class ProductController {
   @ApiResponse({ type: Product })
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async create(@Body() product: ProductDto): Promise<any> {
+  async create(@Body() product: ProductDto): Promise<void> {
     return this.productService.create(product);
   }
 
   @ApiBody({ type: Product, required: false })
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id')
   async update(
     @Param('id') id: string,
     @Body() product: ProductDto,
-  ): Promise<any> {
+  ): Promise<void> {
     return this.productService.update(id, product);
   }
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
-  async delete(@Param('id') id: string): Promise<any> {
+  async delete(@Param('id') id: string): Promise<void> {
     return this.productService.deleteFromId(id);
   }
 }

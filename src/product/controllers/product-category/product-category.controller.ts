@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Put,
@@ -27,11 +29,13 @@ export class ProductCategoryController {
     return this.productCategoryService.find(id);
   }
 
+  @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(@Body() category: ProductCategoryDto): Promise<any> {
     return this.productCategoryService.create(category);
   }
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Put(':id')
   async update(
     @Param('id') id: string,
@@ -40,6 +44,7 @@ export class ProductCategoryController {
     return this.productCategoryService.update(id, category);
   }
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<any> {
     return this.productCategoryService.deleteFromId(id);
