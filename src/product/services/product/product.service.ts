@@ -5,7 +5,7 @@ import { DeleteResult, InsertResult, Repository, UpdateResult } from 'typeorm';
 import { CrudServiceInterface } from '@app/interfaces/crud-service.interface';
 
 export interface ProductServiceInterface
-  extends CrudServiceInterface<Product> {}
+  extends CrudServiceInterface<Product, any, any> {}
 
 @Injectable()
 export class ProductService implements ProductServiceInterface {
