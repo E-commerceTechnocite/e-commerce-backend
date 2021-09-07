@@ -8,6 +8,6 @@ export class ProductCategory {
   @Column()
   label: string;
 
-  @OneToMany(() => Product, (product) => product.category)
+  @OneToMany(() => Product, (product) => product.category, { lazy: true })
   products?: Product[];
 }
