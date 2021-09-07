@@ -74,12 +74,18 @@ export class ProductService implements ProductServiceInterface {
     opts: PaginationOptions = null,
   ): Promise<PaginationDto<Product>> {
     const count = await this.productRepository.count();
-    const query = await this.productRepository.createQueryBuilder('p');
+    const query = this.productRepository.createQueryBuilder('p');
     if (opts) {
       const { orderBy } = opts;
       await query.orderBy(orderBy ?? 'id');
     }
     const data = await query
+      .leftJoinAndMapOne(
+        'p.category',
+        ProductCategory,
+        'c',
+        'p.product_category_id = c.id',
+      )
       .skip(index * limit - limit)
       .take(limit)
       .getMany();
