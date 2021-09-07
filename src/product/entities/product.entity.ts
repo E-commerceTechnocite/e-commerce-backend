@@ -30,6 +30,7 @@ export class Product {
   @Column({ type: 'float' })
   price: number;
 
+  @ApiResponseProperty({ type: ProductCategory })
   @ManyToOne(() => ProductCategory, (category) => category.products, {
     eager: true,
   })

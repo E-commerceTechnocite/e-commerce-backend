@@ -41,7 +41,7 @@ export class ProductController {
 
   @ApiCreatedResponse()
   @ApiBody({ type: ProductDto, required: false })
-  @ApiResponse({ type: Product })
+  @ApiResponse({ type: null })
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(@Body() product: ProductDto): Promise<void> {
