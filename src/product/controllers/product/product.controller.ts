@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ProductService } from '@app/product/services/product/product.service';
 import { Product } from '@app/product/entities/product.entity';
@@ -15,10 +16,12 @@ import {
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { ProductDto } from '@app/product/dto/product/product.dto';
+import { PaginationDto } from '@app/dto/pagination/pagination.dto';
 
 @ApiTags('Products')
 @Controller({ path: 'product', version: '1' })
@@ -33,10 +36,15 @@ export class ProductController {
   }
 
   @ApiOkResponse()
-  @ApiResponse({ type: Product, isArray: true })
+  @ApiResponse({ type: PaginationDto })
+  @ApiQuery({ name: 'page', required: false })
+  @ApiQuery({ name: 'limit', required: false })
   @Get()
-  async findAll(): Promise<Product[]> {
-    return this.productService.findAll();
+  async find(
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+  ): Promise<PaginationDto<Product>> {
+    return this.productService.getPage(page, limit);
   }
 
   @ApiCreatedResponse()

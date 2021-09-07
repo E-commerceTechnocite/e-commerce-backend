@@ -5,9 +5,16 @@ import { Repository } from 'typeorm';
 import { CrudServiceInterface } from '@app/interfaces/crud-service.interface';
 import { ProductDto } from '@app/product/dto/product/product.dto';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
+import {
+  PaginationOptions,
+  PaginatorInterface,
+} from '@app/interfaces/paginator.interface';
+import { PaginationMetadataDto } from '@app/dto/pagination/pagination.metadata.dto';
+import { PaginationDto } from '@app/dto/pagination/pagination.dto';
 
 export interface ProductServiceInterface
-  extends CrudServiceInterface<Product, ProductDto, ProductDto> {}
+  extends CrudServiceInterface<Product, ProductDto, ProductDto>,
+    PaginatorInterface<Product> {}
 
 @Injectable()
 export class ProductService implements ProductServiceInterface {
@@ -59,5 +66,27 @@ export class ProductService implements ProductServiceInterface {
     };
     console.log(target);
     await this.productRepository.update(id, target);
+  }
+
+  async getPage(
+    index: number,
+    limit: number,
+    opts: PaginationOptions = {},
+  ): Promise<PaginationDto<Product>> {
+    const count = await this.productRepository.count();
+    const query = await this.productRepository.createQueryBuilder('p');
+    if (opts) {
+      const { orderBy } = opts;
+      await query.orderBy(orderBy ?? 'id');
+    }
+    const data = await query
+      .skip(index * limit - limit)
+      .take(limit)
+      .getMany();
+
+    return {
+      data,
+      meta: new PaginationMetadataDto(index, limit, count),
+    };
   }
 }
