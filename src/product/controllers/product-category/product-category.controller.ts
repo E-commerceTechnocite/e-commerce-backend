@@ -15,7 +15,7 @@ import { ProductCategoryDto } from '@app/product/dto/product-category/product-ca
 import { ApiBody, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Product Categories')
-@Controller('product-category')
+@Controller({ path: 'product-category', version: '1' })
 export class ProductCategoryController {
   constructor(
     private readonly productCategoryService: ProductCategoryService,
