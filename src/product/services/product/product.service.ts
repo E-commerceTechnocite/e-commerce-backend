@@ -9,7 +9,7 @@ import {
   PaginationOptions,
   PaginatorInterface,
 } from '@app/interfaces/paginator.interface';
-import { PaginationMetadataDto } from '@app/dto/pagination/pagination.metadata.dto';
+import { PaginationMetadataDto } from '@app/dto/pagination/pagination-metadata.dto';
 import { PaginationDto } from '@app/dto/pagination/pagination.dto';
 
 export interface ProductServiceInterface
