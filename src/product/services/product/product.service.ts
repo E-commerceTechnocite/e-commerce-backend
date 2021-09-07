@@ -71,7 +71,7 @@ export class ProductService implements ProductServiceInterface {
   async getPage(
     index: number,
     limit: number,
-    opts: PaginationOptions = {},
+    opts: PaginationOptions = null,
   ): Promise<PaginationDto<Product>> {
     const count = await this.productRepository.count();
     const query = await this.productRepository.createQueryBuilder('p');

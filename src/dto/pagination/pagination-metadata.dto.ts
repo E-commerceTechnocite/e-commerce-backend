@@ -2,11 +2,12 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class PaginationMetadataDto {
   constructor(index: number, limit: number, count: number) {
-    this.currentPage = index;
-    this.limit = limit;
-    this.nextPage = index + 1 <= count ? +index + 1 : null;
-    this.prevPage = index - 1 > 0 ? +index - 1 : null;
-    this.maxPages = Math.ceil(count / limit);
+    const maxPages = Math.ceil(count / limit);
+    this.currentPage = +index;
+    this.limit = +limit;
+    this.nextPage = +index + 1 <= maxPages ? +index + 1 : null;
+    this.prevPage = +index - 1 > 0 ? +index - 1 : null;
+    this.maxPages = maxPages;
   }
 
   @ApiProperty()
