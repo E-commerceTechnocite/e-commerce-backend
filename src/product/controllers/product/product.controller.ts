@@ -40,7 +40,7 @@ export class ProductController {
   }
 
   @ApiCreatedResponse()
-  @ApiBody({ type: Product, required: false })
+  @ApiBody({ type: ProductDto, required: false })
   @ApiResponse({ type: Product })
   @HttpCode(HttpStatus.CREATED)
   @Post()

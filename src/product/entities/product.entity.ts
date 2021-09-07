@@ -24,6 +24,8 @@ export class Product {
   @Column({ type: 'float' })
   price: number;
 
-  @ManyToOne(() => ProductCategory)
+  @ManyToOne(() => ProductCategory, (category) => category.products, {
+    eager: true,
+  })
   category: ProductCategory;
 }
