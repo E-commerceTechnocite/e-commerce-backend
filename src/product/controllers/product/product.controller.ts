@@ -48,7 +48,7 @@ export class ProductController {
     return this.productService.create(product);
   }
 
-  @ApiBody({ type: Product, required: false })
+  @ApiBody({ type: ProductDto, required: false })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id')
   async update(
