@@ -29,6 +29,7 @@
     "@nestjs/typeorm": "^8.0.2",
     "cache-manager": "^3.4.4",
     "cache-manager-redis-store": "^2.0.0",
+    "morgan": "^1.10.0",
     "mysql2": "^2.3.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
