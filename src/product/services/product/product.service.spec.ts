@@ -4,12 +4,14 @@ import { Product } from '@app/product/entities/product.entity';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
+import { mock } from 'jest-mock-extended';
 
 describe('ProductService', () => {
   let service: ProductService;
-  // Mock implementation for the product repository
-  let repository: Repository<Product>;
-  const item: Product = {
+  const productRepository = mock<Repository<Product>>();
+  const categoryRepository = mock<Repository<ProductCategory>>();
+
+  const productStub: Product = {
     category: undefined,
     title: 'title',
     reference: '1234',
@@ -22,31 +24,32 @@ describe('ProductService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ProductService,
-        { provide: getRepositoryToken(Product), useClass: Repository },
-        { provide: getRepositoryToken(ProductCategory), useClass: Repository },
+        { provide: getRepositoryToken(Product), useValue: productRepository },
+        {
+          provide: getRepositoryToken(ProductCategory),
+          useValue: categoryRepository,
+        },
       ],
     }).compile();
     service = module.get<ProductService>(ProductService);
-
-    repository = module.get<Repository<Product>>(getRepositoryToken(Product));
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  describe('findall', () => {
+  describe('findAll', () => {
     it('should return a list of products', async () => {
-      const products: Product[] = [item];
-      jest.spyOn(repository, 'find').mockResolvedValueOnce(products);
+      const products: Product[] = [productStub];
+      productRepository.find.mockResolvedValueOnce(products);
       expect(await service.findAll()).toEqual(products);
     });
   });
 
   describe('findOne', () => {
     it('should return a product', async () => {
-      const product: Product = item;
-      jest.spyOn(repository, 'findOne').mockResolvedValueOnce(product);
+      const product: Product = productStub;
+      productRepository.findOne.mockResolvedValueOnce(product);
       expect(await service.find('1')).toEqual(product);
     });
   });

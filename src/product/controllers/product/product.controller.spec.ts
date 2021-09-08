@@ -1,45 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProductController } from '@app/product/controllers/product/product.controller';
-import {
-  ProductService,
-  ProductServiceInterface,
-} from '@app/product/services/product/product.service';
+import { ProductService } from '@app/product/services/product/product.service';
 import { Product } from '@app/product/entities/product.entity';
-import { ProductDto } from '@app/product/dto/product/product.dto';
 import { PaginationDto } from '@app/dto/pagination/pagination.dto';
-import { PaginationOptions } from '@app/interfaces/paginator.interface';
+import { mock } from 'jest-mock-extended';
 
 describe('ProductController', () => {
   let controller: ProductController;
-  // Mock implementation of the product service
-  const service: ProductServiceInterface = {
-    getPage(
-      index: number,
-      limit: number,
-      opts: PaginationOptions | undefined,
-    ): Promise<PaginationDto<Product>> {
-      return Promise.resolve(undefined);
-    },
-    create(entity: Product | ProductDto): Promise<void> {
-      return Promise.resolve(undefined);
-    },
-    delete(entity: Product): Promise<void> {
-      return Promise.resolve(undefined);
-    },
-    find(id: string | number): Promise<Product> {
-      return Promise.resolve(undefined);
-    },
-    findAll(): Promise<Product[]> {
-      return Promise.resolve([]);
-    },
-    update(id: string | number, entity: Product | ProductDto): Promise<void> {
-      return Promise.resolve(undefined);
-    },
-    deleteFromId(id: string | number): Promise<void> {
-      return Promise.resolve(undefined);
-    },
-  };
-  const item: Product = {
+
+  const service = mock<ProductService>();
+
+  const productStub: Product = {
     category: undefined,
     price: 39.99,
     reference: '1234',
@@ -51,11 +22,8 @@ describe('ProductController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ProductController],
-      providers: [ProductService],
-    })
-      .overrideProvider(ProductService)
-      .useValue(service)
-      .compile();
+      providers: [{ provide: ProductService, useValue: service }],
+    }).compile();
 
     controller = module.get<ProductController>(ProductController);
   });
@@ -65,9 +33,9 @@ describe('ProductController', () => {
   });
 
   describe('find', () => {
-    it('should return an array of products', async () => {
+    it('should return an pagination of products', async () => {
       const pagination: PaginationDto<Product> = {
-        data: [item],
+        data: [productStub],
         meta: {
           currentPage: 1,
           limit: 1,
@@ -76,8 +44,20 @@ describe('ProductController', () => {
           nextPage: null,
         },
       };
-      jest.spyOn(service, 'getPage').mockResolvedValueOnce(pagination);
+      await service.getPage(1, 10);
+      await service.getPage.mockResolvedValue(pagination);
       expect(await controller.find()).toEqual(pagination);
+      expect(service.getPage).toHaveBeenCalledWith(1, 10);
+    });
+  });
+
+  describe('findById', () => {
+    it('should return one product', async () => {
+      const product = productStub;
+      await service.find.mockResolvedValueOnce(product);
+      await service.find('1');
+      expect(await controller.findById('1')).toEqual(product);
+      expect(service.find).toHaveBeenCalledWith('1');
     });
   });
 });
