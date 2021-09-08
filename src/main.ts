@@ -12,6 +12,8 @@ async function bootstrap() {
     .setTitle('E-commerce endpoints documentation')
     .build();
 
+  app.enableCors({ origin: 'http://localhost:8080' });
+
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('', app, document);
 
