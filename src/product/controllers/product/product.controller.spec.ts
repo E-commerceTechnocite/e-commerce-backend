@@ -54,7 +54,7 @@ describe('ProductController', () => {
   describe('findById', () => {
     it('should return one product', async () => {
       const product = productStub;
-      await service.find.mockResolvedValueOnce(product);
+      await service.find.mockResolvedValue(product);
       await service.find('1');
       expect(await controller.findById('1')).toEqual(product);
       expect(service.find).toHaveBeenCalledWith('1');
