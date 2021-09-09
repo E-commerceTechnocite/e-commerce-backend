@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CrudServiceInterface } from '@app/interfaces/crud-service.interface';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
 import { Repository } from 'typeorm';
@@ -21,21 +25,33 @@ export class ProductCategoryService implements ProductCategoryServiceInterface {
 
   async create(entity: ProductCategoryDto): Promise<void> {
     const target: ProductCategory = {
-      label: entity.label,
+      ...entity,
     };
-    await this.repository.save(target);
+    await this.repository.save(target).catch(() => {
+      throw new BadRequestException();
+    });
   }
 
   async delete(entity: ProductCategory): Promise<void> {
-    await this.repository.delete(entity);
+    const result = await this.repository.delete(entity);
+    if (result.affected < 1) {
+      throw new BadRequestException('Category not found or already deleted');
+    }
   }
 
   async deleteFromId(id: string | number): Promise<void> {
-    await this.repository.delete(id);
+    const result = await this.repository.delete(id);
+    if (result.affected < 1) {
+      throw new BadRequestException('Category not found or already deleted');
+    }
   }
 
-  find(id: string | number): Promise<ProductCategory> {
-    return this.repository.findOne(id);
+  async find(id: string | number): Promise<ProductCategory> {
+    const category = await this.repository.findOne(id);
+    if (!category) {
+      throw new NotFoundException();
+    }
+    return category;
   }
 
   findAll(): Promise<ProductCategory[]> {
@@ -46,6 +62,9 @@ export class ProductCategoryService implements ProductCategoryServiceInterface {
     const target: ProductCategory = {
       label: entity.label,
     };
-    await this.repository.update(id, target);
+    const result = await this.repository.update(id, target);
+    if (result.affected < 1) {
+      throw new BadRequestException(`Category not found with id ${id}`);
+    }
   }
 }

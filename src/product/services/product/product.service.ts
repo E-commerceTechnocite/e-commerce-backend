@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from '@app/product/entities/product.entity';
 import { Repository } from 'typeorm';
@@ -29,6 +33,12 @@ export class ProductService implements ProductServiceInterface {
     const category = await this.productCategoryRepository.findOne(
       entity.categoryId,
     );
+    console.log(category);
+    if (!category) {
+      throw new BadRequestException(
+        `Category not found at id ${entity.categoryId}`,
+      );
+    }
     delete entity.categoryId;
     const target: Product = {
       ...entity,
@@ -38,15 +48,25 @@ export class ProductService implements ProductServiceInterface {
   }
 
   async delete(entity: Product): Promise<void> {
-    await this.productRepository.delete(entity);
+    const result = await this.productRepository.delete(entity);
+    if (result.affected < 1) {
+      throw new BadRequestException(`Product not found or already deleted`);
+    }
   }
 
   async deleteFromId(id: string | number): Promise<void> {
-    await this.productRepository.delete(id);
+    const result = await this.productRepository.delete(id);
+    if (result.affected < 1) {
+      throw new BadRequestException(`Product not found or already deleted`);
+    }
   }
 
-  find(id: string | number): Promise<Product> {
-    return this.productRepository.findOne(id);
+  async find(id: string | number): Promise<Product> {
+    const product = await this.productRepository.findOne(id);
+    if (!product) {
+      throw new NotFoundException();
+    }
+    return product;
   }
 
   findAll(): Promise<Product[]> {
@@ -57,7 +77,15 @@ export class ProductService implements ProductServiceInterface {
     const category = await this.productCategoryRepository.findOne(
       entity.categoryId,
     );
+    if (!category) {
+      throw new BadRequestException(
+        `Category not found with id ${entity.categoryId}`,
+      );
+    }
     const product = await this.productRepository.findOne(id);
+    if (!product) {
+      throw new BadRequestException(`Product not found with id ${id}`);
+    }
     delete entity.categoryId;
     const target: Product = {
       ...product,
@@ -74,6 +102,10 @@ export class ProductService implements ProductServiceInterface {
     opts: PaginationOptions = null,
   ): Promise<PaginationDto<Product>> {
     const count = await this.productRepository.count();
+    const meta = new PaginationMetadataDto(index, limit, count);
+    if (meta.currentPage > meta.maxPages) {
+      throw new NotFoundException('This page of products does not exist');
+    }
     const query = this.productRepository.createQueryBuilder('p');
     if (opts) {
       const { orderBy } = opts;
@@ -92,7 +124,7 @@ export class ProductService implements ProductServiceInterface {
 
     return {
       data,
-      meta: new PaginationMetadataDto(index, limit, count),
+      meta,
     };
   }
 }
