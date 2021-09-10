@@ -4,9 +4,17 @@ import { ApplicationConfigurationModule } from '@app/configuration/application-c
 import * as morgan from 'morgan';
 import { ConfigService } from '@nestjs/config';
 import { SharedModule } from './shared/shared.module';
+import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
 
 @Module({
-  imports: [ApplicationConfigurationModule, ProductModule, SharedModule],
+  imports: [
+    ApplicationConfigurationModule,
+    ProductModule,
+    SharedModule,
+    AuthModule,
+    UserModule,
+  ],
 })
 export class ApplicationModule implements NestModule {
   constructor(private readonly config: ConfigService) {}
