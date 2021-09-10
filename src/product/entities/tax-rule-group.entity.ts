@@ -10,5 +10,5 @@ export class TaxRuleGroup {
   name: string;
 
   @OneToMany(()=>TaxRule,(taxRule)=>taxRule.taxRuleGroup)
-  taxRules : TaxRule[];
+  taxRules ?: TaxRule[];
 }

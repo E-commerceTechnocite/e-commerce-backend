@@ -16,6 +16,6 @@ export class Country {
   @Column()
   code: string;
 
-  @OneToMany(() => TaxRule, (taxRule) => taxRule.country)
-  taxRules: TaxRule[];
+  @OneToMany(() => TaxRule, (taxRule) => taxRule.country, { lazy: true })
+  taxRules?: TaxRule[];
 }

@@ -13,5 +13,5 @@ export class Tax {
   rate: number;
 
   @OneToMany(() => TaxRule, (taxRule) => taxRule.tax)
-  taxRules: TaxRule[];
+  taxRules?: TaxRule[];
 }
