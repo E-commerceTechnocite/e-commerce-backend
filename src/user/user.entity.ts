@@ -1,9 +1,10 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Role } from '@app/auth/roles.decorator';
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id?: string;
 
   @Column({ unique: true })
   username: string;
@@ -13,4 +14,7 @@ export class User {
 
   @Column()
   password: string;
+
+  @Column({ type: 'enum', enum: Role })
+  roles: Role[];
 }

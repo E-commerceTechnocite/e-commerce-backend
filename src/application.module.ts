@@ -6,6 +6,8 @@ import { ConfigService } from '@nestjs/config';
 import { SharedModule } from './shared/shared.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from '@app/auth/roles.guard';
 
 @Module({
   imports: [
@@ -14,6 +16,12 @@ import { UserModule } from './user/user.module';
     SharedModule,
     AuthModule,
     UserModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
   ],
 })
 export class ApplicationModule implements NestModule {

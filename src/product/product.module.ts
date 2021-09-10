@@ -7,9 +7,14 @@ import { ProductCategoryService } from '@app/product/services/product-category/p
 import { ProductCategory } from '@app/product/entities/product-category.entity';
 import { ProductCategoryController } from '@app/product/controllers/product-category/product-category.controller';
 import { SharedModule } from '@app/shared/shared.module';
+import { AuthModule } from '@app/auth/auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ProductCategory, Product]), SharedModule],
+  imports: [
+    TypeOrmModule.forFeature([ProductCategory, Product]),
+    SharedModule,
+    AuthModule,
+  ],
   controllers: [ProductController, ProductCategoryController],
   providers: [ProductService, ProductCategoryService],
   exports: [ProductService, ProductCategoryService],

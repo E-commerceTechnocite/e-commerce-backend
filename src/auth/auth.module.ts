@@ -20,5 +20,6 @@ import { AuthStrategy } from '@app/auth/auth-strategy.service';
   ],
   providers: [AuthService, AuthStrategy],
   controllers: [OAuthController],
+  exports: [PassportModule, JwtModule, AuthService, AuthStrategy],
 })
 export class AuthModule {}
