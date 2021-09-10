@@ -22,6 +22,7 @@ import {
 } from '@nestjs/swagger';
 import { ProductDto } from '@app/product/dto/product/product.dto';
 import { PaginationDto } from '@app/dto/pagination/pagination.dto';
+import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 
 @ApiTags('Products')
 @Controller({ path: 'product', version: '1' })
@@ -41,8 +42,8 @@ export class ProductController {
   @ApiQuery({ name: 'limit', required: false })
   @Get()
   async find(
-    @Query('page') page = 1,
-    @Query('limit') limit = 10,
+    @Query('page', IsPositiveIntPipe) page = 1,
+    @Query('limit', IsPositiveIntPipe) limit = 10,
   ): Promise<PaginationDto<Product>> {
     return this.productService.getPage(page, limit);
   }
