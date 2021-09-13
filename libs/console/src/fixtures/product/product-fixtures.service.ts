@@ -15,22 +15,27 @@ export class ProductFixturesService {
   ) {}
 
   async load() {
-    const category: ProductCategory = {
-      label: faker.commerce.productAdjective(),
-    };
-    const savedCategory: ProductCategory = await this.categoryRepo.save(
-      category,
+    const categories: ProductCategory[] = [];
+    const products: Product[] = [];
+    for (let i = 0; i < 6; i++) {
+      categories.push({
+        label: faker.commerce.productAdjective(),
+      });
+    }
+    const savedCategories: ProductCategory[] = await this.categoryRepo.save(
+      categories,
     );
-    for (let i = 0; i < 10; i++) {
-      const product: Product = {
+    for (let i = 0; i < 50; i++) {
+      products.push({
         reference: faker.random.alphaNumeric(10),
         title: faker.commerce.product(),
         price: +faker.commerce.price(1, 100, 2),
         description: faker.random.words(50),
-        category: savedCategory,
-      };
-      await this.productRepo.save(product);
+        category:
+          savedCategories[Math.floor(Math.random() * savedCategories.length)],
+      });
     }
+    await this.productRepo.save(products);
   }
 
   async clean() {
