@@ -7,9 +7,24 @@ import { ProductFixturesService } from '@app/console/fixtures/product/product-fi
 import { User } from '@app/user/entities/user.entity';
 import { UserFixturesService } from '@app/console/fixtures/user/user-fixtures.service';
 import { Role } from '@app/user/entities/role.entity';
+import { Country } from '@app/product/entities/country.entity';
+import { Tax } from '@app/product/entities/tax.entity';
+import { TaxRule } from '@app/product/entities/tax-rule.entity';
+import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product, ProductCategory, User, Role])],
+  imports: [
+    TypeOrmModule.forFeature([
+      Product,
+      ProductCategory,
+      User,
+      Role,
+      Country,
+      Tax,
+      TaxRule,
+      TaxRuleGroup,
+    ]),
+  ],
   providers: [
     FixturesService,
     ProductFixturesService,
