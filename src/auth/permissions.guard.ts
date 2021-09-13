@@ -8,12 +8,13 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { Reflector } from '@nestjs/core';
-import { Role, ROLES_KEY } from '@app/auth/roles.decorator';
+import { PERMISSIONS_KEY } from '@app/auth/roles.decorator';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '@app/user/user.entity';
+import { User } from '@app/user/entities/user.entity';
+import { Permission } from '@app/user/enums/permission.enum';
 
 @Injectable()
-export class RolesGuard implements CanActivate {
+export class PermissionsGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     private readonly jwt: JwtService,
@@ -22,11 +23,11 @@ export class RolesGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
-    if (!requiredRoles) {
+    const requiredPermissions = this.reflector.getAllAndOverride<Permission[]>(
+      PERMISSIONS_KEY,
+      [context.getHandler(), context.getClass()],
+    );
+    if (!requiredPermissions) {
       return true;
     }
     const token = context
@@ -45,8 +46,8 @@ export class RolesGuard implements CanActivate {
     }
 
     console.log(user);
-    const canActivate = requiredRoles.some((role) =>
-      user.roles?.includes(role),
+    const canActivate = requiredPermissions.some((permission) =>
+      user.role?.permissions.includes(permission),
     );
     if (!canActivate) {
       throw new UnauthorizedException();

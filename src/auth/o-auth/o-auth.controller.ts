@@ -1,28 +1,15 @@
-import {
-  Body,
-  Controller,
-  InternalServerErrorException,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { UserDto } from '@app/user/user.dto';
-import { JwtService } from '@nestjs/jwt';
-import { User } from '@app/user/user.entity';
-import { Role } from '@app/auth/roles.decorator';
+import { OAuthService } from '@app/auth/o-auth/o-auth.service';
 
 @ApiTags('Security')
 @Controller({ path: 'o-auth', version: '1' })
 export class OAuthController {
-  constructor(private readonly jwt: JwtService) {}
+  constructor(private readonly oAuthService: OAuthService) {}
 
   @Post('login')
-  login(@Body() user: UserDto) {
-    const entity: User = {
-      ...user,
-      roles: [Role.User],
-      email: 'user.username@test.com',
-    };
-    return this.jwt.sign(entity);
-    throw new InternalServerErrorException('Not yet implemented');
+  async login(@Body() user: UserDto) {
+    return await this.oAuthService.login(user);
   }
 }

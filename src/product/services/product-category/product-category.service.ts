@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CrudServiceInterface } from '@app/interfaces/crud-service.interface';
+import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';

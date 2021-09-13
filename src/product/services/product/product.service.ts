@@ -6,15 +6,15 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from '@app/product/entities/product.entity';
 import { Repository } from 'typeorm';
-import { CrudServiceInterface } from '@app/interfaces/crud-service.interface';
+import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
 import { ProductDto } from '@app/product/dto/product/product.dto';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
 import {
   PaginationOptions,
   PaginatorInterface,
-} from '@app/interfaces/paginator.interface';
-import { PaginationMetadataDto } from '@app/dto/pagination/pagination-metadata.dto';
-import { PaginationDto } from '@app/dto/pagination/pagination.dto';
+} from '@app/shared/interfaces/paginator.interface';
+import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
+import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 
 export interface ProductServiceInterface
   extends CrudServiceInterface<Product, ProductDto, ProductDto>,

@@ -7,6 +7,9 @@ import { AuthConfigurationService } from '@app/auth/auth-configuration.service';
 import { UserModule } from '@app/user/user.module';
 import { PassportModule } from '@nestjs/passport';
 import { AuthStrategy } from '@app/auth/auth-strategy.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '@app/user/entities/user.entity';
+import { OAuthService } from '@app/auth/o-auth/o-auth.service';
 
 @Module({
   imports: [
@@ -17,8 +20,9 @@ import { AuthStrategy } from '@app/auth/auth-strategy.service';
       useClass: AuthConfigurationService,
       inject: [ConfigService],
     }),
+    TypeOrmModule.forFeature([User]),
   ],
-  providers: [AuthService, AuthStrategy],
+  providers: [AuthService, AuthStrategy, OAuthService],
   controllers: [OAuthController],
   exports: [PassportModule, JwtModule, AuthService, AuthStrategy],
 })
