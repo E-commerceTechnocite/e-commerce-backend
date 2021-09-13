@@ -39,7 +39,7 @@ export class ProductFixturesService {
   }
 
   async clean() {
-    await this.productRepo.clear();
-    await this.categoryRepo.clear();
+    await this.productRepo.delete({});
+    await this.categoryRepo.delete({});
   }
 }
