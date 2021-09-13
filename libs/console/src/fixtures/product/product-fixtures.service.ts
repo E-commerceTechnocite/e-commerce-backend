@@ -4,9 +4,10 @@ import { Product } from '@app/product/entities/product.entity';
 import { Repository } from 'typeorm';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
 import * as faker from 'faker';
+import { FixturesInterface } from '@app/console/fixtures/fixtures.interface';
 
 @Injectable()
-export class ProductFixturesService {
+export class ProductFixturesService implements FixturesInterface {
   constructor(
     @InjectRepository(Product)
     private readonly productRepo: Repository<Product>,

@@ -4257,6 +4257,18 @@ neo-async@^2.6.2:
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.6.2.tgz#b4aafb93e3aeb2d8174ca53cf163ab7d7308305f"
   integrity sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==
 
+nestjs-console@^7.0.0:
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/nestjs-console/-/nestjs-console-7.0.0.tgz#b2fe1c38c5836ba9322e46c408cd6d9e02f26daa"
+  integrity sha512-TtmPTnNLRmI2nK6/fZwujKBmsadkESzRQUdsaAlLtjE5wUMdCuYBdQrUVKeIO50nTj6TVWRwAlAUBiXLXKJAIg==
+  dependencies:
+    ora "5.4.1"
+
+node-addon-api@^3.1.0:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-3.2.1.tgz#81325e0a2117789c0128dab65e7e38f07ceba161"
+  integrity sha512-mmcei9JghVNDYydghQmeDX8KoAm0FAiYyIcUt/N4nhyAipB17pllZQDOJD2fotxABnt4Mdz+dKTO7eftLg4d0A==
+
 node-emoji@1.10.0:
   version "1.10.0"
   resolved "https://registry.yarnpkg.com/node-emoji/-/node-emoji-1.10.0.tgz#8886abd25d9c7bb61802a658523d1f8d2a89b2da"
