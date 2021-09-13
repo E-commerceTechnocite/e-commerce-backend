@@ -5,7 +5,6 @@ import { TaxRule } from './tax-rule.entity';
 
 @Entity()
 export class TaxRuleGroup {
-
   @ApiResponseProperty()
   @PrimaryGeneratedColumn('uuid')
   id?: string;
@@ -14,9 +13,9 @@ export class TaxRuleGroup {
   @Column()
   name: string;
 
-  @OneToMany(()=>TaxRule,(taxRule)=>taxRule.taxRuleGroup)
-  taxRules ?: TaxRule[];
+  @OneToMany(() => TaxRule, (taxRule) => taxRule.taxRuleGroup, { lazy: true })
+  taxRules?: TaxRule[];
 
-  @OneToMany(()=> Product, (product)=> product.taxRuleGroup)
-  products ?: Product[];
+  @OneToMany(() => Product, (product) => product.taxRuleGroup, { lazy: true })
+  products?: Product[];
 }

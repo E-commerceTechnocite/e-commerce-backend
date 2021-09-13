@@ -2,7 +2,7 @@ import { ApiProperty, ApiResponseProperty } from '@nestjs/swagger';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { TaxRule } from './tax-rule.entity';
 
-Entity();
+ @Entity()
 export class Tax {
   @ApiResponseProperty()
   @PrimaryGeneratedColumn('uuid')

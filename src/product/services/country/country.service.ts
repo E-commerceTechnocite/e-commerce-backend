@@ -1,4 +1,10 @@
+import { PaginationMetadataDto } from '@app/dto/pagination/pagination-metadata.dto';
+import { PaginationDto } from '@app/dto/pagination/pagination.dto';
 import { CrudServiceInterface } from '@app/interfaces/crud-service.interface';
+import {
+  PaginationOptions,
+  PaginatorInterface,
+} from '@app/interfaces/paginator.interface';
 import { CountryDto } from '@app/product/dto/country/country.dto';
 import { Country } from '@app/product/entities/country.entity';
 import {
@@ -11,12 +17,43 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class CountryService
-  implements CrudServiceInterface<Country, CountryDto, CountryDto>
+  implements
+    CrudServiceInterface<Country, CountryDto, CountryDto>,
+    PaginatorInterface<Country>
 {
   constructor(
     @InjectRepository(Country)
     private readonly countryRepository: Repository<Country>,
   ) {}
+
+  async getPage(
+    index: number,
+    limit: number,
+    opts?: PaginationOptions,
+  ): Promise<PaginationDto<Country>> {
+    const count = await this.countryRepository.count();
+    const meta = new PaginationMetadataDto(index, limit, count);
+    if (meta.currentPage > meta.maxPages) {
+      throw new NotFoundException(
+        'This page of product-category does not exist',
+      );
+    }
+
+    const query = this.countryRepository.createQueryBuilder('country');
+    if (opts) {
+      const { orderBy } = opts;
+      await query.orderBy(orderBy ?? 'id');
+    }
+    const data = await query
+
+      .skip(index * limit - limit)
+      .take(limit)
+      .getMany();
+    return {
+      data,
+      meta,
+    };
+  }
 
   async find(id: string | number): Promise<Country> {
     const country = await this.countryRepository.findOne(id);

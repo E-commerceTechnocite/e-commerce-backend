@@ -1,4 +1,7 @@
+import { PaginationMetadataDto } from '@app/dto/pagination/pagination-metadata.dto';
+import { PaginationDto } from '@app/dto/pagination/pagination.dto';
 import { CrudServiceInterface } from '@app/interfaces/crud-service.interface';
+import { PaginationOptions, PaginatorInterface } from '@app/interfaces/paginator.interface';
 import { TaxDto } from '@app/product/dto/tax/tax.dto';
 import { Tax } from '@app/product/entities/tax.entity';
 import {
@@ -10,11 +13,39 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class TaxService implements CrudServiceInterface<Tax, TaxDto, TaxDto> {
+export class TaxService
+  implements CrudServiceInterface<Tax, TaxDto, TaxDto>, PaginatorInterface<Tax>
+{
   constructor(
     @InjectRepository(Tax)
     private readonly taxRepository: Repository<Tax>,
   ) {}
+
+
+  async getPage(index: number, limit: number, opts?: PaginationOptions): Promise<PaginationDto<Tax>> {
+    const count = await this.taxRepository.count();
+    const meta = new PaginationMetadataDto(index, limit, count);
+    if (meta.currentPage > meta.maxPages) {
+      throw new NotFoundException(
+        'This page of taxes does not exist',
+      );
+    }
+
+    const query = this.taxRepository.createQueryBuilder('t');
+    if (opts) {
+      const { orderBy } = opts;
+      await query.orderBy(orderBy ?? 'id');
+    }
+    const data = await query
+
+      .skip(index * limit - limit)
+      .take(limit)
+      .getMany();
+    return {
+      data,
+      meta,
+    };
+  }
 
   async find(id: string | number): Promise<Tax> {
     const tax = await this.taxRepository.findOne(id);

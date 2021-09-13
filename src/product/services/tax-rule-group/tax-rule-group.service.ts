@@ -1,4 +1,7 @@
+import { PaginationMetadataDto } from '@app/dto/pagination/pagination-metadata.dto';
+import { PaginationDto } from '@app/dto/pagination/pagination.dto';
 import { CrudServiceInterface } from '@app/interfaces/crud-service.interface';
+import { PaginationOptions, PaginatorInterface } from '@app/interfaces/paginator.interface';
 import { TaxRuleGroupDto } from '@app/product/dto/tax-rule-group/tax-rule-group.dto';
 
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
@@ -13,12 +16,41 @@ import { Repository } from 'typeorm';
 @Injectable()
 export class TaxRuleGroupService
   implements
-    CrudServiceInterface<TaxRuleGroup, TaxRuleGroupDto, TaxRuleGroupDto>
+    CrudServiceInterface<TaxRuleGroup, TaxRuleGroupDto, TaxRuleGroupDto>,
+    PaginatorInterface<TaxRuleGroup>
 {
   constructor(
     @InjectRepository(TaxRuleGroup)
     private readonly taxRuleGroupRepository: Repository<TaxRuleGroup>,
   ) {}
+
+
+
+
+  async getPage(index: number, limit: number, opts?: PaginationOptions): Promise<PaginationDto<TaxRuleGroup>> {
+    const count = await this.taxRuleGroupRepository.count();
+    const meta = new PaginationMetadataDto(index, limit, count);
+    if (meta.currentPage > meta.maxPages) {
+      throw new NotFoundException(
+        'This page of TaxRuleGroup does not exist',
+      );
+    }
+
+    const query = this.taxRuleGroupRepository.createQueryBuilder('trg');
+    if (opts) {
+      const { orderBy } = opts;
+      await query.orderBy(orderBy ?? 'id');
+    }
+    const data = await query
+
+      .skip(index * limit - limit)
+      .take(limit)
+      .getMany();
+    return {
+      data,
+      meta,
+    };
+  }
 
   async find(id: string | number): Promise<TaxRuleGroup> {
     const taxRuleGroup = await this.taxRuleGroupRepository.findOne(id);

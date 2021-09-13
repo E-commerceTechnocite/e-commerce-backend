@@ -1,6 +1,8 @@
+import { PaginationDto } from '@app/dto/pagination/pagination.dto';
 import { CountryDto } from '@app/product/dto/country/country.dto';
 import { Country } from '@app/product/entities/country.entity';
 import { CountryService } from '@app/product/services/country/country.service';
+import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import {
   Body,
   Controller,
@@ -11,18 +13,38 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
-import { ApiBody, ApiOkResponse, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOkResponse,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
+@ApiTags('Country')
 @Controller({ path: 'country', version: '1' })
 export class CountryController {
   constructor(private readonly countryService: CountryService) {}
 
+  // @ApiOkResponse()
+  // @ApiResponse({ type: Country, isArray: true })
+  // @Get()
+  // async findAll(): Promise<Country[]> {
+  //   return this.countryService.findAll();
+  // }
+
   @ApiOkResponse()
-  @ApiResponse({ type: Country, isArray: true })
+  @ApiResponse({ type: PaginationDto })
+  @ApiQuery({ name: 'page', required: false })
+  @ApiQuery({ name: 'limit', required: false })
   @Get()
-  async findAll(): Promise<Country[]> {
-    return this.countryService.findAll();
+  async find(
+    @Query('page', IsPositiveIntPipe) page = 1,
+    @Query('limit', IsPositiveIntPipe) limit = 10,
+  ): Promise<PaginationDto<Country>> {
+    return this.countryService.getPage(page, limit);
   }
 
   @ApiOkResponse()
@@ -50,7 +72,6 @@ export class CountryController {
   ): Promise<any> {
     return this.countryService.update(id, country);
   }
-
 
   @ApiResponse({ type: null })
   @HttpCode(HttpStatus.NO_CONTENT)

@@ -1,4 +1,7 @@
+import { PaginationMetadataDto } from '@app/dto/pagination/pagination-metadata.dto';
+import { PaginationDto } from '@app/dto/pagination/pagination.dto';
 import { CrudServiceInterface } from '@app/interfaces/crud-service.interface';
+import { PaginationOptions, PaginatorInterface } from '@app/interfaces/paginator.interface';
 import { TaxRuleDto } from '@app/product/dto/tax-rule/tax-rule.dto';
 import { Country } from '@app/product/entities/country.entity';
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
@@ -14,7 +17,8 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class TaxRuleService
-  implements CrudServiceInterface<TaxRule, TaxRuleDto, TaxRuleDto>
+  implements CrudServiceInterface<TaxRule, TaxRuleDto, TaxRuleDto>,
+  PaginatorInterface<TaxRule>
 {
   constructor(
     @InjectRepository(TaxRule)
@@ -29,6 +33,31 @@ export class TaxRuleService
     @InjectRepository(Country)
     private readonly countryRepository: Repository<Country>,
   ) {}
+
+
+
+  async getPage(index: number, limit: number, opts?: PaginationOptions): Promise<PaginationDto<TaxRule>> {
+    const count = await this.taxRuleRepository.count();
+    const meta = new PaginationMetadataDto(index, limit, count);
+    if (meta.currentPage > meta.maxPages) {
+      throw new NotFoundException('This page of products does not exist');
+    }
+    const query = this.taxRuleRepository.createQueryBuilder('tr');
+    if (opts) {
+      const { orderBy } = opts;
+      await query.orderBy(orderBy ?? 'id');
+    }
+    const data = await query
+      
+      .skip(index * limit - limit)
+      .take(limit)
+      .getMany();
+
+    return {
+      data,
+      meta,
+    };
+  }
 
   async find(id: string | number): Promise<TaxRule> {
     const target = await this.taxRuleRepository.findOne(id);

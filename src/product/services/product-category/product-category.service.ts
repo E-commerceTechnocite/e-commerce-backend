@@ -8,13 +8,20 @@ import { ProductCategory } from '@app/product/entities/product-category.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductCategoryDto } from '@app/product/dto/product-category/product-category.dto';
+import {
+  PaginationOptions,
+  PaginatorInterface,
+} from '@app/interfaces/paginator.interface';
+import { PaginationDto } from '@app/dto/pagination/pagination.dto';
+import { PaginationMetadataDto } from '@app/dto/pagination/pagination-metadata.dto';
 
 export interface ProductCategoryServiceInterface
   extends CrudServiceInterface<
-    ProductCategory,
-    ProductCategoryDto,
-    ProductCategoryDto
-  > {}
+      ProductCategory,
+      ProductCategoryDto,
+      ProductCategoryDto
+    >,
+    PaginatorInterface<ProductCategory> {}
 
 @Injectable()
 export class ProductCategoryService implements ProductCategoryServiceInterface {
@@ -22,6 +29,35 @@ export class ProductCategoryService implements ProductCategoryServiceInterface {
     @InjectRepository(ProductCategory)
     private readonly repository: Repository<ProductCategory>,
   ) {}
+
+  async getPage(
+    index: number,
+    limit: number,
+    opts?: PaginationOptions,
+  ): Promise<PaginationDto<ProductCategory>> {
+    const count = await this.repository.count();
+    const meta = new PaginationMetadataDto(index, limit, count);
+    if (meta.currentPage > meta.maxPages) {
+      throw new NotFoundException(
+        'This page of product-category does not exist',
+      );
+    }
+
+    const query = this.repository.createQueryBuilder('c');
+    if (opts) {
+      const { orderBy } = opts;
+      await query.orderBy(orderBy ?? 'id');
+    }
+    const data = await query
+
+      .skip(index * limit - limit)
+      .take(limit)
+      .getMany();
+    return {
+      data,
+      meta,
+    };
+  }
 
   async create(entity: ProductCategoryDto): Promise<void> {
     const target: ProductCategory = {

@@ -22,6 +22,7 @@ export class TaxRuleDto {
   @IsNotEmpty()
   zipCode: string;
 
+  @ApiProperty({ required: false })
   @IsNumber()
   @IsNotEmpty()
   behavior: number;

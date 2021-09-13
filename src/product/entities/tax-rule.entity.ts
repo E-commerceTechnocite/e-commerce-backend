@@ -16,15 +16,15 @@ export class TaxRule {
   @PrimaryGeneratedColumn('uuid')
   id?: string;
 
-  @ApiResponseProperty({ type: TaxRuleGroup })
-  @ManyToOne(() => TaxRuleGroup, (taxRuleGroup) => taxRuleGroup.taxRules, {
+  @ApiResponseProperty({ type: ()=> TaxRuleGroup })
+  @ManyToOne(() => TaxRuleGroup, (taxRuleGroup) => taxRuleGroup.taxRules,{
     eager: true,
   })
   @JoinColumn({ name: 'tax_rule_group_id', referencedColumnName: 'id' })
-  taxRuleGroup: TaxRuleGroup;
+  taxRuleGroup?: TaxRuleGroup;
 
   @ApiResponseProperty({ type: Tax })
-  @ManyToOne(() => Tax, (tax) => tax.taxRules, {
+  @ManyToOne(() => Tax, (tax) => tax.taxRules,{
     eager: true,
   })
   @JoinColumn({ name: 'tax_id', referencedColumnName: 'id' })

@@ -15,9 +15,13 @@ import { CountryService } from './services/country/country.service';
 import { TaxService } from './services/tax/tax.service';
 import { TaxRuleService } from './services/tax-rule/tax-rule.service';
 import { TaxRuleGroupService } from './services/tax-rule-group/tax-rule-group.service';
+import { Tax } from './entities/tax.entity';
+import { TaxRule } from './entities/tax-rule.entity';
+import { TaxRuleGroup } from './entities/tax-rule-group.entity';
+import { Country } from './entities/country.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ProductCategory, Product]), SharedModule],
+  imports: [TypeOrmModule.forFeature([ProductCategory, Product, Tax, TaxRule, TaxRuleGroup,Country]), SharedModule],
   controllers: [ProductController, ProductCategoryController, CountryController, TaxController, TaxRuleController, TaxRuleGroupController],
   providers: [ProductService, ProductCategoryService, CountryService, TaxService, TaxRuleService, TaxRuleGroupService],
   exports: [ProductService, ProductCategoryService],

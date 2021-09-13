@@ -1,6 +1,8 @@
+import { PaginationDto } from '@app/dto/pagination/pagination.dto';
 import { TaxRuleDto } from '@app/product/dto/tax-rule/tax-rule.dto';
 import { TaxRule } from '@app/product/entities/tax-rule.entity';
 import { TaxRuleService } from '@app/product/services/tax-rule/tax-rule.service';
+import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import {
   Body,
   Controller,
@@ -11,18 +13,32 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
-import { ApiBody, ApiOkResponse, ApiResponse } from '@nestjs/swagger';
+import { ApiBody, ApiOkResponse, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('TaxRule')
 @Controller('tax-rule')
 export class TaxRuleController {
   constructor(private readonly taxRuleService: TaxRuleService) {}
 
+  // @ApiOkResponse()
+  // @ApiResponse({ type: TaxRule, isArray: true })
+  // @Get()
+  // async findAll(): Promise<TaxRule[]> {
+  //   return this.taxRuleService.findAll();
+  // }
+
   @ApiOkResponse()
-  @ApiResponse({ type: TaxRule, isArray: true })
+  @ApiResponse({ type: PaginationDto })
+  @ApiQuery({ name: 'page', required: false })
+  @ApiQuery({ name: 'limit', required: false })
   @Get()
-  async findAll(): Promise<TaxRule[]> {
-    return this.taxRuleService.findAll();
+  async find(
+    @Query('page', IsPositiveIntPipe) page = 1,
+    @Query('limit', IsPositiveIntPipe) limit = 10,
+  ): Promise<PaginationDto<TaxRule>> {
+    return this.taxRuleService.getPage(page, limit);
   }
 
   @ApiOkResponse()
