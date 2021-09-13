@@ -1,10 +1,10 @@
-import { PaginationMetadataDto } from '@app/dto/pagination/pagination-metadata.dto';
-import { PaginationDto } from '@app/dto/pagination/pagination.dto';
-import { CrudServiceInterface } from '@app/interfaces/crud-service.interface';
+import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
+import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
+import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
 import {
   PaginationOptions,
   PaginatorInterface,
-} from '@app/interfaces/paginator.interface';
+} from '@app/shared/interfaces/paginator.interface';
 import { CountryDto } from '@app/product/dto/country/country.dto';
 import { Country } from '@app/product/entities/country.entity';
 import {

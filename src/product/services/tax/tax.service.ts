@@ -1,7 +1,10 @@
-import { PaginationMetadataDto } from '@app/dto/pagination/pagination-metadata.dto';
-import { PaginationDto } from '@app/dto/pagination/pagination.dto';
-import { CrudServiceInterface } from '@app/interfaces/crud-service.interface';
-import { PaginationOptions, PaginatorInterface } from '@app/interfaces/paginator.interface';
+import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
+import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
+import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
+import {
+  PaginationOptions,
+  PaginatorInterface,
+} from '@app/shared/interfaces/paginator.interface';
 import { TaxDto } from '@app/product/dto/tax/tax.dto';
 import { Tax } from '@app/product/entities/tax.entity';
 import {
@@ -21,14 +24,15 @@ export class TaxService
     private readonly taxRepository: Repository<Tax>,
   ) {}
 
-
-  async getPage(index: number, limit: number, opts?: PaginationOptions): Promise<PaginationDto<Tax>> {
+  async getPage(
+    index: number,
+    limit: number,
+    opts?: PaginationOptions,
+  ): Promise<PaginationDto<Tax>> {
     const count = await this.taxRepository.count();
     const meta = new PaginationMetadataDto(index, limit, count);
     if (meta.currentPage > meta.maxPages) {
-      throw new NotFoundException(
-        'This page of taxes does not exist',
-      );
+      throw new NotFoundException('This page of taxes does not exist');
     }
 
     const query = this.taxRepository.createQueryBuilder('t');

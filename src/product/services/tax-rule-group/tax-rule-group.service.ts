@@ -1,7 +1,10 @@
-import { PaginationMetadataDto } from '@app/dto/pagination/pagination-metadata.dto';
-import { PaginationDto } from '@app/dto/pagination/pagination.dto';
-import { CrudServiceInterface } from '@app/interfaces/crud-service.interface';
-import { PaginationOptions, PaginatorInterface } from '@app/interfaces/paginator.interface';
+import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
+import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
+import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
+import {
+  PaginationOptions,
+  PaginatorInterface,
+} from '@app/shared/interfaces/paginator.interface';
 import { TaxRuleGroupDto } from '@app/product/dto/tax-rule-group/tax-rule-group.dto';
 
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
@@ -24,16 +27,15 @@ export class TaxRuleGroupService
     private readonly taxRuleGroupRepository: Repository<TaxRuleGroup>,
   ) {}
 
-
-
-
-  async getPage(index: number, limit: number, opts?: PaginationOptions): Promise<PaginationDto<TaxRuleGroup>> {
+  async getPage(
+    index: number,
+    limit: number,
+    opts?: PaginationOptions,
+  ): Promise<PaginationDto<TaxRuleGroup>> {
     const count = await this.taxRuleGroupRepository.count();
     const meta = new PaginationMetadataDto(index, limit, count);
     if (meta.currentPage > meta.maxPages) {
-      throw new NotFoundException(
-        'This page of TaxRuleGroup does not exist',
-      );
+      throw new NotFoundException('This page of TaxRuleGroup does not exist');
     }
 
     const query = this.taxRuleGroupRepository.createQueryBuilder('trg');

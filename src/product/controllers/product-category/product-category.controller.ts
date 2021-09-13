@@ -20,7 +20,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { PaginationDto } from '@app/dto/pagination/pagination.dto';
+import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 
 @ApiTags('Product Categories')
@@ -42,7 +42,7 @@ export class ProductCategoryController {
     return this.productCategoryService.getPage(page, limit);
   }
 
- /* @ApiOkResponse()
+  /* @ApiOkResponse()
   @ApiResponse({ type: ProductCategory, isArray: true })
   @Get()
   async findAll(): Promise<ProductCategory[]> {

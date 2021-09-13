@@ -11,9 +11,9 @@ import { ProductCategoryDto } from '@app/product/dto/product-category/product-ca
 import {
   PaginationOptions,
   PaginatorInterface,
-} from '@app/interfaces/paginator.interface';
-import { PaginationDto } from '@app/dto/pagination/pagination.dto';
-import { PaginationMetadataDto } from '@app/dto/pagination/pagination-metadata.dto';
+} from '@app/shared/interfaces/paginator.interface';
+import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
+import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
 
 export interface ProductCategoryServiceInterface
   extends CrudServiceInterface<

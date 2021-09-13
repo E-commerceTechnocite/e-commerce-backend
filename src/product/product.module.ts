@@ -19,6 +19,7 @@ import { Tax } from './entities/tax.entity';
 import { TaxRule } from './entities/tax-rule.entity';
 import { TaxRuleGroup } from './entities/tax-rule-group.entity';
 import { Country } from './entities/country.entity';
+import { AuthModule } from '@app/auth/auth.module';
 
 @Module({
   imports: [
@@ -52,4 +53,3 @@ import { Country } from './entities/country.entity';
   exports: [ProductService, ProductCategoryService],
 })
 export class ProductModule {}
-

@@ -1,4 +1,4 @@
-import { PaginationDto } from '@app/dto/pagination/pagination.dto';
+import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { TaxDto } from '@app/product/dto/tax/tax.dto';
 import { Tax } from '@app/product/entities/tax.entity';
 import { TaxService } from '@app/product/services/tax/tax.service';

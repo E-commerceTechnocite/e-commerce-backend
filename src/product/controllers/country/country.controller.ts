@@ -1,4 +1,4 @@
-import { PaginationDto } from '@app/dto/pagination/pagination.dto';
+import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { CountryDto } from '@app/product/dto/country/country.dto';
 import { Country } from '@app/product/entities/country.entity';
 import { CountryService } from '@app/product/services/country/country.service';

@@ -15,9 +15,6 @@ import {
 } from '@app/shared/interfaces/paginator.interface';
 import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
-} from '@app/interfaces/paginator.interface';
-import { PaginationMetadataDto } from '@app/dto/pagination/pagination-metadata.dto';
-import { PaginationDto } from '@app/dto/pagination/pagination.dto';
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 
 export interface ProductServiceInterface

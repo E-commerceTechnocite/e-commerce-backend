@@ -1,4 +1,4 @@
-import { PaginationDto } from '@app/dto/pagination/pagination.dto';
+import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { TaxRuleGroupDto } from '@app/product/dto/tax-rule-group/tax-rule-group.dto';
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { TaxRuleGroupService } from '@app/product/services/tax-rule-group/tax-rule-group.service';

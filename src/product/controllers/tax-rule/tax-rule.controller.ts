@@ -1,4 +1,4 @@
-import { PaginationDto } from '@app/dto/pagination/pagination.dto';
+import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { TaxRuleDto } from '@app/product/dto/tax-rule/tax-rule.dto';
 import { TaxRule } from '@app/product/entities/tax-rule.entity';
 import { TaxRuleService } from '@app/product/services/tax-rule/tax-rule.service';
@@ -15,7 +15,13 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiBody, ApiOkResponse, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOkResponse,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 @ApiTags('TaxRule')
 @Controller('tax-rule')
