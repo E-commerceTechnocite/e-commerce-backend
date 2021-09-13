@@ -23,6 +23,8 @@ import {
 import { ProductDto } from '@app/product/dto/product/product.dto';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
+import { Permissions } from '@app/auth/permissions.decorator';
+import { Permission, PermissionUtil } from '@app/user/enums/permission.enum';
 
 @ApiTags('Products')
 @Controller({ path: 'product', version: '1' })
@@ -36,6 +38,7 @@ export class ProductController {
     return this.productService.find(id);
   }
 
+  @Permissions()
   @ApiOkResponse()
   @ApiResponse({ type: PaginationDto })
   @ApiQuery({ name: 'page', required: false })

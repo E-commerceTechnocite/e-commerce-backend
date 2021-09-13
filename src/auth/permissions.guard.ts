@@ -45,7 +45,6 @@ export class PermissionsGuard implements CanActivate {
       throw new BadRequestException(err);
     }
 
-    console.log(user);
     const canActivate = requiredPermissions.some((permission) =>
       user.role?.permissions.includes(permission),
     );
