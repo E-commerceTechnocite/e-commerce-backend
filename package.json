@@ -8,12 +8,14 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "NODE_ENV=prod node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "console:dev": "ts-node -r tsconfig-paths/register ./libs/console/src/index.ts",
+    "console": "node dist/libs/console/src/index.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
@@ -31,8 +33,10 @@
     "cache-manager-redis-store": "^2.0.0",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
+    "commander": "^8.1.0",
     "morgan": "^1.10.0",
     "mysql2": "^2.3.0",
+    "nestjs-console": "^7.0.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
@@ -71,9 +75,10 @@
       "ts"
     ],
     "moduleNameMapper": {
-      "@app/(.*)": "<rootDir>/$1"
+      "@app/(.*)": "<rootDir>/$1",
+      "^@app/console(|/.*)$": "<rootDir>/libs/console/src/$1"
     },
-    "rootDir": "src",
+    "rootDir": ".",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
@@ -81,8 +86,12 @@
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "coverageDirectory": "./coverage",
+    "testEnvironment": "node",
+    "roots": [
+      "<rootDir>/src/",
+      "<rootDir>/libs/"
+    ]
   },
   "volta": {
     "node": "14.17.6",
