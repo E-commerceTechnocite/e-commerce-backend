@@ -15,6 +15,7 @@ import {
 } from '@app/interfaces/paginator.interface';
 import { PaginationMetadataDto } from '@app/dto/pagination/pagination-metadata.dto';
 import { PaginationDto } from '@app/dto/pagination/pagination.dto';
+import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 
 export interface ProductServiceInterface
   extends CrudServiceInterface<Product, ProductDto, ProductDto>,
@@ -27,6 +28,8 @@ export class ProductService implements ProductServiceInterface {
     private readonly productRepository: Repository<Product>,
     @InjectRepository(ProductCategory)
     private readonly productCategoryRepository: Repository<ProductCategory>,
+    @InjectRepository(TaxRuleGroup)
+    private readonly taxRuleGroupRepository: Repository<TaxRuleGroup>,
   ) {}
 
   async create(entity: ProductDto): Promise<void> {
@@ -40,9 +43,20 @@ export class ProductService implements ProductServiceInterface {
       );
     }
     delete entity.categoryId;
+
+    const taxRuleGroup = await this.taxRuleGroupRepository.findOne(
+      entity.taxRuleGroupId,
+    );
+    if (!taxRuleGroup) {
+      throw new BadRequestException(
+        `TaxRuleGroup not found at id ${entity.taxRuleGroupId}`,
+      );
+    }
+    delete entity.taxRuleGroupId;
     const target: Product = {
       ...entity,
       category,
+      taxRuleGroup,
     };
     await this.productRepository.save(target);
   }
@@ -87,10 +101,22 @@ export class ProductService implements ProductServiceInterface {
       throw new BadRequestException(`Product not found with id ${id}`);
     }
     delete entity.categoryId;
+
+    const taxRuleGroup = await this.taxRuleGroupRepository.findOne(
+      entity.taxRuleGroupId,
+    );
+    if (!taxRuleGroup) {
+      throw new BadRequestException(
+        `TaxRuleGroup not found at id ${entity.taxRuleGroupId}`,
+      );
+    }
+    delete entity.taxRuleGroupId;
+
     const target: Product = {
       ...product,
       ...entity,
       category,
+      taxRuleGroup,
     };
     console.log(target);
     await this.productRepository.update(id, target);

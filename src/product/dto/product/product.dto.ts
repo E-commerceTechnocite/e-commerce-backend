@@ -33,4 +33,9 @@ export class ProductDto {
   @IsUUID()
   @IsNotEmpty()
   categoryId: string;
+
+  @ApiProperty({ required: false })
+  @IsUUID()
+  @IsNotEmpty()
+  taxRuleGroupId: string;
 }
