@@ -14,9 +14,18 @@ export class OAuthService {
   ) {}
 
   async login(user: UserDto): Promise<string> {
-    const userEntity = await this.userRepo.findOne({
-      where: { username: user.username },
-    });
+    let userEntity;
+    if (user.username) {
+      userEntity = await this.userRepo.findOne({
+        where: { username: user.username },
+      });
+    } else if (user.email) {
+      userEntity = await this.userRepo.findOne({
+        where: { email: user.email },
+      });
+    } else {
+      throw new BadRequestException('Please provide a username or email');
+    }
     if (
       !userEntity ||
       !(await bcrypt.compare(user.password, userEntity.password))

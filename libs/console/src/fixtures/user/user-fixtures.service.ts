@@ -51,10 +51,18 @@ export class UserFixturesService implements FixturesInterface {
     await this.userRepo.save([admin, user]);
     this.logger.log('Roles and users added');
     this.logger.log(
-      JSON.stringify({ username: admin.username, password: adminPassword }),
+      JSON.stringify({
+        username: admin.username,
+        email: admin.email,
+        password: adminPassword,
+      }),
     );
     this.logger.log(
-      JSON.stringify({ username: user.username, password: userPassword }),
+      JSON.stringify({
+        username: user.username,
+        email: user.email,
+        password: userPassword,
+      }),
     );
   }
 
