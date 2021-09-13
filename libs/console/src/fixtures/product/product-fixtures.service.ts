@@ -1,17 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { ConsoleLogger, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from '@app/product/entities/product.entity';
 import { Repository } from 'typeorm';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
 import * as faker from 'faker';
+import { FixturesInterface } from '@app/console/fixtures/fixtures.interface';
 
 @Injectable()
-export class ProductFixturesService {
+export class ProductFixturesService implements FixturesInterface {
   constructor(
     @InjectRepository(Product)
     private readonly productRepo: Repository<Product>,
     @InjectRepository(ProductCategory)
     private readonly categoryRepo: Repository<ProductCategory>,
+    private readonly logger: ConsoleLogger,
   ) {}
 
   async load() {
@@ -36,10 +38,12 @@ export class ProductFixturesService {
       });
     }
     await this.productRepo.save(products);
+    this.logger.log('Categories and Products added');
   }
 
   async clean() {
     await this.productRepo.delete({});
     await this.categoryRepo.delete({});
+    this.logger.log('Categories and Products deleted');
   }
 }

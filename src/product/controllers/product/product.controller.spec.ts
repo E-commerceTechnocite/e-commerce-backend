@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ProductController } from '@app/product/controllers/product/product.controller';
 import { ProductService } from '@app/product/services/product/product.service';
 import { Product } from '@app/product/entities/product.entity';
-import { PaginationDto } from '@app/dto/pagination/pagination.dto';
+import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { mock } from 'jest-mock-extended';
 
 describe('ProductController', () => {

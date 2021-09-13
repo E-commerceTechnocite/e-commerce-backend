@@ -4,9 +4,25 @@ import { ApplicationConfigurationModule } from '@app/configuration/application-c
 import * as morgan from 'morgan';
 import { ConfigService } from '@nestjs/config';
 import { SharedModule } from './shared/shared.module';
+import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
+import { APP_GUARD } from '@nestjs/core';
+import { PermissionsGuard } from '@app/auth/permissions.guard';
 
 @Module({
-  imports: [ApplicationConfigurationModule, ProductModule, SharedModule],
+  imports: [
+    ApplicationConfigurationModule,
+    ProductModule,
+    SharedModule,
+    AuthModule,
+    UserModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: PermissionsGuard,
+    },
+  ],
 })
 export class ApplicationModule implements NestModule {
   constructor(private readonly config: ConfigService) {}

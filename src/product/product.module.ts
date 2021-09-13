@@ -21,9 +21,35 @@ import { TaxRuleGroup } from './entities/tax-rule-group.entity';
 import { Country } from './entities/country.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ProductCategory, Product, Tax, TaxRule, TaxRuleGroup,Country]), SharedModule],
-  controllers: [ProductController, ProductCategoryController, CountryController, TaxController, TaxRuleController, TaxRuleGroupController],
-  providers: [ProductService, ProductCategoryService, CountryService, TaxService, TaxRuleService, TaxRuleGroupService],
+  imports: [
+    TypeOrmModule.forFeature([
+      ProductCategory,
+      Product,
+      Tax,
+      TaxRule,
+      TaxRuleGroup,
+      Country,
+    ]),
+    SharedModule,
+    AuthModule,
+  ],
+  controllers: [
+    ProductController,
+    ProductCategoryController,
+    CountryController,
+    TaxController,
+    TaxRuleController,
+    TaxRuleGroupController,
+  ],
+  providers: [
+    ProductService,
+    ProductCategoryService,
+    CountryService,
+    TaxService,
+    TaxRuleService,
+    TaxRuleGroupService,
+  ],
   exports: [ProductService, ProductCategoryService],
 })
 export class ProductModule {}
+

@@ -1,8 +1,7 @@
-import { CacheModule, Global, Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { TypeOrmConfigurationService } from '@app/configuration/type-orm/type-orm-configuration.service';
-import { CacheConfigurationService } from '@app/configuration/cache/cache-configuration.service';
+import { Global, Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmConfigurationModule } from '@app/configuration/type-orm/type-orm-configuration.module';
+import { CacheConfigurationModule } from '@app/configuration/cache/cache-configuration.module';
 
 const getEnvFilePath = (): string => {
   const NODE_ENV: string = process.env['NODE_ENV'];
@@ -13,17 +12,9 @@ const getEnvFilePath = (): string => {
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: getEnvFilePath() }),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      useClass: TypeOrmConfigurationService,
-      inject: [ConfigService],
-    }),
-    CacheModule.registerAsync({
-      imports: [ConfigModule],
-      useClass: CacheConfigurationService,
-      inject: [ConfigService],
-    }),
+    TypeOrmConfigurationModule,
+    CacheConfigurationModule,
   ],
-  exports: [ConfigModule, TypeOrmModule, CacheModule],
+  exports: [ConfigModule, TypeOrmConfigurationModule, CacheConfigurationModule],
 })
 export class ApplicationConfigurationModule {}
