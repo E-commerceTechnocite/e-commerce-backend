@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { Reflector } from '@nestjs/core';
-import { PERMISSIONS_KEY } from '@app/auth/permissions.decorator';
+import { PERMISSIONS_KEY } from '@app/auth/granted.decorator';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@app/user/entities/user.entity';
 import { Permission } from '@app/user/enums/permission.enum';

@@ -23,7 +23,7 @@ import {
 import { ProductDto } from '@app/product/dto/product/product.dto';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
-import { Permissions } from '@app/auth/permissions.decorator';
+import { Permissions } from '@app/auth/granted.decorator';
 import { Permission, PermissionUtil } from '@app/user/enums/permission.enum';
 
 @ApiTags('Products')
