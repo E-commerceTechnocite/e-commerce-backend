@@ -13,6 +13,7 @@ import {
 import { ProductService } from '@app/product/services/product/product.service';
 import { Product } from '@app/product/entities/product.entity';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
@@ -26,6 +27,7 @@ import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import { Granted } from '@app/auth/granted.decorator';
 import { Permission, PermissionUtil } from '@app/user/enums/permission.enum';
 
+@ApiBearerAuth()
 @ApiTags('Products')
 @Controller({ path: 'product', version: '1' })
 export class ProductController {

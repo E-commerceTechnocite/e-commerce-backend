@@ -16,6 +16,7 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOkResponse,
   ApiQuery,
@@ -25,6 +26,7 @@ import {
 import { Granted } from '@app/auth/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
 
+@ApiBearerAuth()
 @ApiTags('Tax')
 @Controller({ path: 'tax', version: '1' })
 export class TaxController {

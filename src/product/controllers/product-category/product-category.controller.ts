@@ -14,6 +14,7 @@ import { ProductCategoryService } from '@app/product/services/product-category/p
 import { ProductCategory } from '@app/product/entities/product-category.entity';
 import { ProductCategoryDto } from '@app/product/dto/product-category/product-category.dto';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOkResponse,
   ApiQuery,
@@ -25,6 +26,7 @@ import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import { Granted } from '@app/auth/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
 
+@ApiBearerAuth()
 @ApiTags('Product Categories')
 @Controller({ path: 'product-category', version: '1' })
 export class ProductCategoryController {
