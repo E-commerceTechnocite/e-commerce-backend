@@ -16,13 +16,17 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOkResponse,
   ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Granted } from '@app/auth/granted.decorator';
+import { Permission } from '@app/user/enums/permission.enum';
 
+@ApiBearerAuth()
 @ApiTags('TaxRule')
 @Controller('tax-rule')
 export class TaxRuleController {
@@ -35,6 +39,7 @@ export class TaxRuleController {
   //   return this.taxRuleService.findAll();
   // }
 
+  @Granted(Permission.READ_TAX_RULE)
   @ApiOkResponse()
   @ApiResponse({ type: PaginationDto })
   @ApiQuery({ name: 'page', required: false })
@@ -47,6 +52,7 @@ export class TaxRuleController {
     return this.taxRuleService.getPage(page, limit);
   }
 
+  @Granted(Permission.READ_TAX_RULE)
   @ApiOkResponse()
   @ApiResponse({ type: TaxRule })
   @Get(':id')
@@ -54,6 +60,7 @@ export class TaxRuleController {
     return this.taxRuleService.find(id);
   }
 
+  @Granted(Permission.CREATE_TAX_RULE)
   @ApiBody({ type: TaxRuleDto, required: false })
   @ApiResponse({ type: null })
   @HttpCode(HttpStatus.CREATED)
@@ -62,6 +69,7 @@ export class TaxRuleController {
     return this.taxRuleService.create(taxRule);
   }
 
+  @Granted(Permission.UPDATE_TAX_RULE)
   @ApiBody({ type: TaxRuleDto, required: false })
   @ApiResponse({ type: null })
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -73,6 +81,7 @@ export class TaxRuleController {
     return this.taxRuleService.update(id, taxRule);
   }
 
+  @Granted(Permission.DELETE_TAX_RULE)
   @ApiResponse({ type: null })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')

@@ -10,8 +10,9 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   const config = new DocumentBuilder()
     .setTitle('E-commerce endpoints documentation')
+    .addBearerAuth()
     .build();
-
+    
   app.enableCors({ origin: 'http://localhost:8080' });
 
   const document = SwaggerModule.createDocument(app, config);
