@@ -35,7 +35,7 @@ export class CountryController {
   //   return this.countryService.findAll();
   // }
 
-  
+  @Granted()
   @ApiOkResponse()
   @ApiResponse({ type: PaginationDto })
   @ApiQuery({ name: 'page', required: false })
