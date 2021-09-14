@@ -7,7 +7,8 @@ import { SharedModule } from './shared/shared.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { APP_GUARD } from '@nestjs/core';
-import { PermissionsGuard } from '@app/auth/permissions.guard';
+import { JwtAuthGuard } from '@app/auth/jwt-auth.guard';
+import { PermissionsGuard } from './auth/permissions.guard';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { PermissionsGuard } from '@app/auth/permissions.guard';
   providers: [
     {
       provide: APP_GUARD,
-      useClass: PermissionsGuard,
+      useClass: JwtAuthGuard,
     },
   ],
 })

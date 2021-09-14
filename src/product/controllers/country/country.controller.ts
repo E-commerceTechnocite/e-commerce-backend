@@ -16,15 +16,18 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOkResponse,
   ApiQuery,
   ApiResponse,
+  ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
 import { Permission } from '@app/user/enums/permission.enum';
 import { Granted } from '@app/auth/granted.decorator';
 
+@ApiBearerAuth()
 @ApiTags('Country')
 @Controller({ path: 'country', version: '1' })
 export class CountryController {

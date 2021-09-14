@@ -33,7 +33,7 @@ export class OAuthService {
       throw new BadRequestException('Invalid Credentials');
     }
     const { id, username, email, role } = userEntity;
-    console.log(role);
-    return this.jwt.sign({ id, username, email, role });
+    const roleId = role.id;
+    return this.jwt.sign({ id, username, email, roleId });
   }
 }
