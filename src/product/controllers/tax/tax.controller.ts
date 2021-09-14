@@ -22,6 +22,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Granted } from '@app/auth/granted.decorator';
+import { Permission } from '@app/user/enums/permission.enum';
 
 @ApiTags('Tax')
 @Controller({ path: 'tax', version: '1' })
@@ -35,6 +37,7 @@ export class TaxController {
   //   return this.taxService.findAll();
   // }
 
+  @Granted(Permission.READ_TAX)
   @ApiOkResponse()
   @ApiResponse({ type: PaginationDto })
   @ApiQuery({ name: 'page', required: false })
@@ -47,6 +50,7 @@ export class TaxController {
     return this.taxService.getPage(page, limit);
   }
 
+  @Granted(Permission.READ_TAX)
   @ApiOkResponse()
   @ApiResponse({ type: Tax })
   @Get(':id')
@@ -54,6 +58,7 @@ export class TaxController {
     return this.taxService.find(id);
   }
 
+  @Granted(Permission.CREATE_TAX)
   @ApiBody({ type: TaxDto, required: false })
   @ApiResponse({ type: null })
   @HttpCode(HttpStatus.CREATED)
@@ -62,6 +67,8 @@ export class TaxController {
     return this.taxService.create(tax);
   }
 
+
+  @Granted(Permission.UPDATE_TAX)
   @ApiBody({ type: TaxDto, required: false })
   @ApiResponse({ type: null })
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -70,6 +77,7 @@ export class TaxController {
     return this.taxService.update(id, tax);
   }
 
+  @Granted(Permission.DELETE_TAX)
   @ApiResponse({ type: null })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')

@@ -23,7 +23,7 @@ import {
 import { ProductDto } from '@app/product/dto/product/product.dto';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
-import { Permissions } from '@app/auth/granted.decorator';
+import { Granted } from '@app/auth/granted.decorator';
 import { Permission, PermissionUtil } from '@app/user/enums/permission.enum';
 
 @ApiTags('Products')
@@ -31,6 +31,7 @@ import { Permission, PermissionUtil } from '@app/user/enums/permission.enum';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
+  @Granted(Permission.READ_PRODUCT)
   @ApiOkResponse()
   @ApiResponse({ type: Product })
   @Get(':id')
@@ -38,7 +39,7 @@ export class ProductController {
     return this.productService.find(id);
   }
 
-  @Permissions()
+  @Granted(Permission.READ_PRODUCT)
   @ApiOkResponse()
   @ApiResponse({ type: PaginationDto })
   @ApiQuery({ name: 'page', required: false })
@@ -51,6 +52,7 @@ export class ProductController {
     return this.productService.getPage(page, limit);
   }
 
+  @Granted(Permission.CREATE_PRODUCT)
   @ApiCreatedResponse()
   @ApiBody({ type: ProductDto, required: false })
   @ApiResponse({ type: null })
@@ -60,6 +62,7 @@ export class ProductController {
     return this.productService.create(product);
   }
 
+  @Granted(Permission.UPDATE_PRODUCT)
   @ApiBody({ type: ProductDto, required: false })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id')
@@ -70,6 +73,7 @@ export class ProductController {
     return this.productService.update(id, product);
   }
 
+  @Granted(Permission.DELETE_PRODUCT)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<void> {
