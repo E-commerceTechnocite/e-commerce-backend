@@ -2,14 +2,14 @@ import { Column, PrimaryGeneratedColumn } from 'typeorm';
 
 export abstract class EntitySchema {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id?: string;
 
   @Column({ type: 'datetime' })
-  createdAt: Date;
+  createdAt?: Date;
 
   @Column({ type: 'datetime' })
-  updatedAt: Date;
+  updatedAt?: Date;
 
   @Column({ type: 'datetime' })
-  deletedAt: Date;
+  deletedAt?: Date;
 }
