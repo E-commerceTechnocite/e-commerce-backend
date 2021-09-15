@@ -68,7 +68,7 @@ export class CountryController {
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(@Body() country: CountryDto): Promise<any> {
-    return this.countryService.create(country);
+    return await this.countryService.create(country);
   }
 
   @Granted(Permission.UPDATE_COUNTRY)

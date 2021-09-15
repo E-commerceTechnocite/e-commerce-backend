@@ -77,7 +77,7 @@ export class TaxRuleService
     return this.taxRuleRepository.find();
   }
 
-  async create(entity: TaxRuleDto): Promise<void> {
+  async create(entity: TaxRuleDto): Promise<TaxRule> {
     const tax = await this.taxRepository.findOne(entity.taxId);
     if (!tax) {
       throw new BadRequestException(`Tax not found at id ${entity.taxId}`);
@@ -109,7 +109,7 @@ export class TaxRuleService
       country,
     };
 
-    await this.taxRuleRepository.save(target);
+    return await this.taxRuleRepository.save(target);
   }
 
   async update(id: string | number, entity: TaxRuleDto): Promise<void> {

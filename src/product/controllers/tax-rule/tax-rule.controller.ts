@@ -66,7 +66,7 @@ export class TaxRuleController {
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(@Body() taxRule: TaxRuleDto): Promise<any> {
-    return this.taxRuleService.create(taxRule);
+    return await this.taxRuleService.create(taxRule);
   }
 
   @Granted(Permission.UPDATE_TAX_RULE)

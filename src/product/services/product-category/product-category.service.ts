@@ -59,11 +59,11 @@ export class ProductCategoryService implements ProductCategoryServiceInterface {
     };
   }
 
-  async create(entity: ProductCategoryDto): Promise<void> {
+  async create(entity: ProductCategoryDto): Promise<ProductCategory> {
     const target: ProductCategory = {
       ...entity,
     };
-    await this.repository.save(target).catch(() => {
+    return await this.repository.save(target).catch(() => {
       throw new BadRequestException();
     });
   }

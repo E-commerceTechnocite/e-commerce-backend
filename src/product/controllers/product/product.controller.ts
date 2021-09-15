@@ -60,8 +60,8 @@ export class ProductController {
   @ApiResponse({ type: null })
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async create(@Body() product: ProductDto): Promise<void> {
-    return this.productService.create(product);
+  async create(@Body() product: ProductDto): Promise<any> {
+    return await this.productService.create(product);
   }
 
   @Granted(Permission.UPDATE_PRODUCT)
