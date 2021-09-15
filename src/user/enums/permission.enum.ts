@@ -28,6 +28,11 @@ export enum Permission {
   CREATE_TAX_RULE_GROUP = 'c:tax_rule_group',
   UPDATE_TAX_RULE_GROUP = 'u:tax_rule_group',
   DELETE_TAX_RULE_GROUP = 'd:tax_rule_group',
+
+  READ_USER = 'r:user',
+  CREATE_USER = 'c:user',
+  UPDATE_USER = 'u:user',
+  DELETE_USER = 'd:user',
 }
 
 export class PermissionUtil {
@@ -62,6 +67,12 @@ export class PermissionUtil {
       Permission.CREATE_COUNTRY,
       Permission.UPDATE_COUNTRY,
       Permission.DELETE_COUNTRY,
+
+      Permission.READ_USER,
+      Permission.CREATE_USER,
+      Permission.UPDATE_USER,
+      Permission.DELETE_USER,
+
     ];
   }
 
@@ -116,6 +127,15 @@ export class PermissionUtil {
       Permission.CREATE_COUNTRY,
       Permission.UPDATE_COUNTRY,
       Permission.DELETE_COUNTRY,
+    ];
+  }
+
+  static userPermissions(): Permission[] {
+    return [
+      Permission.READ_USER,
+      Permission.CREATE_USER,
+      Permission.UPDATE_USER,
+      Permission.DELETE_USER,
     ];
   }
 }
