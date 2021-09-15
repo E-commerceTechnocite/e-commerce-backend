@@ -7,9 +7,9 @@ export abstract class EntitySchema {
   @Column({ type: 'datetime' })
   createdAt?: Date;
 
-  @Column({ type: 'datetime' })
+  @Column({ type: 'datetime', nullable: true })
   updatedAt?: Date;
 
-  @Column({ type: 'datetime' })
+  @Column({ type: 'datetime', nullable: true })
   deletedAt?: Date;
 }

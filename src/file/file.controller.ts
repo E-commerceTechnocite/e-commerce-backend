@@ -1,15 +1,19 @@
 import {
-  Body,
   Controller,
+  Delete,
+  Get,
+  Param,
   Post,
+  Query,
   UploadedFile,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { FileService } from '@app/file/file.service';
+import { FileService } from '@app/file/services/file.service';
 import { ApiTags } from '@nestjs/swagger';
-import { PictureDto } from '@app/file/dto/picture.dto';
+import { Picture } from '@app/file/entities/picture.entity';
+import { MimetypeEnum } from '@app/file/mimetype.enum';
 
 @ApiTags('File Upload')
 @Controller({ path: 'file', version: '1' })
@@ -18,17 +22,27 @@ export class FileController {
 
   @Post('upload-bunch')
   @UseInterceptors(FilesInterceptor('files'))
-  uploadFiles(@UploadedFiles() files: Express.Multer.File[]) {
-    this.fileService.add(...files);
+  async uploadFiles(@UploadedFiles() files: Express.Multer.File[]) {
+    await this.fileService.add(...files);
   }
 
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
-  uploadFile(
-    @UploadedFile() file: Express.Multer.File,
-    @Body() data: PictureDto,
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    await this.fileService.add(file);
+  }
+
+  @Get()
+  findAll(): Promise<Picture[]> {
+    return this.fileService.findAll();
+  }
+
+  @Delete(':title')
+  async delete(
+    @Param('title') title: string,
+    @Query('mimetype')
+    mimetype: MimetypeEnum = MimetypeEnum.IMAGE,
   ) {
-    console.log(data);
-    this.fileService.add(file);
+    await this.fileService.delete(title, mimetype);
   }
 }

@@ -10,9 +10,8 @@ import {
 export class MulterConfigurationService implements MulterOptionsFactory {
   createMulterOptions(): Promise<MulterModuleOptions> | MulterModuleOptions {
     return {
-      dest: join(__dirname, '..', '..', '..', 'public'),
       storage: multer.diskStorage({
-        filename(
+        filename: function (
           req: Express.Request,
           file: Express.Multer.File,
           callback: (error: Error | null, filename: string) => void,
@@ -20,9 +19,10 @@ export class MulterConfigurationService implements MulterOptionsFactory {
           const type = file.mimetype.split('/')[1];
           callback(
             null,
-            file.originalname.split('.')[0] + Date.now() + '.' + type,
+            file.originalname.split('.')[0] + '-' + Date.now() + '.' + type,
           );
         },
+        destination: join(__dirname, '..', '..', '..', 'public', 'files'),
       }),
     };
   }

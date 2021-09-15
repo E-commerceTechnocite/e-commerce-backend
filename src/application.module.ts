@@ -17,6 +17,7 @@ import { join } from 'path';
     ApplicationConfigurationModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
+      serveRoot: '/public',
     }),
     ProductModule,
     SharedModule,
