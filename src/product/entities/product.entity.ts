@@ -20,26 +20,26 @@ export class Product {
 
   @ApiProperty({ required: true })
   @Column()
-  title: string;
+  title?: string;
 
   @ApiProperty({ required: true })
   @Column()
-  reference: string;
+  reference?: string;
 
   @ApiProperty({ required: true })
   @Column({ type: 'text' })
-  description: string;
+  description?: string;
 
   @ApiProperty({ required: true })
   @Column({ type: 'float' })
-  price: number;
+  price?: number;
 
   @ApiResponseProperty({ type: () => ProductCategory })
   @ManyToOne(() => ProductCategory, (category) => category.products, {
     eager: true,
   })
   @JoinColumn({ name: 'product_category_id', referencedColumnName: 'id' })
-  category: ProductCategory;
+  category?: ProductCategory;
 
   @ApiResponseProperty({ type: () => TaxRuleGroup })
   @ManyToOne(() => TaxRuleGroup, (taxRuleGroup) => taxRuleGroup.products, {

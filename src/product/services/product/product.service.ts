@@ -36,13 +36,14 @@ export class ProductService implements ProductServiceInterface {
     const category = await this.productCategoryRepository.findOne(
       entity.categoryId,
     );
-    console.log(category);
     if (!category) {
       throw new BadRequestException(
         `Category not found at id ${entity.categoryId}`,
       );
     }
     delete entity.categoryId;
+
+    // TODO ajouter les pictures et la thumbnail
 
     const taxRuleGroup = await this.taxRuleGroupRepository.findOne(
       entity.taxRuleGroupId,
@@ -53,6 +54,8 @@ export class ProductService implements ProductServiceInterface {
       );
     }
     delete entity.taxRuleGroupId;
+    delete entity.picturesId;
+    delete entity.thumbnailId;
     const target: Product = {
       ...entity,
       category,
@@ -101,6 +104,8 @@ export class ProductService implements ProductServiceInterface {
       throw new BadRequestException(`Product not found with id ${id}`);
     }
     delete entity.categoryId;
+
+    // TODO ajouter les pictures et la thumbnail
 
     const taxRuleGroup = await this.taxRuleGroupRepository.findOne(
       entity.taxRuleGroupId,
