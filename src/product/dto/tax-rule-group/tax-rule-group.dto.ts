@@ -5,5 +5,5 @@ export class TaxRuleGroupDto {
   @ApiProperty({ required: false })
   @Length(2, 255)
   @IsNotEmpty()
-  name: string;
+  name?: string;
 }

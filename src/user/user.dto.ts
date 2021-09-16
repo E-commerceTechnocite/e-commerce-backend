@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsUUID } from 'class-validator';
 
 export class UserDto {
   @ApiProperty({ required: false })
@@ -8,4 +9,6 @@ export class UserDto {
 
   @ApiProperty({ required: false })
   password?: string;
+
+  roleId?: string;
 }

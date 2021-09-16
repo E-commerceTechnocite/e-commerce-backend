@@ -13,13 +13,13 @@ export class User {
   id?: string;
 
   @Column({ unique: true })
-  username: string;
+  username?: string;
 
   @Column({ unique: true })
-  email: string;
+  email?: string;
 
   @Column()
-  password: string;
+  password?: string;
 
   @ManyToOne(() => Role, (role) => role.users, { eager: true })
   @JoinColumn({ name: 'id_role', referencedColumnName: 'id' })

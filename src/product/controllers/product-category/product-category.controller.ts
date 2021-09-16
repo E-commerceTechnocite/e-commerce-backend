@@ -14,6 +14,7 @@ import { ProductCategoryService } from '@app/product/services/product-category/p
 import { ProductCategory } from '@app/product/entities/product-category.entity';
 import { ProductCategoryDto } from '@app/product/dto/product-category/product-category.dto';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOkResponse,
   ApiQuery,
@@ -22,7 +23,10 @@ import {
 } from '@nestjs/swagger';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
+import { Granted } from '@app/auth/granted.decorator';
+import { Permission } from '@app/user/enums/permission.enum';
 
+@ApiBearerAuth()
 @ApiTags('Product Categories')
 @Controller({ path: 'product-category', version: '1' })
 export class ProductCategoryController {
@@ -30,6 +34,7 @@ export class ProductCategoryController {
     private readonly productCategoryService: ProductCategoryService,
   ) {}
 
+  @Granted(Permission.READ_CATEGORY)
   @ApiOkResponse()
   @ApiResponse({ type: PaginationDto })
   @ApiQuery({ name: 'page', required: false })
@@ -49,6 +54,7 @@ export class ProductCategoryController {
     return this.productCategoryService.findAll();
   }*/
 
+  @Granted(Permission.READ_CATEGORY)
   @ApiOkResponse()
   @ApiResponse({ type: ProductCategory })
   @Get(':id')
@@ -56,14 +62,16 @@ export class ProductCategoryController {
     return this.productCategoryService.find(id);
   }
 
+  @Granted(Permission.CREATE_CATEGORY)
   @ApiBody({ type: ProductCategoryDto, required: false })
   @ApiResponse({ type: null })
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(@Body() category: ProductCategoryDto): Promise<any> {
-    return this.productCategoryService.create(category);
+    return await this.productCategoryService.create(category);
   }
 
+  @Granted(Permission.UPDATE_CATEGORY)
   @ApiBody({ type: ProductCategoryDto, required: false })
   @ApiResponse({ type: null })
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -75,6 +83,7 @@ export class ProductCategoryController {
     return this.productCategoryService.update(id, category);
   }
 
+  @Granted(Permission.DELETE_CATEGORY)
   @ApiResponse({ type: null })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')

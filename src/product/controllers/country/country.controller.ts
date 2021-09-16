@@ -14,15 +14,21 @@ import {
   Patch,
   Post,
   Query,
+  Res,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOkResponse,
   ApiQuery,
   ApiResponse,
+  ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
+import { Permission } from '@app/user/enums/permission.enum';
+import { Granted } from '@app/auth/granted.decorator';
 
+@ApiBearerAuth()
 @ApiTags('Country')
 @Controller({ path: 'country', version: '1' })
 export class CountryController {
@@ -35,6 +41,7 @@ export class CountryController {
   //   return this.countryService.findAll();
   // }
 
+  @Granted(Permission.READ_COUNTRY)
   @ApiOkResponse()
   @ApiResponse({ type: PaginationDto })
   @ApiQuery({ name: 'page', required: false })
@@ -47,6 +54,7 @@ export class CountryController {
     return this.countryService.getPage(page, limit);
   }
 
+  @Granted(Permission.READ_COUNTRY)
   @ApiOkResponse()
   @ApiResponse({ type: Country })
   @Get(':id')
@@ -54,14 +62,16 @@ export class CountryController {
     return this.countryService.find(id);
   }
 
+  @Granted(Permission.CREATE_COUNTRY)
   @ApiBody({ type: CountryDto, required: false })
   @ApiResponse({ type: null })
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(@Body() country: CountryDto): Promise<any> {
-    return this.countryService.create(country);
+    return await this.countryService.create(country);
   }
 
+  @Granted(Permission.UPDATE_COUNTRY)
   @ApiBody({ type: CountryDto, required: false })
   @ApiResponse({ type: null })
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -73,6 +83,7 @@ export class CountryController {
     return this.countryService.update(id, country);
   }
 
+  @Granted(Permission.DELETE_COUNTRY)
   @ApiResponse({ type: null })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')

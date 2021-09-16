@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AuthService } from '@app/auth/auth.service';
 import { OAuthController } from './o-auth/o-auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -22,8 +21,8 @@ import { OAuthService } from '@app/auth/o-auth/o-auth.service';
     }),
     TypeOrmModule.forFeature([User]),
   ],
-  providers: [AuthService, AuthStrategy, OAuthService],
+  providers: [ AuthStrategy, OAuthService],
   controllers: [OAuthController],
-  exports: [PassportModule, JwtModule, AuthService, AuthStrategy],
+  exports: [PassportModule, JwtModule, AuthStrategy],
 })
 export class AuthModule {}

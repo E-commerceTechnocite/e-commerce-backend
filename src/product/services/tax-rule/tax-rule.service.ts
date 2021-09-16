@@ -17,11 +17,12 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { TaxRuleUpdateDto } from '@app/product/dto/tax-rule/tax-rule-update.dto';
 
 @Injectable()
 export class TaxRuleService
   implements
-    CrudServiceInterface<TaxRule, TaxRuleDto, TaxRuleDto>,
+    CrudServiceInterface<TaxRule, TaxRuleDto, TaxRuleUpdateDto>,
     PaginatorInterface<TaxRule>
 {
   constructor(
@@ -77,7 +78,7 @@ export class TaxRuleService
     return this.taxRuleRepository.find();
   }
 
-  async create(entity: TaxRuleDto): Promise<void> {
+  async create(entity: TaxRuleDto): Promise<TaxRule> {
     const tax = await this.taxRepository.findOne(entity.taxId);
     if (!tax) {
       throw new BadRequestException(`Tax not found at id ${entity.taxId}`);
@@ -109,33 +110,25 @@ export class TaxRuleService
       country,
     };
 
-    await this.taxRuleRepository.save(target);
+    const count = await this.taxRuleRepository
+      .createQueryBuilder('t-r')
+      .where({ taxRuleGroup: target.taxRuleGroup })
+      .andWhere({ country: target.country })
+      .getCount();
+
+    if (count > 0) {
+      throw new BadRequestException('This TaxRule aldready exists');
+    } else {
+      return await this.taxRuleRepository.save(target);
+    }
   }
 
-  async update(id: string | number, entity: TaxRuleDto): Promise<void> {
+  async update(id: string | number, entity: TaxRuleUpdateDto): Promise<void> {
     const tax = await this.taxRepository.findOne(entity.taxId);
     if (!tax) {
       throw new BadRequestException(`Tax not found at id ${entity.taxId}`);
     }
     delete entity.taxId;
-
-    const taxRuleGroup = await this.taxRuleGroupRepository.findOne(
-      entity.taxRuleGroupId,
-    );
-    if (!taxRuleGroup) {
-      throw new BadRequestException(
-        `TaxRuleGroup not found at id ${entity.taxRuleGroupId}`,
-      );
-    }
-    delete entity.taxRuleGroupId;
-
-    const country = await this.countryRepository.findOne(entity.countryId);
-    if (!country) {
-      throw new BadRequestException(
-        `Country not found at id ${entity.countryId}`,
-      );
-    }
-    delete entity.countryId;
 
     const taxRule = await this.taxRuleRepository.findOne(id);
     if (!taxRule) {
@@ -146,11 +139,9 @@ export class TaxRuleService
       ...taxRule,
       ...entity,
       tax,
-      taxRuleGroup,
-      country,
     };
 
-    await this.taxRuleRepository.save(target);
+    await this.taxRuleRepository.update(id, target);
   }
 
   async deleteFromId(id: string | number): Promise<void> {

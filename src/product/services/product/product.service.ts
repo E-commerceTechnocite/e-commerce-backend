@@ -32,7 +32,7 @@ export class ProductService implements ProductServiceInterface {
     private readonly taxRuleGroupRepository: Repository<TaxRuleGroup>,
   ) {}
 
-  async create(entity: ProductDto): Promise<void> {
+  async create(entity: ProductDto): Promise<Product> {
     const category = await this.productCategoryRepository.findOne(
       entity.categoryId,
     );
@@ -61,7 +61,7 @@ export class ProductService implements ProductServiceInterface {
       category,
       taxRuleGroup,
     };
-    await this.productRepository.save(target);
+    return await this.productRepository.save(target);
   }
 
   async delete(entity: Product): Promise<void> {

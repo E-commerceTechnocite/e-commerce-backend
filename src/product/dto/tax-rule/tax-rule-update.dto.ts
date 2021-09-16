@@ -1,21 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsPositive, IsUUID, Length } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsUUID, Length } from 'class-validator';
 
-export class TaxRuleDto {
-  @ApiProperty({ required: false })
-  @IsUUID()
-  @IsNotEmpty()
-  taxRuleGroupId?: string;
-
+export class TaxRuleUpdateDto {
   @ApiProperty({ required: false })
   @IsUUID()
   @IsNotEmpty()
   taxId?: string;
-
-  @ApiProperty({ required: false })
-  @IsUUID()
-  @IsNotEmpty()
-  countryId?: string;
 
   @ApiProperty({ required: false })
   @Length(2, 10)

@@ -13,6 +13,7 @@ import {
 import { ProductService } from '@app/product/services/product/product.service';
 import { Product } from '@app/product/entities/product.entity';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
@@ -23,12 +24,16 @@ import {
 import { ProductDto } from '@app/product/dto/product/product.dto';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
+import { Granted } from '@app/auth/granted.decorator';
+import { Permission, PermissionUtil } from '@app/user/enums/permission.enum';
 
+@ApiBearerAuth()
 @ApiTags('Products')
 @Controller({ path: 'product', version: '1' })
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
+  @Granted(Permission.READ_PRODUCT)
   @ApiOkResponse()
   @ApiResponse({ type: Product })
   @Get(':id')
@@ -36,6 +41,7 @@ export class ProductController {
     return this.productService.find(id);
   }
 
+  @Granted(Permission.READ_PRODUCT)
   @ApiOkResponse()
   @ApiResponse({ type: PaginationDto })
   @ApiQuery({ name: 'page', required: false })
@@ -48,15 +54,17 @@ export class ProductController {
     return this.productService.getPage(page, limit);
   }
 
+  @Granted(Permission.CREATE_PRODUCT)
   @ApiCreatedResponse()
   @ApiBody({ type: ProductDto, required: false })
   @ApiResponse({ type: null })
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async create(@Body() product: ProductDto): Promise<void> {
-    return this.productService.create(product);
+  async create(@Body() product: ProductDto): Promise<any> {
+    return await this.productService.create(product);
   }
 
+  @Granted(Permission.UPDATE_PRODUCT)
   @ApiBody({ type: ProductDto, required: false })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id')
@@ -67,6 +75,7 @@ export class ProductController {
     return this.productService.update(id, product);
   }
 
+  @Granted(Permission.DELETE_PRODUCT)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<void> {

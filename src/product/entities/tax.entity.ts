@@ -10,7 +10,7 @@ export class Tax {
 
   @ApiProperty({ required: true })
   @Column()
-  rate: number;
+  rate?: number;
 
   @OneToMany(() => TaxRule, (taxRule) => taxRule.tax)
   taxRules?: TaxRule[];

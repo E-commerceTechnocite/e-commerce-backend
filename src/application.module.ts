@@ -7,10 +7,10 @@ import { SharedModule } from './shared/shared.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { APP_GUARD } from '@nestjs/core';
-import { PermissionsGuard } from '@app/auth/permissions.guard';
 import { FileModule } from '@app/file/file.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { JwtAuthGuard } from '@app/auth/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -28,7 +28,7 @@ import { join } from 'path';
   providers: [
     {
       provide: APP_GUARD,
-      useClass: PermissionsGuard,
+      useClass: JwtAuthGuard,
     },
   ],
 })
