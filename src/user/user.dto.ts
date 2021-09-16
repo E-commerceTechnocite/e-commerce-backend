@@ -10,8 +10,5 @@ export class UserDto {
   @ApiProperty({ required: false })
   password?: string;
 
-  @ApiProperty({ required: false })
-  @IsUUID()
-  @IsNotEmpty()
   roleId?: string;
 }
