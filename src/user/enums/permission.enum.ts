@@ -33,47 +33,20 @@ export enum Permission {
   CREATE_USER = 'c:user',
   UPDATE_USER = 'u:user',
   DELETE_USER = 'd:user',
+
+  READ_FILE = 'r:file',
+  CREATE_FILE = 'c:file',
+  UPDATE_FILE = 'u:file',
+  DELETE_FILE = 'd:file',
 }
 
 export class PermissionUtil {
   static allPermissions(): Permission[] {
-    return [
-      Permission.READ_PRODUCT,
-      Permission.CREATE_PRODUCT,
-      Permission.UPDATE_PRODUCT,
-      Permission.DELETE_PRODUCT,
-
-      Permission.READ_CATEGORY,
-      Permission.CREATE_CATEGORY,
-      Permission.UPDATE_CATEGORY,
-      Permission.DELETE_CATEGORY,
-
-      Permission.READ_TAX,
-      Permission.CREATE_TAX,
-      Permission.UPDATE_TAX,
-      Permission.DELETE_TAX,
-
-      Permission.READ_TAX_RULE,
-      Permission.CREATE_TAX_RULE,
-      Permission.UPDATE_TAX_RULE,
-      Permission.DELETE_TAX_RULE,
-
-      Permission.READ_TAX_RULE_GROUP,
-      Permission.CREATE_TAX_RULE_GROUP,
-      Permission.UPDATE_TAX_RULE_GROUP,
-      Permission.DELETE_TAX_RULE_GROUP,
-
-      Permission.READ_COUNTRY,
-      Permission.CREATE_COUNTRY,
-      Permission.UPDATE_COUNTRY,
-      Permission.DELETE_COUNTRY,
-
-      Permission.READ_USER,
-      Permission.CREATE_USER,
-      Permission.UPDATE_USER,
-      Permission.DELETE_USER,
-
-    ];
+    const permissions: Permission[] = [];
+    for (const [key] of Object.entries(Permission)) {
+      permissions.push(Permission[key]);
+    }
+    return permissions;
   }
 
   static productPermissions(): Permission[] {
