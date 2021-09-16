@@ -12,8 +12,8 @@ async function bootstrap() {
     .setTitle('E-commerce endpoints documentation')
     .addBearerAuth()
     .build();
-    
-  app.enableCors({ origin: 'http://localhost:8080' });
+
+  app.enableCors({ origin: '*', methods: ['GET,POST,PATCH,DELETE'] });
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('', app, document);
