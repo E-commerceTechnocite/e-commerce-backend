@@ -20,6 +20,7 @@ import { TaxRule } from './entities/tax-rule.entity';
 import { TaxRuleGroup } from './entities/tax-rule-group.entity';
 import { Country } from './entities/country.entity';
 import { AuthModule } from '@app/auth/auth.module';
+import { Picture } from '@app/file/entities/picture.entity';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { AuthModule } from '@app/auth/auth.module';
       TaxRule,
       TaxRuleGroup,
       Country,
+      Picture
     ]),
     SharedModule,
     AuthModule,

@@ -28,8 +28,8 @@ export class ProductDto {
   taxRuleGroupId?: string;
 
   @ApiProperty({ required: false, description: 'Picture ids' })
-  @IsUUID(null, { each: true })
-  picturesId?: string[];
+  @IsUUID(null, { each: true, })
+  picturesId?: string[] = [];
 
   @ApiProperty({ required: false, description: 'Picture id for the thumbnail' })
   @IsUUID()

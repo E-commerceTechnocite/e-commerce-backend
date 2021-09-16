@@ -48,7 +48,9 @@ export class Product {
   @JoinColumn({ name: 'tax_rule_group_id', referencedColumnName: 'id' })
   taxRuleGroup?: TaxRuleGroup;
 
-  @ManyToMany(() => Picture)
+  @ManyToMany(() => Picture, (picture) => picture.products, {
+    eager: true,
+  })
   @JoinTable({
     name: 'product_pictures',
     joinColumn: { name: 'product_id', referencedColumnName: 'id' },
@@ -56,7 +58,9 @@ export class Product {
   })
   pictures?: Picture[];
 
-  @ManyToOne(() => Picture)
-  @JoinColumn({ name: 'picture_id', referencedColumnName: 'id' })
+  @ManyToOne(() => Picture, (picture) => picture.productThumbnail, {
+    eager: true,
+  })
+  @JoinColumn({ name: 'picture_thumbnail_id', referencedColumnName: 'id' })
   thumbnail?: Picture;
 }
