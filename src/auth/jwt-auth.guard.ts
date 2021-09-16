@@ -27,14 +27,14 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
     console.log(user);
     if (!user) {
-      throw new ForbiddenException('Unauthenticated');
+      throw new UnauthorizedException('Unauthenticated');
     }
 
     const canActivate = requiredPermissions.some((permission) =>
       user.role?.permissions.includes(permission),
     );
     if (!canActivate) {
-      throw new UnauthorizedException();
+      throw new ForbiddenException('Unauthorized');
     }
 
     return user;

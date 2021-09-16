@@ -16,6 +16,7 @@ import {
 import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
+import { Picture } from '@app/file/entities/picture.entity';
 
 export interface ProductServiceInterface
   extends CrudServiceInterface<Product, ProductDto, ProductDto>,
@@ -30,9 +31,14 @@ export class ProductService implements ProductServiceInterface {
     private readonly productCategoryRepository: Repository<ProductCategory>,
     @InjectRepository(TaxRuleGroup)
     private readonly taxRuleGroupRepository: Repository<TaxRuleGroup>,
+    @InjectRepository(Picture)
+    private readonly pictureRepository: Repository<Picture>,
   ) {}
 
   async create(entity: ProductDto): Promise<Product> {
+    if (!entity.picturesId) {
+      entity.picturesId = [];
+    }
     const category = await this.productCategoryRepository.findOne(
       entity.categoryId,
     );
@@ -41,7 +47,6 @@ export class ProductService implements ProductServiceInterface {
         `Category not found at id ${entity.categoryId}`,
       );
     }
-    delete entity.categoryId;
 
     // TODO ajouter les pictures et la thumbnail
 
@@ -53,6 +58,22 @@ export class ProductService implements ProductServiceInterface {
         `TaxRuleGroup not found at id ${entity.taxRuleGroupId}`,
       );
     }
+
+    let pictures;
+    try {
+      pictures = await this.pictureRepository.findByIds(entity.picturesId);
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
+
+    let thumbnail;
+    try {
+      thumbnail = await this.pictureRepository.findOne(entity.thumbnailId);
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
+
+    delete entity.categoryId;
     delete entity.taxRuleGroupId;
     delete entity.picturesId;
     delete entity.thumbnailId;
@@ -60,6 +81,8 @@ export class ProductService implements ProductServiceInterface {
       ...entity,
       category,
       taxRuleGroup,
+      pictures,
+      thumbnail,
     };
     return await this.productRepository.save(target);
   }
@@ -79,7 +102,7 @@ export class ProductService implements ProductServiceInterface {
   }
 
   async find(id: string | number): Promise<Product> {
-    const product = await this.productRepository.findOne(id);
+    const product = await this.productRepository.findOne(id,{loadEagerRelations: true});
     if (!product) {
       throw new NotFoundException();
     }
@@ -117,11 +140,29 @@ export class ProductService implements ProductServiceInterface {
     }
     delete entity.taxRuleGroupId;
 
+    let pictures;
+    try {
+      pictures = await this.pictureRepository.findByIds(entity.picturesId);
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
+
+    let thumbnail;
+    try {
+      thumbnail = await this.pictureRepository.findOne(entity.thumbnailId);
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
+    delete entity.picturesId;
+    delete entity.thumbnailId;
+
     const target: Product = {
       ...product,
       ...entity,
       category,
       taxRuleGroup,
+      pictures,
+      thumbnail,
     };
     console.log(target);
     await this.productRepository.update(id, target);
@@ -142,12 +183,19 @@ export class ProductService implements ProductServiceInterface {
       const { orderBy } = opts;
       await query.orderBy(orderBy ?? 'id');
     }
+
     const data = await query
       .leftJoinAndMapOne(
         'p.category',
         ProductCategory,
         'c',
         'p.product_category_id = c.id',
+      )
+      .leftJoinAndMapOne(
+        'p.thumbnail',
+        Picture,
+        'pic',
+        'p.picture_thumbnail_id = pic.id',
       )
       .skip(index * limit - limit)
       .take(limit)
