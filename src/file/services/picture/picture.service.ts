@@ -1,8 +1,13 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Picture } from '@app/file/entities/picture.entity';
 import { Repository } from 'typeorm';
 import * as fs from 'fs';
+import { join } from 'path';
 
 @Injectable()
 export class PictureService {
@@ -24,14 +29,33 @@ export class PictureService {
     return await this.pictureRepo.save(pics);
   }
 
-  async delete(id, path) {
-    await this.pictureRepo.delete(id);
+  async delete(title) {
+    const file = await this.pictureRepo.findOne({ title });
+    if (!file) {
+      throw new NotFoundException(`File with title "${title}" not found`);
+    }
+    const path = join(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      ...file.uri.replace('/', '').trim().split('/'),
+    );
 
-    await fs.unlink(path, async (err) => {
+    console.log(path);
+
+    try {
+      fs.unlinkSync(path);
+    } catch (err) {
       if (err) {
-        throw new BadRequestException();
+        throw new BadRequestException('Could no remove from file system');
       }
-      await this.pictureRepo.delete(id);
-    });
+    }
+    await this.pictureRepo.delete(file.id);
+  }
+
+  async handleFileDeletion(err, file) {
+    console.log(err.message, file);
   }
 }

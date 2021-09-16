@@ -1,13 +1,7 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { Picture } from '@app/file/entities/picture.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { join } from 'path';
 import { PictureService } from '@app/file/services/picture/picture.service';
 import { MimetypeEnum } from '@app/file/mimetype.enum';
 
@@ -19,19 +13,19 @@ export class FileService {
     private readonly pictureRepo: Repository<Picture>,
   ) {}
 
-  private getFromMimeType(
-    files: Express.Multer.File[],
-    mimetype: MimetypeEnum,
-  ) {
-    return files.filter((file) => file.mimetype.split('/')[0] === mimetype);
+  /**
+   * Filter files based on their mimetype
+   * @param files
+   * @param mimetype
+   * @private
+   */
+  private filterMimetype(files: Express.Multer.File[], mimetype: MimetypeEnum) {
+    return files.filter((file) => file.mimetype?.split('/')[0] === mimetype);
   }
 
   async add(...files: Express.Multer.File[]) {
-    const pictures = this.getFromMimeType(files, MimetypeEnum.IMAGE);
-    const documents = this.getFromMimeType(files, MimetypeEnum.APPLICATION);
-    const video = this.getFromMimeType(files, MimetypeEnum.VIDEO);
+    const pictures = this.filterMimetype(files, MimetypeEnum.IMAGE);
 
-    console.log(pictures);
     await this.pictureService.add(...pictures);
   }
 
@@ -44,28 +38,12 @@ export class FileService {
   }
 
   async delete(title: string, mimetype: MimetypeEnum): Promise<void> {
-    const file = await this.pictureRepo.findOne({ title });
-    if (!file) {
-      throw new NotFoundException(`File with title "${title}" not found`);
-    }
-    const filePath = join(
-      __dirname,
-      '..',
-      '..',
-      '..',
-      ...file.uri.replace('/', '').trim().split('/'),
-    );
     switch (mimetype) {
       case MimetypeEnum.IMAGE:
-        await this.pictureService.delete(title, filePath);
+        await this.pictureService.delete(title);
         break;
-      case MimetypeEnum.APPLICATION:
-        throw new InternalServerErrorException('Not implemented');
-      case MimetypeEnum.VIDEO:
-        throw new InternalServerErrorException('Not implemented');
       default:
         throw new BadRequestException('Unknown mimetype provided: ' + mimetype);
     }
-    console.log(filePath);
   }
 }
