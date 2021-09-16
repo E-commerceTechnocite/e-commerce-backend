@@ -67,11 +67,11 @@ export class CountryService
     return this.countryRepository.find();
   }
 
-  async create(entity: CountryDto): Promise<void> {
+  async create(entity: CountryDto): Promise<Country> {
     const target: Country = {
       ...entity,
     };
-    await this.countryRepository.save(target).catch(() => {
+    return await this.countryRepository.save(target).catch(() => {
       throw new BadRequestException();
     });
   }

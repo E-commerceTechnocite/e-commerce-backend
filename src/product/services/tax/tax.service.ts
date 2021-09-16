@@ -63,11 +63,11 @@ export class TaxService
     return this.taxRepository.find();
   }
 
-  async create(entity: TaxDto): Promise<void> {
+  async create(entity: TaxDto): Promise<Tax> {
     const target: Tax = {
       ...entity,
     };
-    await this.taxRepository.save(target).catch(() => {
+    return await this.taxRepository.save(target).catch(() => {
       throw new BadRequestException();
     });
   }

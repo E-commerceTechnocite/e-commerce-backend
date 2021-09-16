@@ -66,7 +66,7 @@ export class TaxRuleGroupController {
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(@Body() taxRuleGroup: TaxRuleGroupDto): Promise<any> {
-    return this.taxRuleGroupService.create(taxRuleGroup);
+    return await this.taxRuleGroupService.create(taxRuleGroup);
   }
 
   @Granted(Permission.UPDATE_TAX_RULE_GROUP)

@@ -66,11 +66,11 @@ export class TaxRuleGroupService
     return this.taxRuleGroupRepository.find();
   }
 
-  async create(entity: TaxRuleGroupDto): Promise<void> {
+  async create(entity: TaxRuleGroupDto): Promise<TaxRuleGroup> {
     const target: TaxRuleGroup = {
       ...entity,
     };
-    await this.taxRuleGroupRepository.save(target).catch(() => {
+    return await this.taxRuleGroupRepository.save(target).catch(() => {
       throw new BadRequestException();
     });
   }

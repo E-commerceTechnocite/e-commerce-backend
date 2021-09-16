@@ -68,7 +68,7 @@ export class ProductCategoryController {
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(@Body() category: ProductCategoryDto): Promise<any> {
-    return this.productCategoryService.create(category);
+    return await this.productCategoryService.create(category);
   }
 
   @Granted(Permission.UPDATE_CATEGORY)

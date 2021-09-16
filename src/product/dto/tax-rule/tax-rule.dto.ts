@@ -5,30 +5,30 @@ export class TaxRuleDto {
   @ApiProperty({ required: false })
   @IsUUID()
   @IsNotEmpty()
-  taxRuleGroupId: string;
+  taxRuleGroupId?: string;
 
   @ApiProperty({ required: false })
   @IsUUID()
   @IsNotEmpty()
-  taxId: string;
+  taxId?: string;
 
   @ApiProperty({ required: false })
   @IsUUID()
   @IsNotEmpty()
-  countryId: string;
+  countryId?: string;
 
   @ApiProperty({ required: false })
   @Length(2, 10)
   @IsNotEmpty()
-  zipCode: string;
+  zipCode?: string;
 
   @ApiProperty({ required: false })
   @IsNumber()
   @IsNotEmpty()
-  behavior: number;
+  behavior?: number;
 
   @ApiProperty({ required: false })
   @Length(2, 10)
   @IsNotEmpty()
-  description: string;
+  description?: string;
 }

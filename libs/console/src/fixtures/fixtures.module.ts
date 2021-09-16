@@ -11,6 +11,8 @@ import { Country } from '@app/product/entities/country.entity';
 import { Tax } from '@app/product/entities/tax.entity';
 import { TaxRule } from '@app/product/entities/tax-rule.entity';
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
+import { FileFixturesService } from '@app/console/fixtures/file/file-fixtures.service';
+import { Picture } from '@app/file/entities/picture.entity';
 
 @Module({
   imports: [
@@ -23,12 +25,14 @@ import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
       Tax,
       TaxRule,
       TaxRuleGroup,
+      Picture,
     ]),
   ],
   providers: [
     FixturesService,
     ProductFixturesService,
     UserFixturesService,
+    FileFixturesService,
     ConsoleLogger,
   ],
 })

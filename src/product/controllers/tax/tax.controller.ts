@@ -66,7 +66,7 @@ export class TaxController {
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(@Body() tax: TaxDto): Promise<any> {
-    return this.taxService.create(tax);
+    return await this.taxService.create(tax);
   }
 
 

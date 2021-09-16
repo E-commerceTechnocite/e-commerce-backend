@@ -7,16 +7,23 @@ import { SharedModule } from './shared/shared.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { APP_GUARD } from '@nestjs/core';
+import { FileModule } from '@app/file/file.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 import { JwtAuthGuard } from '@app/auth/jwt-auth.guard';
-import { PermissionsGuard } from './auth/permissions.guard';
 
 @Module({
   imports: [
     ApplicationConfigurationModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+      serveRoot: '/public',
+    }),
     ProductModule,
     SharedModule,
     AuthModule,
     UserModule,
+    FileModule,
   ],
   providers: [
     {

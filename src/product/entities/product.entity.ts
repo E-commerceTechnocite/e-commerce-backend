@@ -2,12 +2,15 @@ import {
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { ApiProperty, ApiResponseProperty } from '@nestjs/swagger';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
 import { TaxRuleGroup } from './tax-rule-group.entity';
+import { Picture } from '@app/file/entities/picture.entity';
 
 @Entity()
 export class Product {
@@ -17,31 +20,43 @@ export class Product {
 
   @ApiProperty({ required: true })
   @Column()
-  title: string;
+  title?: string;
 
   @ApiProperty({ required: true })
   @Column()
-  reference: string;
+  reference?: string;
 
   @ApiProperty({ required: true })
   @Column({ type: 'text' })
-  description: string;
+  description?: string;
 
   @ApiProperty({ required: true })
   @Column({ type: 'float' })
-  price: number;
+  price?: number;
 
-  @ApiResponseProperty({ type: ()=> ProductCategory })
+  @ApiResponseProperty({ type: () => ProductCategory })
   @ManyToOne(() => ProductCategory, (category) => category.products, {
     eager: true,
   })
   @JoinColumn({ name: 'product_category_id', referencedColumnName: 'id' })
-  category: ProductCategory;
+  category?: ProductCategory;
 
-  @ApiResponseProperty({ type: ()=> TaxRuleGroup })
+  @ApiResponseProperty({ type: () => TaxRuleGroup })
   @ManyToOne(() => TaxRuleGroup, (taxRuleGroup) => taxRuleGroup.products, {
-    eager : true,
+    eager: true,
   })
   @JoinColumn({ name: 'tax_rule_group_id', referencedColumnName: 'id' })
   taxRuleGroup?: TaxRuleGroup;
+
+  @ManyToMany(() => Picture)
+  @JoinTable({
+    name: 'product_pictures',
+    joinColumn: { name: 'product_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'picture_id', referencedColumnName: 'id' },
+  })
+  pictures?: Picture[];
+
+  @ManyToOne(() => Picture)
+  @JoinColumn({ name: 'picture_id', referencedColumnName: 'id' })
+  thumbnail?: Picture;
 }

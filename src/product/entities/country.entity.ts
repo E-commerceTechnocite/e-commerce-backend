@@ -10,11 +10,11 @@ export class Country {
 
   @ApiProperty({ required: true })
   @Column()
-  name: string;
+  name?: string;
 
   @ApiProperty({ required: true })
   @Column()
-  code: string;
+  code?: string;
 
   @OneToMany(() => TaxRule, (taxRule) => taxRule.country, { lazy: true })
   taxRules?: TaxRule[];

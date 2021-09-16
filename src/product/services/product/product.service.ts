@@ -32,17 +32,18 @@ export class ProductService implements ProductServiceInterface {
     private readonly taxRuleGroupRepository: Repository<TaxRuleGroup>,
   ) {}
 
-  async create(entity: ProductDto): Promise<void> {
+  async create(entity: ProductDto): Promise<Product> {
     const category = await this.productCategoryRepository.findOne(
       entity.categoryId,
     );
-    console.log(category);
     if (!category) {
       throw new BadRequestException(
         `Category not found at id ${entity.categoryId}`,
       );
     }
     delete entity.categoryId;
+
+    // TODO ajouter les pictures et la thumbnail
 
     const taxRuleGroup = await this.taxRuleGroupRepository.findOne(
       entity.taxRuleGroupId,
@@ -53,12 +54,14 @@ export class ProductService implements ProductServiceInterface {
       );
     }
     delete entity.taxRuleGroupId;
+    delete entity.picturesId;
+    delete entity.thumbnailId;
     const target: Product = {
       ...entity,
       category,
       taxRuleGroup,
     };
-    await this.productRepository.save(target);
+    return await this.productRepository.save(target);
   }
 
   async delete(entity: Product): Promise<void> {
@@ -101,6 +104,8 @@ export class ProductService implements ProductServiceInterface {
       throw new BadRequestException(`Product not found with id ${id}`);
     }
     delete entity.categoryId;
+
+    // TODO ajouter les pictures et la thumbnail
 
     const taxRuleGroup = await this.taxRuleGroupRepository.findOne(
       entity.taxRuleGroupId,

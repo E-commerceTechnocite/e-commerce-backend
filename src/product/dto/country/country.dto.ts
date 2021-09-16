@@ -6,11 +6,11 @@ export class CountryDto {
   @IsNotEmpty()
   @Length(2, 100)
   @IsString()
-  name: string;
+  name?: string;
 
   @ApiProperty({ required: false })
   @IsNotEmpty()
   @Length(2, 10)
   @IsString()
-  code: string;
+  code?: string;
 }

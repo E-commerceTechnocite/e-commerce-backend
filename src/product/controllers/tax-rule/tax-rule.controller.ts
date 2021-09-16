@@ -25,6 +25,7 @@ import {
 } from '@nestjs/swagger';
 import { Granted } from '@app/auth/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
+import { TaxRuleUpdateDto } from '@app/product/dto/tax-rule/tax-rule-update.dto';
 
 @ApiBearerAuth()
 @ApiTags('TaxRule')
@@ -66,17 +67,17 @@ export class TaxRuleController {
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(@Body() taxRule: TaxRuleDto): Promise<any> {
-    return this.taxRuleService.create(taxRule);
+    return await this.taxRuleService.create(taxRule);
   }
 
   @Granted(Permission.UPDATE_TAX_RULE)
-  @ApiBody({ type: TaxRuleDto, required: false })
+  @ApiBody({ type: TaxRuleUpdateDto, required: false })
   @ApiResponse({ type: null })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id')
   async update(
     @Param('id') id: string,
-    @Body() taxRule: TaxRuleDto,
+    @Body() taxRule: TaxRuleUpdateDto,
   ): Promise<any> {
     return this.taxRuleService.update(id, taxRule);
   }

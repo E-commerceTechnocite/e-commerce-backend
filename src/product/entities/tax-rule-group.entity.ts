@@ -11,7 +11,7 @@ export class TaxRuleGroup {
 
   @ApiProperty()
   @Column()
-  name: string;
+  name?: string;
 
   @OneToMany(() => TaxRule, (taxRule) => taxRule.taxRuleGroup, { lazy: true })
   taxRules?: TaxRule[];
