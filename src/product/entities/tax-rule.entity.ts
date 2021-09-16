@@ -28,24 +28,24 @@ export class TaxRule {
     eager: true,
   })
   @JoinColumn({ name: 'tax_id', referencedColumnName: 'id' })
-  tax: Tax;
+  tax?: Tax;
 
   @ApiResponseProperty({ type: Country })
   @ManyToOne(() => Country, (country) => country.taxRules, {
     eager: true,
   })
   @JoinColumn({ name: 'country_id', referencedColumnName: 'id' })
-  country: Country;
+  country?: Country;
 
   @ApiProperty({ required: true })
   @Column()
-  zipCode: string;
+  zipCode?: string;
 
   @ApiProperty({ required: true })
   @Column()
-  behavior: number;
+  behavior?: number;
 
   @ApiProperty({ required: true })
   @Column()
-  description: string;
+  description?: string;
 }

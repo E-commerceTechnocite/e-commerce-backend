@@ -5,5 +5,5 @@ export class ProductCategoryDto {
   @ApiProperty({ required: false })
   @Length(2, 255)
   @IsNotEmpty()
-  label: string;
+  label?: string;
 }

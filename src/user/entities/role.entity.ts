@@ -8,7 +8,7 @@ export class Role {
   id?: string;
 
   @Column()
-  name: string;
+  name?: string;
 
   @Column({ type: 'set', enum: Permission })
   permissions?: Permission[];

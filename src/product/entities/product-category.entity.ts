@@ -10,7 +10,7 @@ export class ProductCategory {
 
   @ApiProperty()
   @Column()
-  label: string;
+  label?: string;
 
   @OneToMany(() => Product, (product) => product.category, { lazy: true })
   products?: Product[];
