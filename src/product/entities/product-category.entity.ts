@@ -1,13 +1,10 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { Product } from '@app/product/entities/product.entity';
-import { ApiProperty, ApiResponseProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
+import { EntitySchema } from '@app/shared/entities/entity-schema';
 
 @Entity()
-export class ProductCategory {
-  @ApiResponseProperty()
-  @PrimaryGeneratedColumn('uuid')
-  id?: string;
-
+export class ProductCategory extends EntitySchema {
   @ApiProperty()
   @Column()
   label?: string;

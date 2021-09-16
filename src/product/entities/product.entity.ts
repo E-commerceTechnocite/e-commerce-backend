@@ -5,19 +5,15 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
-  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { ApiProperty, ApiResponseProperty } from '@nestjs/swagger';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
-import { TaxRuleGroup } from './tax-rule-group.entity';
+import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { Picture } from '@app/file/entities/picture.entity';
+import { EntitySchema } from '@app/shared/entities/entity-schema';
 
 @Entity()
-export class Product {
-  @ApiResponseProperty()
-  @PrimaryGeneratedColumn('uuid')
-  id?: string;
-
+export class Product extends EntitySchema {
   @ApiProperty({ required: true })
   @Column()
   title?: string;

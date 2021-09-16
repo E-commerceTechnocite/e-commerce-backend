@@ -1,13 +1,10 @@
-import { ApiProperty, ApiResponseProperty } from '@nestjs/swagger';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { TaxRule } from './tax-rule.entity';
+import { ApiProperty } from '@nestjs/swagger';
+import { Column, Entity, OneToMany } from 'typeorm';
+import { TaxRule } from '@app/product/entities/tax-rule.entity';
+import { EntitySchema } from '@app/shared/entities/entity-schema';
 
 @Entity()
-export class Country {
-  @ApiResponseProperty()
-  @PrimaryGeneratedColumn('uuid')
-  id?: string;
-
+export class Country extends EntitySchema {
   @ApiProperty({ required: true })
   @Column()
   name?: string;

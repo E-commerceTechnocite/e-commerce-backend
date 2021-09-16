@@ -6,9 +6,10 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Role } from '@app/user/entities/role.entity';
+import { EntitySchema } from '@app/shared/entities/entity-schema';
 
 @Entity()
-export class User {
+export class User extends EntitySchema {
   @PrimaryGeneratedColumn('uuid')
   id?: string;
 

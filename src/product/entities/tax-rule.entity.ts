@@ -1,30 +1,21 @@
 import { ApiProperty, ApiResponseProperty } from '@nestjs/swagger';
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
-import { Country } from './country.entity';
-import { TaxRuleGroup } from './tax-rule-group.entity';
-import { Tax } from './tax.entity';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Country } from '@app/product/entities/country.entity';
+import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
+import { Tax } from '@app/product/entities/tax.entity';
+import { EntitySchema } from '@app/shared/entities/entity-schema';
 
 @Entity()
-export class TaxRule {
-  @ApiResponseProperty()
-  @PrimaryGeneratedColumn('uuid')
-  id?: string;
-
-  @ApiResponseProperty({ type: ()=> TaxRuleGroup })
-  @ManyToOne(() => TaxRuleGroup, (taxRuleGroup) => taxRuleGroup.taxRules,{
+export class TaxRule extends EntitySchema {
+  @ApiResponseProperty({ type: () => TaxRuleGroup })
+  @ManyToOne(() => TaxRuleGroup, (taxRuleGroup) => taxRuleGroup.taxRules, {
     eager: true,
   })
   @JoinColumn({ name: 'tax_rule_group_id', referencedColumnName: 'id' })
   taxRuleGroup?: TaxRuleGroup;
 
   @ApiResponseProperty({ type: Tax })
-  @ManyToOne(() => Tax, (tax) => tax.taxRules,{
+  @ManyToOne(() => Tax, (tax) => tax.taxRules, {
     eager: true,
   })
   @JoinColumn({ name: 'tax_id', referencedColumnName: 'id' })
