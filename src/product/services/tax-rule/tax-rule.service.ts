@@ -55,7 +55,14 @@ export class TaxRuleService
       await query.orderBy(orderBy ?? 'id');
     }
     const data = await query
-
+      .leftJoinAndMapOne('tr.tax', Tax, 't', 'tr.tax_id = t.id')
+      .leftJoinAndMapOne(
+        'tr.taxRuleGroup',
+        TaxRuleGroup,
+        'trg',
+        'tr.tax_rule_group_id = trg.id',
+      )
+      .leftJoinAndMapOne('tr.country', Country, 'c', 'tr.country_id = c.id')
       .skip(index * limit - limit)
       .take(limit)
       .getMany();
