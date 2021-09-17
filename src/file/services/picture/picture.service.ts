@@ -58,4 +58,18 @@ export class PictureService {
   async handleFileDeletion(err, file) {
     console.log(err.message, file);
   }
+
+  async findById(id: string | number): Promise<Picture> {
+    const picture = await this.pictureRepo.findOne(id);
+    if (!picture) {
+      throw new NotFoundException();
+    }
+    return picture;
+  }
+
+  findAll(): Promise<Picture[]> {
+    return this.pictureRepo.find();
+  }
+
+  
 }

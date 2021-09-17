@@ -1,16 +1,16 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Picture } from '@app/file/entities/picture.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, getManager, Repository } from 'typeorm';
 import { PictureService } from '@app/file/services/picture/picture.service';
 import { MimetypeEnum } from '@app/file/mimetype.enum';
+import { StoredFile } from '../entities/stored-file.entity';
 
 @Injectable()
 export class FileService {
   constructor(
     private readonly pictureService: PictureService,
-    @InjectRepository(Picture)
-    private readonly pictureRepo: Repository<Picture>,
+    private readonly manager: EntityManager,
   ) {}
 
   /**
@@ -29,12 +29,22 @@ export class FileService {
     await this.pictureService.add(...pictures);
   }
 
-  async findById(id: string): Promise<Picture> {
-    return await this.pictureRepo.findOne(id);
+  async findById(id: string, mimetype: MimetypeEnum): Promise<any> {
+    switch (mimetype) {
+      case MimetypeEnum.IMAGE:
+        return await this.pictureService.findById(id);
+      default:
+        throw new BadRequestException('Unknown mimetype provided: ' + mimetype);
+    }
   }
 
-  async findAll(): Promise<Picture[]> {
-    return await this.pictureRepo.find();
+  async findAll(mimetype: MimetypeEnum): Promise<Picture[]> {
+    switch (mimetype) {
+      case MimetypeEnum.IMAGE:
+        return await this.pictureService.findAll();
+      default:
+        throw new BadRequestException('Unknown mimetype provided: ' + mimetype);
+    }
   }
 
   async delete(title: string, mimetype: MimetypeEnum): Promise<void> {
@@ -45,5 +55,15 @@ export class FileService {
       default:
         throw new BadRequestException('Unknown mimetype provided: ' + mimetype);
     }
+  }
+
+  private async findAllMimes(crit: string = 'title'): Promise<StoredFile[]> {
+    const storedFile = await this.manager
+      .createQueryBuilder()
+      .select()
+      .from(Picture, 'picture')
+      .orderBy(crit)
+      .getMany();
+    return storedFile;
   }
 }

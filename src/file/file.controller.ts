@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { FileService } from '@app/file/services/file.service';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Picture } from '@app/file/entities/picture.entity';
 import { MimetypeEnum } from '@app/file/mimetype.enum';
 import { Granted } from '@app/auth/granted.decorator';
@@ -39,10 +39,12 @@ export class FileController {
 
   @Granted(Permission.READ_FILE)
   @Get()
-  findAll(): Promise<Picture[]> {
-    return this.fileService.findAll();
+  findAll(@Query('mimetype')
+  mimetype: MimetypeEnum = MimetypeEnum.IMAGE,): Promise<Picture[]> {
+    return this.fileService.findAll(mimetype);
   }
 
+  @ApiQuery({ enum: MimetypeEnum, allowEmptyValue: true, name: 'mimetype' })
   @Granted(Permission.DELETE_FILE)
   @Delete(':title')
   async delete(

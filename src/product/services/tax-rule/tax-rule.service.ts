@@ -18,6 +18,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TaxRuleUpdateDto } from '@app/product/dto/tax-rule/tax-rule-update.dto';
+import { GetCheckDeleteEntityIdService } from '@app/shared/services/get-check-delete-entity-id.service';
 
 @Injectable()
 export class TaxRuleService
@@ -37,6 +38,8 @@ export class TaxRuleService
 
     @InjectRepository(Country)
     private readonly countryRepository: Repository<Country>,
+
+    private readonly getCheckDeleteService: GetCheckDeleteEntityIdService,
   ) {}
 
   async getPage(
@@ -86,21 +89,18 @@ export class TaxRuleService
   }
 
   async create(entity: TaxRuleDto): Promise<TaxRule> {
-    const tax = await this.taxRepository.findOne(entity.taxId);
-    if (!tax) {
-      throw new BadRequestException(`Tax not found at id ${entity.taxId}`);
-    }
-    delete entity.taxId;
-
-    const taxRuleGroup = await this.taxRuleGroupRepository.findOne(
-      entity.taxRuleGroupId,
+    const tax = await this.getCheckDeleteService.getEntity<Tax>(
+      this.taxRepository,
+      entity,
+      'taxId',
     );
-    if (!taxRuleGroup) {
-      throw new BadRequestException(
-        `TaxRuleGroup not found at id ${entity.taxRuleGroupId}`,
+
+    const taxRuleGroup =
+      await this.getCheckDeleteService.getEntity<TaxRuleGroup>(
+        this.taxRuleGroupRepository,
+        entity,
+        'taxRuleGroupId',
       );
-    }
-    delete entity.taxRuleGroupId;
 
     const country = await this.countryRepository.findOne(entity.countryId);
     if (!country) {
