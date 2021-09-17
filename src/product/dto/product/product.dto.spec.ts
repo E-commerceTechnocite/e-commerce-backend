@@ -1,5 +1,8 @@
-import { validate } from 'class-validator';
 import { ProductDto } from '@app/product/dto/product/product.dto';
+import {
+  assertStubHasOneError,
+  assertStubIsValid,
+} from '@app/test/util/validation';
 
 describe('Product Dto Validation', () => {
   const getStub = (): ProductDto => {
@@ -9,19 +12,10 @@ describe('Product Dto Validation', () => {
     stub.price = 39.99;
     stub.description = 'hello description';
     stub.reference = '123456789';
+    stub.thumbnailId = undefined;
+    stub.picturesId = [];
+    stub.taxRuleGroupId = undefined;
     return stub;
-  };
-
-  const assertStubHasOneError = async (stub: ProductDto) => {
-    const actual = await validate(stub);
-    expect(actual).toHaveLength(1);
-    expect(actual[0].constraints).toBeDefined();
-  };
-
-  const assertStubIsValid = async (stub: ProductDto) => {
-    const actual = await validate(stub);
-    expect(actual).toHaveLength(0);
-    expect(actual[0]).toBeUndefined();
   };
 
   it('should validate', async () => {

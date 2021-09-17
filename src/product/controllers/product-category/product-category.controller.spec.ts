@@ -1,37 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProductCategoryController } from '@app/product/controllers/product-category/product-category.controller';
-import {
-  ProductCategoryService,
-  ProductCategoryServiceInterface,
-} from '@app/product/services/product-category/product-category.service';
-import { ProductCategory } from '@app/product/entities/product-category.entity';
-import { ProductCategoryDto } from '@app/product/dto/product-category/product-category.dto';
+import { ProductCategoryService } from '@app/product/services/product-category/product-category.service';
+import { mock } from 'jest-mock-extended';
 
 describe('ProductCategoryController', () => {
   let controller: ProductCategoryController;
-  const service: ProductCategoryServiceInterface = {
-    create(entity: ProductCategory | ProductCategoryDto): Promise<void> {
-      return Promise.resolve(undefined);
-    },
-    delete(entity: ProductCategory): Promise<void> {
-      return Promise.resolve(undefined);
-    },
-    find(id: string | number): Promise<ProductCategory> {
-      return Promise.resolve(undefined);
-    },
-    findAll(): Promise<ProductCategory[]> {
-      return Promise.resolve([]);
-    },
-    update(
-      id: string | number,
-      entity: ProductCategory | ProductCategoryDto,
-    ): Promise<void> {
-      return Promise.resolve(undefined);
-    },
-    deleteFromId(id: string | number): Promise<void> {
-      return Promise.resolve(undefined);
-    },
-  };
+  const service = mock<ProductCategoryService>();
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({

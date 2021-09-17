@@ -5,11 +5,15 @@ import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
 import { mock } from 'jest-mock-extended';
+import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
+import { Picture } from '@app/file/entities/picture.entity';
 
 describe('ProductService', () => {
   let service: ProductService;
   const productRepository = mock<Repository<Product>>();
   const categoryRepository = mock<Repository<ProductCategory>>();
+  const taxRuleGroupRepository = mock<Repository<TaxRuleGroup>>();
+  const pictureRepository = mock<Repository<Picture>>();
 
   const productStub: Product = {
     category: undefined,
@@ -28,6 +32,14 @@ describe('ProductService', () => {
         {
           provide: getRepositoryToken(ProductCategory),
           useValue: categoryRepository,
+        },
+        {
+          provide: getRepositoryToken(TaxRuleGroup),
+          useValue: taxRuleGroupRepository,
+        },
+        {
+          provide: getRepositoryToken(Picture),
+          useValue: pictureRepository,
         },
       ],
     }).compile();

@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsPositive, IsUUID, Length } from 'class-validator';
+import {
+  IsNumber,
+  IsOptional,
+  IsPositive,
+  IsUUID,
+  Length,
+} from 'class-validator';
 
 export class ProductDto {
   @ApiProperty({ required: false })
@@ -25,13 +31,16 @@ export class ProductDto {
 
   @ApiProperty({ required: false })
   @IsUUID()
+  @IsOptional()
   taxRuleGroupId?: string;
 
   @ApiProperty({ required: false, description: 'Picture ids' })
-  @IsUUID(null, { each: true, })
+  @IsUUID(null, { each: true })
+  @IsOptional()
   picturesId?: string[] = [];
 
   @ApiProperty({ required: false, description: 'Picture id for the thumbnail' })
   @IsUUID()
+  @IsOptional()
   thumbnailId?: string;
 }
