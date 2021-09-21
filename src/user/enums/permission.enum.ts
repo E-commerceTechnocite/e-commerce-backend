@@ -39,7 +39,7 @@ export enum Permission {
   UPDATE_FILE = 'u:file',
   DELETE_FILE = 'd:file',
 
-  READ_ROLE= 'r:role',
+  READ_ROLE = 'r:role',
   CREATE_ROLE = 'c:role',
   UPDATE_ROLE = 'u:role',
   DELETE_ROLE = 'd:role',
