@@ -25,6 +25,7 @@ import {
 } from '@nestjs/swagger';
 import { Granted } from '@app/auth/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
+import { ApiOkPaginatedResponse } from '@app/shared/swagger/decorators';
 
 @ApiBearerAuth()
 @ApiTags('TaxRuleGroup')
@@ -32,16 +33,8 @@ import { Permission } from '@app/user/enums/permission.enum';
 export class TaxRuleGroupController {
   constructor(private readonly taxRuleGroupService: TaxRuleGroupService) {}
 
-  // @ApiOkResponse()
-  // @ApiResponse({ type: TaxRuleGroup, isArray: true })
-  // @Get()
-  // async findAll(): Promise<TaxRuleGroup[]> {
-  //   return this.taxRuleGroupService.findAll();
-  // }
-
   @Granted(Permission.READ_TAX_RULE_GROUP)
-  @ApiOkResponse()
-  @ApiResponse({ type: PaginationDto })
+  @ApiOkPaginatedResponse(TaxRuleGroup)
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
   @Get()

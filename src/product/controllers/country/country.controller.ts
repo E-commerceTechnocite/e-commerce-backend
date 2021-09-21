@@ -14,7 +14,6 @@ import {
   Patch,
   Post,
   Query,
-  Res,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -22,11 +21,11 @@ import {
   ApiOkResponse,
   ApiQuery,
   ApiResponse,
-  ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
 import { Permission } from '@app/user/enums/permission.enum';
 import { Granted } from '@app/auth/granted.decorator';
+import { ApiOkPaginatedResponse } from '@app/shared/swagger/decorators';
 
 @ApiBearerAuth()
 @ApiTags('Country')
@@ -34,16 +33,8 @@ import { Granted } from '@app/auth/granted.decorator';
 export class CountryController {
   constructor(private readonly countryService: CountryService) {}
 
-  // @ApiOkResponse()
-  // @ApiResponse({ type: Country, isArray: true })
-  // @Get()
-  // async findAll(): Promise<Country[]> {
-  //   return this.countryService.findAll();
-  // }
-
   @Granted(Permission.READ_COUNTRY)
-  @ApiOkResponse()
-  @ApiResponse({ type: PaginationDto })
+  @ApiOkPaginatedResponse(Country)
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
   @Get()

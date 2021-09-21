@@ -25,7 +25,8 @@ import { ProductDto } from '@app/product/dto/product/product.dto';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import { Granted } from '@app/auth/granted.decorator';
-import { Permission, PermissionUtil } from '@app/user/enums/permission.enum';
+import { Permission } from '@app/user/enums/permission.enum';
+import { ApiOkPaginatedResponse } from '@app/shared/swagger/decorators';
 
 @ApiBearerAuth()
 @ApiTags('Products')
@@ -42,8 +43,7 @@ export class ProductController {
   }
 
   @Granted(Permission.READ_PRODUCT)
-  @ApiOkResponse()
-  @ApiResponse({ type: PaginationDto })
+  @ApiOkPaginatedResponse(Product)
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
   @Get()

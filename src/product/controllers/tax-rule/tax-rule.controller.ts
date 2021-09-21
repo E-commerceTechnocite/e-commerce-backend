@@ -26,6 +26,7 @@ import {
 import { Granted } from '@app/auth/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
 import { TaxRuleUpdateDto } from '@app/product/dto/tax-rule/tax-rule-update.dto';
+import { ApiOkPaginatedResponse } from '@app/shared/swagger/decorators';
 
 @ApiBearerAuth()
 @ApiTags('TaxRule')
@@ -33,16 +34,8 @@ import { TaxRuleUpdateDto } from '@app/product/dto/tax-rule/tax-rule-update.dto'
 export class TaxRuleController {
   constructor(private readonly taxRuleService: TaxRuleService) {}
 
-  // @ApiOkResponse()
-  // @ApiResponse({ type: TaxRule, isArray: true })
-  // @Get()
-  // async findAll(): Promise<TaxRule[]> {
-  //   return this.taxRuleService.findAll();
-  // }
-
   @Granted(Permission.READ_TAX_RULE)
-  @ApiOkResponse()
-  @ApiResponse({ type: PaginationDto })
+  @ApiOkPaginatedResponse(TaxRule)
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
   @Get()
