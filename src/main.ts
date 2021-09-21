@@ -1,8 +1,24 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { ApplicationModule } from '@app/application.module';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(ApplicationModule);
+
+  app.enableVersioning({ type: VersioningType.URI });
+  app.useGlobalPipes(new ValidationPipe());
+  const config = new DocumentBuilder()
+    .setTitle('E-commerce endpoints documentation')
+    .addBearerAuth()
+    .build();
+
+  app.enableCors({ origin: '*', methods: ['GET,POST,PATCH,DELETE'] });
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('', app, document);
+
   await app.listen(3000);
 }
+
 bootstrap();
