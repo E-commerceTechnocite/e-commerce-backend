@@ -1,6 +1,7 @@
 import { Granted } from '@app/auth/granted.decorator';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
+import { ApiOkPaginatedResponse } from '@app/shared/swagger/decorators';
 import { RoleDto } from '@app/user/dtos/role/role.dto';
 import { Role } from '@app/user/entities/role.entity';
 import { Permission } from '@app/user/enums/permission.enum';
@@ -15,8 +16,7 @@ export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 
   @Granted(Permission.READ_ROLE)
-  @ApiOkResponse()
-  @ApiResponse({ type: PaginationDto })
+  @ApiOkPaginatedResponse(Role)
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
   @Get()

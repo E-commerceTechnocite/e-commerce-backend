@@ -7,18 +7,22 @@ import {
 } from 'typeorm';
 import { Role } from '@app/user/entities/role.entity';
 import { EntitySchema } from '@app/shared/entities/entity-schema';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity()
 export class User extends EntitySchema {
   @PrimaryGeneratedColumn('uuid')
   id?: string;
 
+  @ApiProperty()
   @Column({ unique: true })
   username?: string;
 
+  @ApiProperty()
   @Column({ unique: true })
   email?: string;
 
+  @ApiProperty()
   @Column()
   password?: string;
 

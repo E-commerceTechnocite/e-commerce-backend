@@ -1,6 +1,7 @@
 import { Granted } from '@app/auth/granted.decorator';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
+import { ApiOkPaginatedResponse } from '@app/shared/swagger/decorators';
 import { User } from '@app/user/entities/user.entity';
 import { Permission } from '@app/user/enums/permission.enum';
 import { UserDto } from '@app/user/user.dto';
@@ -35,8 +36,7 @@ export class UserController {
 
 
   @Granted(Permission.READ_PRODUCT)
-  @ApiOkResponse()
-  @ApiResponse({ type: PaginationDto })
+  @ApiOkPaginatedResponse(User)
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
   @Get()

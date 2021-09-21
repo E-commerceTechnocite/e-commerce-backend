@@ -45,7 +45,6 @@ export class CountryService
       await query.orderBy(orderBy ?? 'id');
     }
     const data = await query
-
       .skip(index * limit - limit)
       .take(limit)
       .getMany();

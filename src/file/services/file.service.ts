@@ -5,13 +5,26 @@ import { EntityManager, getManager, Repository } from 'typeorm';
 import { PictureService } from '@app/file/services/picture/picture.service';
 import { MimetypeEnum } from '@app/file/mimetype.enum';
 import { StoredFile } from '../entities/stored-file.entity';
+import {
+  PaginationOptions,
+  PaginatorInterface,
+} from '@app/shared/interfaces/paginator.interface';
+import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 
 @Injectable()
-export class FileService {
+export class FileService implements PaginatorInterface<Picture> {
   constructor(
     private readonly pictureService: PictureService,
     private readonly manager: EntityManager,
   ) {}
+
+  async getPage(
+    index: number,
+    limit: number,
+    opts?: PaginationOptions,
+  ): Promise<PaginationDto<Picture>> {
+    return await this.pictureService.getPage(index, limit, opts);
+  }
 
   /**
    * Filter files based on their mimetype
