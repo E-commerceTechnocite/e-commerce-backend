@@ -50,7 +50,7 @@ export class TaxRuleService
     const count = await this.taxRuleRepository.count();
     const meta = new PaginationMetadataDto(index, limit, count);
     if (meta.currentPage > meta.maxPages) {
-      throw new NotFoundException('This page of products does not exist');
+      throw new NotFoundException('This page of tax rules does not exist');
     }
     const query = this.taxRuleRepository.createQueryBuilder('tr');
     if (opts) {
@@ -154,14 +154,14 @@ export class TaxRuleService
   async deleteFromId(id: string | number): Promise<void> {
     const result = await this.taxRuleRepository.delete(id);
     if (result.affected < 1) {
-      throw new BadRequestException(`Product not found or already deleted`);
+      throw new BadRequestException(`Tax rule not found or already deleted`);
     }
   }
 
   async delete(entity: TaxRule): Promise<void> {
     const result = await this.taxRuleRepository.delete(entity);
     if (result.affected < 1) {
-      throw new BadRequestException(`Product not found or already deleted`);
+      throw new BadRequestException(`Tax rule not found or already deleted`);
     }
   }
 }

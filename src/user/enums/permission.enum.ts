@@ -38,6 +38,11 @@ export enum Permission {
   CREATE_FILE = 'c:file',
   UPDATE_FILE = 'u:file',
   DELETE_FILE = 'd:file',
+
+  READ_ROLE= 'r:role',
+  CREATE_ROLE = 'c:role',
+  UPDATE_ROLE = 'u:role',
+  DELETE_ROLE = 'd:role',
 }
 
 export class PermissionUtil {
@@ -109,6 +114,15 @@ export class PermissionUtil {
       Permission.CREATE_USER,
       Permission.UPDATE_USER,
       Permission.DELETE_USER,
+    ];
+  }
+
+  static rolePermissions(): Permission[] {
+    return [
+      Permission.READ_ROLE,
+      Permission.CREATE_ROLE,
+      Permission.UPDATE_ROLE,
+      Permission.DELETE_ROLE,
     ];
   }
 }

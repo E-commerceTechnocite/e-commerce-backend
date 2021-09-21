@@ -35,7 +35,7 @@ export class CountryService
     const meta = new PaginationMetadataDto(index, limit, count);
     if (meta.currentPage > meta.maxPages) {
       throw new NotFoundException(
-        'This page of product-category does not exist',
+        'This page of countries does not exist',
       );
     }
 
@@ -84,7 +84,7 @@ export class CountryService
 
     const result = await this.countryRepository.update(id, target);
     if (result.affected < 1) {
-      throw new BadRequestException(`Category not found with id ${id}`);
+      throw new BadRequestException(`Country not found with id ${id}`);
     }
   }
 
