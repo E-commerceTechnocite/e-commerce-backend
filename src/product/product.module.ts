@@ -21,6 +21,7 @@ import { TaxRuleGroup } from './entities/tax-rule-group.entity';
 import { Country } from './entities/country.entity';
 import { AuthModule } from '@app/auth/auth.module';
 import { Picture } from '@app/file/entities/picture.entity';
+import { GetCheckDeleteEntityIdService } from '@app/shared/services/get-check-delete-entity-id.service';
 
 @Module({
   imports: [
@@ -31,7 +32,7 @@ import { Picture } from '@app/file/entities/picture.entity';
       TaxRule,
       TaxRuleGroup,
       Country,
-      Picture
+      Picture,
     ]),
     SharedModule,
     AuthModule,
@@ -51,6 +52,7 @@ import { Picture } from '@app/file/entities/picture.entity';
     TaxService,
     TaxRuleService,
     TaxRuleGroupService,
+    GetCheckDeleteEntityIdService,
   ],
   exports: [ProductService, ProductCategoryService],
 })

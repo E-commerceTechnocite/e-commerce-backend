@@ -3,9 +3,9 @@ import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '@app/user/entities/user.entity';
 import { Repository } from 'typeorm';
-import { UserDto } from '@app/user/user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { OAuthResponseDto } from '@app/auth/o-auth-response.dto';
+import { UserLogDto } from '@app/user/user-log.dto';
 
 @Injectable()
 export class OAuthService {
@@ -14,7 +14,7 @@ export class OAuthService {
     private readonly jwt: JwtService,
   ) {}
 
-  async login(user: UserDto): Promise<OAuthResponseDto> {
+  async login(user: UserLogDto): Promise<OAuthResponseDto> {
     let userEntity;
     if (user.username) {
       userEntity = await this.userRepo.findOne({
