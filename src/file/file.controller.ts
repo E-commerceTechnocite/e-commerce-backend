@@ -11,11 +11,12 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { FileService } from '@app/file/services/file.service';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { Picture } from '@app/file/entities/picture.entity';
 import { MimetypeEnum } from '@app/file/mimetype.enum';
 import { Granted } from '@app/auth/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
+import { ApiFile, ApiFiles } from '@app/shared/swagger/decorators';
 
 @ApiBearerAuth()
 @ApiTags('File Upload')
@@ -24,6 +25,8 @@ export class FileController {
   constructor(private readonly fileService: FileService) {}
 
   @Granted(Permission.CREATE_FILE)
+  @ApiConsumes('multipart/form-data')
+  @ApiFiles('files')
   @Post('upload-bunch')
   @UseInterceptors(FilesInterceptor('files'))
   async uploadFiles(@UploadedFiles() files: Express.Multer.File[]) {
@@ -31,6 +34,8 @@ export class FileController {
   }
 
   @Granted(Permission.CREATE_FILE)
+  @ApiConsumes('multipart/form-data')
+  @ApiFile('file')
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
