@@ -37,4 +37,14 @@ export class FixturesService implements FixturesInterface {
     await this.userFixtures.clean();
     await this.fileFixtures.clean();
   }
+
+  @Command({
+    command: 'clean-load',
+    description: 'Cleans current data and loads new data fixtures',
+    alias: 'cl',
+  })
+  async cleanLoad() {
+    await this.clean();
+    await this.load();
+  }
 }
