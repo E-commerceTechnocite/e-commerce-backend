@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '@app/user/entities/user.entity';
@@ -6,12 +11,30 @@ import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { OAuthResponseDto } from '@app/auth/o-auth-response.dto';
 import { UserLogDto } from '@app/user/user-log.dto';
+import { RefreshToken } from '../refresh-token.entity';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
+import { ConfigService } from '@nestjs/config';
+
+interface TokenBody {
+  id: string;
+  username: string;
+  email: string;
+  roleId: string;
+  iat?: number;
+  exp?: number;
+}
 
 @Injectable()
 export class OAuthService {
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     private readonly jwt: JwtService,
+    @Inject(REQUEST)
+    private readonly request: Request,
+    @InjectRepository(RefreshToken)
+    private readonly refreshTokenRepository: Repository<RefreshToken>,
+    private readonly configService: ConfigService,
   ) {}
 
   async login(user: UserLogDto): Promise<OAuthResponseDto> {
@@ -35,8 +58,64 @@ export class OAuthService {
     }
     const { id, username, email, role } = userEntity;
     const roleId = role.id;
-    return {
-      access_token: this.jwt.sign({ id, username, email, roleId }),
+    const refreshToken: RefreshToken = {
+      user: userEntity,
+      userAgent: this.request.headers['user-agent'],
+      value: this.jwt.sign(
+        { id, username, email, roleId },
+        {
+          expiresIn: '30d',
+          secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
+        },
+      ),
     };
+
+    console.log(refreshToken);
+    await this.refreshTokenRepository.save(refreshToken);
+
+    const tokenData: TokenBody = { id, username, email, roleId };
+    return {
+      access_token: this.jwt.sign(tokenData),
+      refresh_token: refreshToken.value,
+    };
+  }
+
+  async refreshToken(refreshToken: string): Promise<OAuthResponseDto> {
+    const entity: RefreshToken = await this.refreshTokenRepository.findOne({
+      value: refreshToken,
+    });
+
+    if (!entity || entity.userAgent !== this.request.headers['user-agent']) {
+      throw new UnauthorizedException();
+    }
+    const decodedToken: TokenBody = this.jwt.verify(refreshToken, {
+      secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
+    });
+    delete decodedToken.iat;
+    delete decodedToken.exp;
+    const tokenData: TokenBody = {
+      ...decodedToken,
+    };
+
+    return {access_token : this.jwt.sign(tokenData), refresh_token : refreshToken};
+  }
+
+  async logout(refreshToken: string): Promise<void> {
+
+    const entity: RefreshToken = await this.refreshTokenRepository.findOne({
+      value: refreshToken,
+    });
+
+    if (!entity || entity.userAgent !== this.request.headers['user-agent']) {
+      throw new UnauthorizedException();
+    }
+
+    const decodedToken: TokenBody = this.jwt.verify(refreshToken, {
+      secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
+    });
+
+    const user = await this.userRepo.findOne(decodedToken.id);
+
+    await this.refreshTokenRepository.delete({userAgent: this.request.headers['user-agent'], user: user});
   }
 }

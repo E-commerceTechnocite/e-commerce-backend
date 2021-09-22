@@ -3,11 +3,13 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Role } from '@app/user/entities/role.entity';
 import { EntitySchema } from '@app/shared/entities/entity-schema';
 import { ApiProperty } from '@nestjs/swagger';
+import { RefreshToken } from '@app/auth/refresh-token.entity';
 
 @Entity()
 export class User extends EntitySchema {
@@ -29,4 +31,7 @@ export class User extends EntitySchema {
   @ManyToOne(() => Role, (role) => role.users, { eager: true })
   @JoinColumn({ name: 'id_role', referencedColumnName: 'id' })
   role?: Role;
+
+  @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user)
+  refreshTokens?: RefreshToken[];
 }
