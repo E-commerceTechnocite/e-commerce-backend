@@ -62,10 +62,10 @@ export class PictureService implements PaginatorInterface<Picture> {
     return await this.pictureRepo.save(pics);
   }
 
-  async delete(title) {
-    const file = await this.pictureRepo.findOne({ title });
+  async delete(id) {
+    const file = await this.pictureRepo.findOne(id);
     if (!file) {
-      throw new NotFoundException(`File with title "${title}" not found`);
+      throw new NotFoundException(`File with id "${id}" not found`);
     }
     const path = join(
       __dirname,
@@ -84,8 +84,9 @@ export class PictureService implements PaginatorInterface<Picture> {
       if (err) {
         throw new BadRequestException('Could no remove from file system');
       }
+    } finally {
+      await this.pictureRepo.delete(file.id);
     }
-    await this.pictureRepo.delete(file.id);
   }
 
   async handleFileDeletion(err, file) {

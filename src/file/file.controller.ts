@@ -11,12 +11,22 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { FileService } from '@app/file/services/file.service';
-import { ApiBearerAuth, ApiConsumes, ApiExtraModels, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiExtraModels,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Picture } from '@app/file/entities/picture.entity';
 import { MimetypeEnum } from '@app/file/mimetype.enum';
 import { Granted } from '@app/auth/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
-import { ApiFile, ApiFiles, ApiOkPaginatedResponse } from '@app/shared/swagger/decorators';
+import {
+  ApiFile,
+  ApiFiles,
+  ApiOkPaginatedResponse,
+} from '@app/shared/swagger/decorators';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 
@@ -66,12 +76,12 @@ export class FileController {
 
   @ApiQuery({ enum: MimetypeEnum, allowEmptyValue: true, name: 'mimetype' })
   @Granted(Permission.DELETE_FILE)
-  @Delete(':title')
+  @Delete(':id')
   async delete(
-    @Param('title') title: string,
+    @Param('id') id: string,
     @Query('mimetype')
     mimetype: MimetypeEnum = MimetypeEnum.IMAGE,
   ) {
-    await this.fileService.delete(title, mimetype);
+    await this.fileService.delete(id, mimetype);
   }
 }

@@ -1,7 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Picture } from '@app/file/entities/picture.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, getManager, Repository } from 'typeorm';
+import { EntityManager } from 'typeorm';
 import { PictureService } from '@app/file/services/picture/picture.service';
 import { MimetypeEnum } from '@app/file/mimetype.enum';
 import { StoredFile } from '../entities/stored-file.entity';
@@ -60,17 +59,17 @@ export class FileService implements PaginatorInterface<Picture> {
     }
   }
 
-  async delete(title: string, mimetype: MimetypeEnum): Promise<void> {
+  async delete(id: string, mimetype: MimetypeEnum): Promise<void> {
     switch (mimetype) {
       case MimetypeEnum.IMAGE:
-        await this.pictureService.delete(title);
+        await this.pictureService.delete(id);
         break;
       default:
         throw new BadRequestException('Unknown mimetype provided: ' + mimetype);
     }
   }
 
-  private async findAllMimes(crit: string = 'title'): Promise<StoredFile[]> {
+  private async findAllMimes(crit = 'title'): Promise<StoredFile[]> {
     const storedFile = await this.manager
       .createQueryBuilder()
       .select()
