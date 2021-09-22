@@ -9,6 +9,7 @@ import { AuthStrategy } from '@app/auth/auth-strategy.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '@app/user/entities/user.entity';
 import { OAuthService } from '@app/auth/o-auth/o-auth.service';
+import { RefreshToken } from './refresh-token.entity';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { OAuthService } from '@app/auth/o-auth/o-auth.service';
       useClass: AuthConfigurationService,
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User,RefreshToken]),
   ],
   providers: [ AuthStrategy, OAuthService],
   controllers: [OAuthController],
