@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Post } from '@nestjs/common';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { OAuthService } from '@app/auth/o-auth/o-auth.service';
 import { UserLogDto } from '@app/user/user-log.dto';
+import { RefreshTokenDto } from '../refresh-token.dto';
 
 @ApiTags('Security')
 @Controller({ path: 'o-auth', version: '1' })
@@ -13,15 +14,13 @@ export class OAuthController {
     return await this.oAuthService.login(user);
   }
 
-  @ApiBody({})
   @Post('refresh')
-  async refresh(@Body() { refresh_token }: { refresh_token: string }) {
+  async refresh(@Body() { refresh_token }: RefreshTokenDto) {
     return await this.oAuthService.refreshToken(refresh_token);
   }
 
-  @ApiBody({})
   @Post('logout')
-  async logout(@Body() {refresh_token}: {refresh_token: string}){
+  async logout(@Body() { refresh_token }: RefreshTokenDto) {
     return await this.oAuthService.logout(refresh_token);
   }
 }
