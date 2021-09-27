@@ -17,14 +17,14 @@ describe('TaxRuleService', () => {
   const taxRuleGroupRepository = mock<Repository<TaxRuleGroup>>();
   const countryRepository = mock<Repository<Country>>();
   const getCheckDeleteService = mock<GetCheckDeleteEntityIdService>();
-  
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TaxRuleService,
         {
           provide: GetCheckDeleteEntityIdService,
-          useValue: getCheckDeleteEntityIdService,
+          useValue: getCheckDeleteService,
         },
         { provide: getRepositoryToken(TaxRule), useValue: taxRuleRepository },
         {
