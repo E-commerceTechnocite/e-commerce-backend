@@ -5,5 +5,9 @@ import { CartItem } from '@app/shopping-cart/entities/cart-item.entity';
 @Entity()
 export class ShoppingCart extends EntitySchema {
   @ManyToMany(() => CartItem, (cartItem) => cartItem.shoppingCart)
-  cartItems: CartItem[];
+  cartItems?: CartItem[];
+
+  // TODO need customer implementation
+  // @OneToOne(() => Customer, (customer) => customer.shoppingCart)
+  // customer?: Customer;
 }

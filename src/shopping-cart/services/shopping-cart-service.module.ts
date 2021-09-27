@@ -4,9 +4,10 @@ import { CartItemService } from './cart-item/cart-item.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ShoppingCart } from '@app/shopping-cart/entities/shopping-cart.entity';
 import { CartItem } from '@app/shopping-cart/entities/cart-item.entity';
+import { Product } from '@app/product/entities/product.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ShoppingCart, CartItem])],
+  imports: [TypeOrmModule.forFeature([ShoppingCart, CartItem, Product])],
   providers: [ShoppingCartService, CartItemService],
   exports: [ShoppingCartService, CartItemService],
 })
