@@ -97,11 +97,13 @@ export class OAuthService {
       ...decodedToken,
     };
 
-    return {access_token : this.jwt.sign(tokenData), refresh_token : refreshToken};
+    return {
+      access_token: this.jwt.sign(tokenData),
+      refresh_token: refreshToken,
+    };
   }
 
   async logout(refreshToken: string): Promise<void> {
-
     const entity: RefreshToken = await this.refreshTokenRepository.findOne({
       value: refreshToken,
     });
@@ -116,6 +118,9 @@ export class OAuthService {
 
     const user = await this.userRepo.findOne(decodedToken.id);
 
-    await this.refreshTokenRepository.delete({userAgent: this.request.headers['user-agent'], user: user});
+    await this.refreshTokenRepository.delete({
+      userAgent: this.request.headers['user-agent'],
+      user: user,
+    });
   }
 }

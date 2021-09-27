@@ -20,9 +20,9 @@ import { RefreshToken } from './refresh-token.entity';
       useClass: AuthConfigurationService,
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([User,RefreshToken]),
+    TypeOrmModule.forFeature([User, RefreshToken]),
   ],
-  providers: [ AuthStrategy, OAuthService],
+  providers: [AuthStrategy, OAuthService],
   controllers: [OAuthController],
   exports: [PassportModule, JwtModule, AuthStrategy],
 })

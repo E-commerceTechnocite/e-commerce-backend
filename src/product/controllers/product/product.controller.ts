@@ -35,8 +35,7 @@ export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Granted(Permission.READ_PRODUCT)
-  @ApiOkResponse()
-  @ApiResponse({ type: Product })
+  @ApiOkResponse({ type: Product })
   @Get(':id')
   async findById(@Param('id') id: string): Promise<Product> {
     return this.productService.find(id);
@@ -46,12 +45,14 @@ export class ProductController {
   @ApiOkPaginatedResponse(Product)
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'orderBy', required: false, type: 'string' })
   @Get()
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,
     @Query('limit', IsPositiveIntPipe) limit = 10,
+    @Query('orderBy') orderBy: string = null,
   ): Promise<PaginationDto<Product>> {
-    return this.productService.getPage(page, limit);
+    return this.productService.getPage(page, limit, { orderBy });
   }
 
   @Granted(Permission.CREATE_PRODUCT)

@@ -174,7 +174,7 @@ export class ProductService implements ProductServiceInterface {
     const query = this.productRepository.createQueryBuilder('p');
     if (opts) {
       const { orderBy } = opts;
-      await query.orderBy(orderBy ?? 'id');
+      await query.orderBy(orderBy ? `p.${orderBy}` : 'p.createdAt');
     }
 
     const data = await query
