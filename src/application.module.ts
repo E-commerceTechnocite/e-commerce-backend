@@ -11,6 +11,7 @@ import { FileModule } from '@app/file/file.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { JwtAuthGuard } from '@app/auth/jwt-auth.guard';
+import { ShoppingCartModule } from './shopping-cart/shopping-cart.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { JwtAuthGuard } from '@app/auth/jwt-auth.guard';
     AuthModule,
     UserModule,
     FileModule,
+    ShoppingCartModule,
   ],
   providers: [
     {
