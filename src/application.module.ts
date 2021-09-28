@@ -15,6 +15,7 @@ import { JwtAuthGuard } from '@app/auth/jwt-auth.guard';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Customer } from './customer/entities/customer/customer.entity'; */
 import { CustomerModule } from './customer/customer.module';
+import { ShoppingCartModule } from './shopping-cart/shopping-cart.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { CustomerModule } from './customer/customer.module';
     UserModule,
     FileModule,
     CustomerModule,
+    ShoppingCartModule,
   ],
   providers: [
     {

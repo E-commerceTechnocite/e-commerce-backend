@@ -1,4 +1,7 @@
 import { Granted } from '@app/auth/granted.decorator';
+import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
+import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
+import { ApiOkPaginatedResponse } from '@app/shared/swagger/decorators';
 import { User } from '@app/user/entities/user.entity';
 import { Permission } from '@app/user/enums/permission.enum';
 import { UserDto } from '@app/user/user.dto';
@@ -13,12 +16,14 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -29,6 +34,19 @@ import {
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+
+  @Granted(Permission.READ_PRODUCT)
+  @ApiOkPaginatedResponse(User)
+  @ApiQuery({ name: 'page', required: false })
+  @ApiQuery({ name: 'limit', required: false })
+  @Get()
+  async find(
+    @Query('page', IsPositiveIntPipe) page = 1,
+    @Query('limit', IsPositiveIntPipe) limit = 10,
+  ): Promise<PaginationDto<User>> {
+    return this.userService.getPage(page, limit);
+  }
+  
   @Granted(Permission.READ_USER)
   @ApiOkResponse()
   @ApiResponse({ type: User })

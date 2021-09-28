@@ -42,6 +42,7 @@ describe('ProductController', () => {
           maxPages: 1,
           prevPage: null,
           nextPage: null,
+          count: 1,
         },
       };
       await service.getPage(1, 10);

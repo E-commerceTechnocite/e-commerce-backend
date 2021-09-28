@@ -8,6 +8,7 @@ export class PaginationMetadataDto {
     this.nextPage = +index + 1 <= maxPages ? +index + 1 : null;
     this.prevPage = +index - 1 > 0 ? +index - 1 : null;
     this.maxPages = maxPages;
+    this.count = count;
   }
 
   @ApiProperty()
@@ -20,4 +21,6 @@ export class PaginationMetadataDto {
   prevPage: number;
   @ApiProperty()
   nextPage: number;
+  @ApiProperty()
+  count: number;
 }
