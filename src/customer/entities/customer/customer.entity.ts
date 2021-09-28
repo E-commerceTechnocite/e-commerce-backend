@@ -1,12 +1,14 @@
 
 import { Type } from "class-transformer";
-import { Column, Entity,  PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity,       OneToOne,  PrimaryGeneratedColumn } from "typeorm";
 import { Gender } from "./customer.enum";
 import { IsDate, IsEmail, IsNotEmpty } from 'class-validator';
+import { ShoppingCart } from "@app/shopping-cart/entities/shopping-cart.entity";
+import { EntitySchema } from "@app/shared/entities/entity-schema";
 @Entity()
-export class Customer  {
-    @PrimaryGeneratedColumn() 
-    id: string; 
+export class Customer extends EntitySchema {
+   /*  @PrimaryGeneratedColumn() 
+    id: string;  */
     @Column()
     username: string;
     
@@ -28,5 +30,8 @@ export class Customer  {
     birthDate: Date;
     @Column()
     newsletter: boolean;
+     // Relation between customer and shopping cart
+     @OneToOne(() => ShoppingCart, (shoppingCart) => shoppingCart.customer)
+     shoppingCart?: ShoppingCart;
 
 }

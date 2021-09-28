@@ -1,12 +1,9 @@
 import { Gender } from "@app/customer/entities/customer/customer.enum";
+import { IsDate, IsEmail, IsNotEmpty } from "class-validator";
 
-import {  IsEmail, IsNotEmpty } from "class-validator";
-
-
-
-export class CustomerDto {
+export class CustomerCreateDto {
     
-    //idCustomer: string;
+  
     @IsNotEmpty()
     username: string;
     @IsNotEmpty()

@@ -1,4 +1,6 @@
+import { CustomerCreateDto } from '@app/customer/dto/customer/customer.create.dto';
 import { CustomerDto } from '@app/customer/dto/customer/customer.dto';
+import { CustomerUpdateDto } from '@app/customer/dto/customer/customer.update.dto';
 import { Customer } from '@app/customer/entities/customer/customer.entity';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -28,12 +30,12 @@ export class CustomerService {
   }
 
   // create a customer
-   async createCustomer(customer: CustomerDto): Promise<CustomerDto>{
+   async createCustomer(customer: CustomerCreateDto): Promise<CustomerCreateDto>{
         return await this.customerRepository.save(customer);
   }
 
   // update customer
-   async updateCustomer(customerId, customer : CustomerDto) : Promise<Customer>{
+   async updateCustomer(customerId : string, customer : CustomerUpdateDto) : Promise<CustomerUpdateDto>{
        let updatedCustomer= await this.getCustomerById(customerId);
            updatedCustomer = {
            ...updatedCustomer,
