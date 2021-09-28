@@ -11,9 +11,14 @@ import { FileModule } from '@app/file/file.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { JwtAuthGuard } from '@app/auth/jwt-auth.guard';
+/* import { CustomerService } from './customer/services/customer/customer.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Customer } from './customer/entities/customer/customer.entity'; */
+import { CustomerModule } from './customer/customer.module';
 
 @Module({
   imports: [
+    
     ApplicationConfigurationModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
@@ -24,12 +29,14 @@ import { JwtAuthGuard } from '@app/auth/jwt-auth.guard';
     AuthModule,
     UserModule,
     FileModule,
+    CustomerModule,
   ],
   providers: [
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
+    
   ],
 })
 export class ApplicationModule implements NestModule {
