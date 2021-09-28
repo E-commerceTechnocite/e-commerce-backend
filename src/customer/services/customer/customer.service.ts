@@ -24,7 +24,7 @@ export class CustomerService {
             const customer = await this.customerRepository.findOneOrFail(customerId);
             return customer;
         } catch (err){
-            throw new NotFoundException("Customer does't exist");
+            throw new NotFoundException("Customer doesn't exist");
         }
    
   }
