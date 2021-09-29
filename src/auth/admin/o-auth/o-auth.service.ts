@@ -9,7 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '@app/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
-import { OAuthResponseDto } from '@app/auth/o-auth-response.dto';
+import { OAuthResponseDto } from '@app/auth/admin/o-auth-response.dto';
 import { UserLogDto } from '@app/user/user-log.dto';
 import { RefreshToken } from '../refresh-token.entity';
 import { REQUEST } from '@nestjs/core';

@@ -23,7 +23,7 @@ import {
 } from '@nestjs/swagger';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
-import { Granted } from '@app/auth/granted.decorator';
+import { Granted } from '@app/auth/admin/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
 import { ApiOkPaginatedResponse } from '@app/shared/swagger/decorators';
 

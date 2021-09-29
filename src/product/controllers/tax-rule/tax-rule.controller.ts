@@ -23,7 +23,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Granted } from '@app/auth/granted.decorator';
+import { Granted } from '@app/auth/admin/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
 import { TaxRuleUpdateDto } from '@app/product/dto/tax-rule/tax-rule-update.dto';
 import { ApiOkPaginatedResponse } from '@app/shared/swagger/decorators';

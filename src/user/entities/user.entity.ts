@@ -9,7 +9,7 @@ import {
 import { Role } from '@app/user/entities/role.entity';
 import { EntitySchema } from '@app/shared/entities/entity-schema';
 import { ApiProperty } from '@nestjs/swagger';
-import { RefreshToken } from '@app/auth/refresh-token.entity';
+import { RefreshToken } from '@app/auth/admin/refresh-token.entity';
 
 @Entity()
 export class User extends EntitySchema {

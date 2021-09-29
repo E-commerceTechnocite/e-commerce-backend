@@ -24,7 +24,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Permission } from '@app/user/enums/permission.enum';
-import { Granted } from '@app/auth/granted.decorator';
+import { Granted } from '@app/auth/admin/granted.decorator';
 import { ApiOkPaginatedResponse } from '@app/shared/swagger/decorators';
 
 @ApiBearerAuth()

@@ -1,4 +1,4 @@
-import { Granted } from '@app/auth/granted.decorator';
+import { Granted } from '@app/auth/admin/granted.decorator';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import { ApiOkPaginatedResponse } from '@app/shared/swagger/decorators';
@@ -34,7 +34,6 @@ import {
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-
   @Granted(Permission.READ_PRODUCT)
   @ApiOkPaginatedResponse(User)
   @ApiQuery({ name: 'page', required: false })
@@ -46,7 +45,7 @@ export class UserController {
   ): Promise<PaginationDto<User>> {
     return this.userService.getPage(page, limit);
   }
-  
+
   @Granted(Permission.READ_USER)
   @ApiOkResponse()
   @ApiResponse({ type: User })
