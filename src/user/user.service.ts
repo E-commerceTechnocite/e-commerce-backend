@@ -9,22 +9,31 @@ import { Repository } from 'typeorm';
 import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
 import { UserDto } from './user.dto';
 import { Role } from './entities/role.entity';
-import { PaginationOptions, PaginatorInterface } from '@app/shared/interfaces/paginator.interface';
+import {
+  PaginationOptions,
+  PaginatorInterface,
+} from '@app/shared/interfaces/paginator.interface';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
+import { MailService } from '@app/mail/mail.service';
 
 @Injectable()
 export class UserService
-  implements CrudServiceInterface<User, UserDto, UserDto>,
-  PaginatorInterface<User>
+  implements
+    CrudServiceInterface<User, UserDto, UserDto>,
+    PaginatorInterface<User>
 {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
+    private readonly mailService: MailService,
   ) {}
 
-
-  async getPage(index: number, limit: number, opts?: PaginationOptions): Promise<PaginationDto<User>> {
+  async getPage(
+    index: number,
+    limit: number,
+    opts?: PaginationOptions,
+  ): Promise<PaginationDto<User>> {
     const count = await this.userRepository.count();
     const meta = new PaginationMetadataDto(index, limit, count);
     if (meta.currentPage > meta.maxPages && meta.maxPages !== 0) {
@@ -37,12 +46,7 @@ export class UserService
     }
 
     const data = await query
-      .leftJoinAndMapOne(
-        'u.role',
-        Role,
-        'r',
-        'u.id_role = r.id',
-      )
+      .leftJoinAndMapOne('u.role', Role, 'r', 'u.id_role = r.id')
       .skip(index * limit - limit)
       .take(limit)
       .getMany();
@@ -78,6 +82,7 @@ export class UserService
       role,
     };
     console.log(target);
+    await this.mailService.sendUserConfirmation(target);
     return await this.userRepository.save(target);
   }
 

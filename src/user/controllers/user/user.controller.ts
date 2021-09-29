@@ -34,7 +34,6 @@ import {
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-
   @Granted(Permission.READ_PRODUCT)
   @ApiOkPaginatedResponse(User)
   @ApiQuery({ name: 'page', required: false })
@@ -46,7 +45,7 @@ export class UserController {
   ): Promise<PaginationDto<User>> {
     return this.userService.getPage(page, limit);
   }
-  
+
   @Granted(Permission.READ_USER)
   @ApiOkResponse()
   @ApiResponse({ type: User })
