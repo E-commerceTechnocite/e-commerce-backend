@@ -14,17 +14,16 @@ import { ConfigService } from '@nestjs/config';
         // transport: config.get("MAIL_TRANSPORT"),
         // or
         transport: {
-          host: 'smtp.gmail.com', // enable less security on gmail account
-          port: 465,
-          secure: true, // before : false
+          port: config.get('MAILER_PORT'),
+          secure: false,
           auth: {
             user: config.get('MAIL_USERNAME'),
             pass: config.get('MAIL_PASSWORD'),
           },
-          tls: { rejectUnauthorized: false },
+          ignoreTLS: true,
         },
         defaults: {
-          from: `"No Reply" <${config.get('MAIL_FROM')}>`,
+          from: config.get('MAIL_FROM'),
         },
         template: {
           dir: join(__dirname, 'templates'),
