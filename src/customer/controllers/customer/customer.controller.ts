@@ -12,7 +12,7 @@ export class CustomerController {
     // create a customer
     @Post()
     createCustomer(@Body()customer: CustomerCreateDto):Promise<CustomerCreateDto>{
-        return this.customerService.createCustomer(customer);
+        return this.customerService.createCustomer(customer)
     }
 
     // find all customers
