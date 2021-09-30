@@ -10,7 +10,7 @@ export class MailService {
     const url = `example.com/auth/confirm?token=`;
 
     await this.mailerService.sendMail({
-      to: 'sacha.sh.dev@gmail.com',
+      to: user.email,
       // from: '"Support Team" <support@example.com>', // override default from
       subject: 'Welcome to Nice App! Confirm your Email',
       template: './confirmation', // `.hbs` extension is appended automatically

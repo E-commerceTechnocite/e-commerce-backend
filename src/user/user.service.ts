@@ -16,6 +16,7 @@ import {
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
 import { MailService } from '@app/mail/mail.service';
+import { hash } from 'bcrypt';
 
 @Injectable()
 export class UserService
@@ -49,6 +50,7 @@ export class UserService
       .leftJoinAndMapOne('u.role', Role, 'r', 'u.id_role = r.id')
       .skip(index * limit - limit)
       .take(limit)
+      .select(['u.id', 'u.username', 'u.email', 'r.id', 'u.createdAt'])
       .getMany();
 
     return {
@@ -62,6 +64,7 @@ export class UserService
     if (!user) {
       throw new NotFoundException();
     }
+    delete user.password;
     return user;
   }
 
@@ -79,21 +82,30 @@ export class UserService
 
     const target: User = {
       ...entity,
+      password: await hash(entity.password, 10),
       role,
     };
     console.log(target);
     await this.mailService.sendUserConfirmation(target);
-    return await this.userRepository.save(target);
+    await this.userRepository.save(target);
+    delete target.password;
+    return target;
   }
 
   async update(id: string | number, entity: UserDto): Promise<void> {
-    const role = await this.roleRepository.findOne(entity.roleId);
-
-    if (!role) {
-      throw new BadRequestException(`Role not found at id ${entity.roleId}`);
+    console.log(entity);
+    let role;
+    if (entity.roleId) {
+      role = await this.roleRepository
+        .findOneOrFail(entity.roleId)
+        .catch(() => {
+          throw new BadRequestException(
+            `Role not found at id ${entity.roleId}`,
+          );
+        });
     }
+    console.log(role);
     delete entity.roleId;
-
     const user = await this.userRepository.findOne(id);
     if (!user) {
       throw new BadRequestException(`User not found with id ${id}`);
@@ -101,9 +113,10 @@ export class UserService
     const target: User = {
       ...user,
       ...entity,
+      password: await hash(entity.password, 10),
       role,
     };
-    await this.userRepository.update(id, target);
+    await this.userRepository.save(target);
   }
 
   async deleteFromId(id: string | number): Promise<void> {
