@@ -26,6 +26,11 @@ export class ProductDto {
   price?: number;
 
   @ApiProperty({ required: false })
+  @IsNumber()
+  @IsPositive()
+  quantity?: number;
+
+  @ApiProperty({ required: false })
   @IsUUID()
   categoryId?: string;
 

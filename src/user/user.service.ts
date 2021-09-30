@@ -50,7 +50,14 @@ export class UserService
       .leftJoinAndMapOne('u.role', Role, 'r', 'u.id_role = r.id')
       .skip(index * limit - limit)
       .take(limit)
-      .select(['u.id', 'u.username', 'u.email', 'r.id', 'u.createdAt'])
+      .select([
+        'u.id',
+        'u.username',
+        'u.email',
+        'r.id',
+        'r.name',
+        'u.createdAt',
+      ])
       .getMany();
 
     return {
