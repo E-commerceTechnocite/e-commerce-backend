@@ -1,3 +1,4 @@
+import { User } from '@app/user/entities/user.entity';
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 
@@ -5,16 +6,19 @@ import { Injectable } from '@nestjs/common';
 export class MailService {
   constructor(private mailerService: MailerService) {}
 
-  async sendConfirmationLetter(to: string): Promise<void> {
-    try {
-      await this.mailerService.sendMail({
-        to: 'to',
-        from: 'from',
-        subject: 'subject',
-        text: 'some text',
-      });
-    } catch (e) {
-      console.log(e);
-    }
+  async sendUserConfirmation(user: User) {
+    const url = `example.com/auth/confirm?token=`;
+
+    await this.mailerService.sendMail({
+      to: user.email,
+      // from: '"Support Team" <support@example.com>', // override default from
+      subject: 'Welcome to Nice App! Confirm your Email',
+      template: './confirmation', // `.hbs` extension is appended automatically
+      context: {
+        // ✏️ filling curly brackets with content
+        name: user.username,
+        url,
+      },
+    });
   }
 }

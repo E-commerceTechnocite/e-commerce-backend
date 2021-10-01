@@ -96,6 +96,7 @@ export class ProductFixturesService implements FixturesInterface {
         reference: faker.random.alphaNumeric(10),
         title: faker.commerce.product(),
         price: parseFloat(faker.commerce.price(1, 100, 2)),
+        quantity: Math.floor(Math.random() * 10),
         description: faker.random.words(50),
         category:
           savedCategories[Math.floor(Math.random() * savedCategories.length)],
