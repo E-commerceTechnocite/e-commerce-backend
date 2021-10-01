@@ -1,12 +1,10 @@
 import { AuthGuard } from '@nestjs/passport';
 import {
-  BadRequestException,
   ExecutionContext,
   ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
 import { Reflector } from '@nestjs/core';
 import { Permission } from '@app/user/enums/permission.enum';
 import { PERMISSIONS_KEY } from './granted.decorator';
@@ -16,6 +14,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   constructor(private readonly reflector: Reflector) {
     super();
   }
+
   handleRequest(err, user, info, context: ExecutionContext) {
     const requiredPermissions = this.reflector.getAllAndOverride<Permission[]>(
       PERMISSIONS_KEY,

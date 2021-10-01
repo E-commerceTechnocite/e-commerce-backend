@@ -14,7 +14,6 @@ import { ProductCategoryService } from '@app/product/services/product-category/p
 import { ProductCategory } from '@app/product/entities/product-category.entity';
 import { ProductCategoryDto } from '@app/product/dto/product-category/product-category.dto';
 import {
-  ApiBearerAuth,
   ApiBody,
   ApiOkResponse,
   ApiQuery,
@@ -25,8 +24,9 @@ import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import { Granted } from '@app/auth/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
+import { ApiAdminAuth, ApiOkPaginatedResponse } from '@app/shared/swagger';
 
-@ApiBearerAuth()
+@ApiAdminAuth()
 @ApiTags('Product Categories')
 @Controller({ path: 'product-category', version: '1' })
 export class ProductCategoryController {
@@ -35,8 +35,7 @@ export class ProductCategoryController {
   ) {}
 
   @Granted(Permission.READ_CATEGORY)
-  @ApiOkResponse()
-  @ApiResponse({ type: PaginationDto })
+  @ApiOkPaginatedResponse(ProductCategory)
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
   @Get()
@@ -46,13 +45,6 @@ export class ProductCategoryController {
   ): Promise<PaginationDto<ProductCategory>> {
     return this.productCategoryService.getPage(page, limit);
   }
-
-  /* @ApiOkResponse()
-  @ApiResponse({ type: ProductCategory, isArray: true })
-  @Get()
-  async findAll(): Promise<ProductCategory[]> {
-    return this.productCategoryService.findAll();
-  }*/
 
   @Granted(Permission.READ_CATEGORY)
   @ApiOkResponse()

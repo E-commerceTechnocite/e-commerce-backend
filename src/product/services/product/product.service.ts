@@ -35,29 +35,31 @@ export class ProductService implements ProductServiceInterface {
     private readonly pictureRepository: Repository<Picture>,
   ) {}
 
+  async gcdei<T>(repo: Repository<T>, dto: any, id: string): Promise<T> {
+    const entity = await repo.findOne(dto[id]);
+    if (!entity) {
+      throw new BadRequestException(`Not found at id ${dto[id]}`);
+    }
+    delete dto[id];
+    return entity;
+  }
+
   async create(entity: ProductDto): Promise<Product> {
     if (!entity.picturesId) {
       entity.picturesId = [];
     }
-    const category = await this.productCategoryRepository.findOne(
-      entity.categoryId,
-    );
-    if (!category) {
-      throw new BadRequestException(
-        `Category not found at id ${entity.categoryId}`,
-      );
-    }
 
-    // TODO ajouter les pictures et la thumbnail
-
-    const taxRuleGroup = await this.taxRuleGroupRepository.findOne(
-      entity.taxRuleGroupId,
+    const category = await this.gcdei<ProductCategory>(
+      this.productCategoryRepository,
+      entity,
+      'categoryId',
     );
-    if (!taxRuleGroup) {
-      throw new BadRequestException(
-        `TaxRuleGroup not found at id ${entity.taxRuleGroupId}`,
-      );
-    }
+
+    const taxRuleGroup = await this.gcdei<TaxRuleGroup>(
+      this.taxRuleGroupRepository,
+      entity,
+      'taxRuleGroupId',
+    );
 
     let pictures;
     try {
@@ -73,8 +75,6 @@ export class ProductService implements ProductServiceInterface {
       throw new BadRequestException(error);
     }
 
-    delete entity.categoryId;
-    delete entity.taxRuleGroupId;
     delete entity.picturesId;
     delete entity.thumbnailId;
     const target: Product = {
@@ -102,7 +102,9 @@ export class ProductService implements ProductServiceInterface {
   }
 
   async find(id: string | number): Promise<Product> {
-    const product = await this.productRepository.findOne(id,{loadEagerRelations: true});
+    const product = await this.productRepository.findOne(id, {
+      loadEagerRelations: true,
+    });
     if (!product) {
       throw new NotFoundException();
     }
@@ -114,31 +116,22 @@ export class ProductService implements ProductServiceInterface {
   }
 
   async update(id: string | number, entity: ProductDto): Promise<void> {
-    const category = await this.productCategoryRepository.findOne(
-      entity.categoryId,
+    const category = await this.gcdei<ProductCategory>(
+      this.productCategoryRepository,
+      entity,
+      'categoryId',
     );
-    if (!category) {
-      throw new BadRequestException(
-        `Category not found with id ${entity.categoryId}`,
-      );
-    }
+
     const product = await this.productRepository.findOne(id);
     if (!product) {
       throw new BadRequestException(`Product not found with id ${id}`);
     }
-    delete entity.categoryId;
 
-    // TODO ajouter les pictures et la thumbnail
-
-    const taxRuleGroup = await this.taxRuleGroupRepository.findOne(
-      entity.taxRuleGroupId,
+    const taxRuleGroup = await this.gcdei<TaxRuleGroup>(
+      this.taxRuleGroupRepository,
+      entity,
+      'taxRuleGroupId',
     );
-    if (!taxRuleGroup) {
-      throw new BadRequestException(
-        `TaxRuleGroup not found at id ${entity.taxRuleGroupId}`,
-      );
-    }
-    delete entity.taxRuleGroupId;
 
     let pictures;
     try {
@@ -181,7 +174,7 @@ export class ProductService implements ProductServiceInterface {
     const query = this.productRepository.createQueryBuilder('p');
     if (opts) {
       const { orderBy } = opts;
-      await query.orderBy(orderBy ?? 'id');
+      await query.orderBy(orderBy ? `p.${orderBy}` : 'p.createdAt');
     }
 
     const data = await query

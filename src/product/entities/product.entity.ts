@@ -30,6 +30,10 @@ export class Product extends EntitySchema {
   @Column({ type: 'float' })
   price?: number;
 
+  @ApiProperty({ required: true })
+  @Column({ type: 'int' })
+  quantity?: number;
+
   @ApiResponseProperty({ type: () => ProductCategory })
   @ManyToOne(() => ProductCategory, (category) => category.products, {
     eager: true,

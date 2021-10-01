@@ -16,7 +16,6 @@ import {
   Query,
 } from '@nestjs/common';
 import {
-  ApiBearerAuth,
   ApiBody,
   ApiOkResponse,
   ApiQuery,
@@ -26,23 +25,16 @@ import {
 import { Granted } from '@app/auth/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
 import { TaxRuleUpdateDto } from '@app/product/dto/tax-rule/tax-rule-update.dto';
+import { ApiAdminAuth, ApiOkPaginatedResponse } from '@app/shared/swagger';
 
-@ApiBearerAuth()
+@ApiAdminAuth()
 @ApiTags('TaxRule')
 @Controller('tax-rule')
 export class TaxRuleController {
   constructor(private readonly taxRuleService: TaxRuleService) {}
 
-  // @ApiOkResponse()
-  // @ApiResponse({ type: TaxRule, isArray: true })
-  // @Get()
-  // async findAll(): Promise<TaxRule[]> {
-  //   return this.taxRuleService.findAll();
-  // }
-
   @Granted(Permission.READ_TAX_RULE)
-  @ApiOkResponse()
-  @ApiResponse({ type: PaginationDto })
+  @ApiOkPaginatedResponse(TaxRule)
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
   @Get()

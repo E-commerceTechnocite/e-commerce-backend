@@ -18,6 +18,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TaxRuleUpdateDto } from '@app/product/dto/tax-rule/tax-rule-update.dto';
+import { GetCheckDeleteEntityIdService } from '@app/shared/services/get-check-delete-entity-id.service';
 
 @Injectable()
 export class TaxRuleService
@@ -37,6 +38,8 @@ export class TaxRuleService
 
     @InjectRepository(Country)
     private readonly countryRepository: Repository<Country>,
+
+    private readonly getCheckDeleteService: GetCheckDeleteEntityIdService,
   ) {}
 
   async getPage(
@@ -47,7 +50,7 @@ export class TaxRuleService
     const count = await this.taxRuleRepository.count();
     const meta = new PaginationMetadataDto(index, limit, count);
     if (meta.currentPage > meta.maxPages) {
-      throw new NotFoundException('This page of products does not exist');
+      throw new NotFoundException('This page of tax rules does not exist');
     }
     const query = this.taxRuleRepository.createQueryBuilder('tr');
     if (opts) {
@@ -55,7 +58,14 @@ export class TaxRuleService
       await query.orderBy(orderBy ?? 'id');
     }
     const data = await query
-
+      .leftJoinAndMapOne('tr.tax', Tax, 't', 'tr.tax_id = t.id')
+      .leftJoinAndMapOne(
+        'tr.taxRuleGroup',
+        TaxRuleGroup,
+        'trg',
+        'tr.tax_rule_group_id = trg.id',
+      )
+      .leftJoinAndMapOne('tr.country', Country, 'c', 'tr.country_id = c.id')
       .skip(index * limit - limit)
       .take(limit)
       .getMany();
@@ -79,21 +89,18 @@ export class TaxRuleService
   }
 
   async create(entity: TaxRuleDto): Promise<TaxRule> {
-    const tax = await this.taxRepository.findOne(entity.taxId);
-    if (!tax) {
-      throw new BadRequestException(`Tax not found at id ${entity.taxId}`);
-    }
-    delete entity.taxId;
-
-    const taxRuleGroup = await this.taxRuleGroupRepository.findOne(
-      entity.taxRuleGroupId,
+    const tax = await this.getCheckDeleteService.getEntity<Tax>(
+      this.taxRepository,
+      entity,
+      'taxId',
     );
-    if (!taxRuleGroup) {
-      throw new BadRequestException(
-        `TaxRuleGroup not found at id ${entity.taxRuleGroupId}`,
+
+    const taxRuleGroup =
+      await this.getCheckDeleteService.getEntity<TaxRuleGroup>(
+        this.taxRuleGroupRepository,
+        entity,
+        'taxRuleGroupId',
       );
-    }
-    delete entity.taxRuleGroupId;
 
     const country = await this.countryRepository.findOne(entity.countryId);
     if (!country) {
@@ -147,14 +154,14 @@ export class TaxRuleService
   async deleteFromId(id: string | number): Promise<void> {
     const result = await this.taxRuleRepository.delete(id);
     if (result.affected < 1) {
-      throw new BadRequestException(`Product not found or already deleted`);
+      throw new BadRequestException(`Tax rule not found or already deleted`);
     }
   }
 
   async delete(entity: TaxRule): Promise<void> {
     const result = await this.taxRuleRepository.delete(entity);
     if (result.affected < 1) {
-      throw new BadRequestException(`Product not found or already deleted`);
+      throw new BadRequestException(`Tax rule not found or already deleted`);
     }
   }
 }

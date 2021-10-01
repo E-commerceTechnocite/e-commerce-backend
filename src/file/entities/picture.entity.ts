@@ -1,6 +1,7 @@
 import { StoredFile } from '@app/file/entities/stored-file.entity';
 import { Column, Entity, ManyToMany, OneToMany } from 'typeorm';
 import { Product } from '@app/product/entities/product.entity';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity()
 export class Picture extends StoredFile {
@@ -11,12 +12,15 @@ export class Picture extends StoredFile {
   //   this.title = file.filename;
   // }
 
+  @ApiProperty()
   @Column()
   caption?: string;
 
+  @ApiProperty()
   @Column({ type: 'integer', nullable: true })
   height?: number;
 
+  @ApiProperty()
   @Column({ type: 'integer', nullable: true })
   width?: number;
 
