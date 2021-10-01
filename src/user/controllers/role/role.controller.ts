@@ -1,15 +1,32 @@
 import { Granted } from '@app/auth/granted.decorator';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
-import { ApiOkPaginatedResponse } from '@app/shared/swagger/decorators';
+import { ApiAdminAuth, ApiOkPaginatedResponse } from '@app/shared/swagger';
 import { RoleDto } from '@app/user/dtos/role/role.dto';
 import { Role } from '@app/user/entities/role.entity';
 import { Permission } from '@app/user/enums/permission.enum';
 import { RoleService } from '@app/user/services/role/role.service';
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
+import {
+  ApiBody,
+  ApiOkResponse,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
-@ApiBearerAuth()
+@ApiAdminAuth()
 @ApiTags('Role')
 @Controller({ path: 'role', version: '1' })
 export class RoleController {
@@ -49,10 +66,7 @@ export class RoleController {
   @ApiResponse({ type: null })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() role: RoleDto,
-  ): Promise<any> {
+  async update(@Param('id') id: string, @Body() role: RoleDto): Promise<any> {
     return this.roleService.update(id, role);
   }
 
@@ -63,6 +77,4 @@ export class RoleController {
   async delete(@Param('id') id: string): Promise<any> {
     return this.roleService.deleteFromId(id);
   }
-
-  
 }
