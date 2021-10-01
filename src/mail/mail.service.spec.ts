@@ -10,7 +10,6 @@ describe('MailService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [ApplicationConfigurationModule],
       providers: [
         MailService,
         { provide: MailerService, useValue: mailerService },
