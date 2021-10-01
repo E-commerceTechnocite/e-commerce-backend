@@ -30,6 +30,16 @@ export class UserService
     private readonly mailService: MailService,
   ) {}
 
+  async getRegistrations(): Promise<Number> {
+    const query = await this.userRepository.createQueryBuilder('u');
+
+    const result = await query
+      .where('u.createdAt > timestamp(curdate())')
+      .getCount();
+
+    return result;
+  }
+
   async getPage(
     index: number,
     limit: number,

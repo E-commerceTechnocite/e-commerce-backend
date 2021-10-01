@@ -46,6 +46,11 @@ export class UserController {
     return this.userService.getPage(page, limit);
   }
 
+  @Get('registrations')
+  async getRegistrations(): Promise<Number> {
+    return this.userService.getRegistrations();
+  }
+
   @Granted(Permission.READ_USER)
   @ApiOkResponse()
   @ApiResponse({ type: User })
