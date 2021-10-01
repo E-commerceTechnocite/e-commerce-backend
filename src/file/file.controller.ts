@@ -14,7 +14,6 @@ import {
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { FileService } from '@app/file/services/file.service';
 import {
-  ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiExtraModels,
@@ -26,16 +25,17 @@ import { MimetypeEnum } from '@app/file/mimetype.enum';
 import { Granted } from '@app/auth/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
 import {
+  ApiAdminAuth,
   ApiFile,
   ApiFiles,
   ApiOkPaginatedResponse,
-} from '@app/shared/swagger/decorators';
+} from '@app/shared/swagger';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { PictureDto } from './dto/picture.dto';
 
 @ApiExtraModels(Picture)
-@ApiBearerAuth()
+@ApiAdminAuth()
 @ApiTags('File Upload')
 @Controller({ path: 'file', version: '1' })
 export class FileController {
@@ -59,13 +59,6 @@ export class FileController {
     await this.fileService.add(file);
   }
 
-  // @Granted(Permission.READ_FILE)
-  // @Get()
-  // findAll(@Query('mimetype')
-  // mimetype: MimetypeEnum = MimetypeEnum.IMAGE,): Promise<Picture[]> {
-  //   return this.fileService.findAll(mimetype);
-  // }
-
   @Granted(Permission.READ_FILE)
   @ApiOkPaginatedResponse(Picture)
   @ApiQuery({ name: 'page', required: false })
@@ -86,7 +79,7 @@ export class FileController {
     @Body() picture: PictureDto,
     @Query('mimetype') mimetype: MimetypeEnum = MimetypeEnum.IMAGE,
   ): Promise<void> {
-    this.fileService.update(id, picture, mimetype);
+    await this.fileService.update(id, picture, mimetype);
   }
 
   @ApiQuery({ enum: MimetypeEnum, allowEmptyValue: true, name: 'mimetype' })

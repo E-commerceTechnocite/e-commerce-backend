@@ -1,7 +1,7 @@
 import { Granted } from '@app/auth/granted.decorator';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
-import { ApiOkPaginatedResponse } from '@app/shared/swagger/decorators';
+import { ApiAdminAuth, ApiOkPaginatedResponse } from '@app/shared/swagger';
 import { User } from '@app/user/entities/user.entity';
 import { Permission } from '@app/user/enums/permission.enum';
 import { UserDto } from '@app/user/user.dto';
@@ -19,7 +19,6 @@ import {
   Query,
 } from '@nestjs/common';
 import {
-  ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
@@ -28,7 +27,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-@ApiBearerAuth()
+@ApiAdminAuth()
 @ApiTags('Users')
 @Controller({ path: 'user', version: '1' })
 export class UserController {
