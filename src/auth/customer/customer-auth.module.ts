@@ -14,6 +14,7 @@ import { AuthService } from './auth/auth.service';
 import { Customer } from '@app/customer/entities/customer/customer.entity';
 import { CustomerModule } from '@app/customer/customer.module';
 import { AuthStrategy } from './auth-strategy.services';
+import { CustomerRefreshToken } from './refresh-token.entity';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { AuthStrategy } from './auth-strategy.services';
       useClass: AuthConfigurationService,
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([Customer]),
+    TypeOrmModule.forFeature([Customer, CustomerRefreshToken]),
   ],
   providers: [AuthStrategy, AuthService],
   controllers: [AuthController],

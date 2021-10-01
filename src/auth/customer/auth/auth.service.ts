@@ -1,6 +1,7 @@
-import { RefreshToken } from '@app/auth/admin/refresh-token.entity';
+import { CustomerRefreshToken } from '../refresh-token.entity';
 import { Customer } from '@app/customer/entities/customer/customer.entity';
 import { CustomerLogDto } from '@app/customer/services/customer/customer-log.dto';
+
 import {
   BadRequestException,
   Inject,
@@ -33,6 +34,9 @@ export class AuthService {
     @Inject(REQUEST)
     private readonly request: Request,
     private readonly configService: ConfigService,
+
+    @InjectRepository(CustomerRefreshToken)
+    private readonly refreshTokenRepository: Repository<CustomerRefreshToken>,
   ) {}
 
   async login(customer: CustomerLogDto): Promise<AuthResponseDto> {
@@ -56,8 +60,9 @@ export class AuthService {
     }
     const { id, username, email } = customerEntity;
 
-    /*     const refreshToken: RefreshToken = {
-      user: customerEntity,
+    const refreshToken: CustomerRefreshToken = {
+      //user: customerEntity,
+      customer: customerEntity,
       userAgent: this.request.headers['user-agent'],
       value: this.jwt.sign(
         { id, username, email },
@@ -69,56 +74,59 @@ export class AuthService {
     };
 
     console.log(refreshToken);
-    await this.refreshTokenRepository.save(refreshToken); */
+    await this.refreshTokenRepository.save(refreshToken);
 
     const tokenData: TokenBody = { id, username, email };
     return {
       access_token: this.jwt.sign(tokenData),
-      // refresh_token: refreshToken.value,
+
+      refresh_token: refreshToken.value,
     };
   }
 
-  //   async refreshToken(refreshToken: string): Promise<AuthResponseDto> {
-  //     const entity: RefreshToken = await this.refreshTokenRepository.findOne({
-  //       value: refreshToken,
-  //     });
+  async refreshToken(refreshToken: string): Promise<AuthResponseDto> {
+    const entity: CustomerRefreshToken =
+      await this.refreshTokenRepository.findOne({
+        value: refreshToken,
+      });
 
-  //     if (!entity || entity.userAgent !== this.request.headers['user-agent']) {
-  //       throw new UnauthorizedException();
-  //     }
-  //     const decodedToken: TokenBody = this.jwt.verify(refreshToken, {
-  //       secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
-  //     });
-  //     delete decodedToken.iat;
-  //     delete decodedToken.exp;
-  //     const tokenData: TokenBody = {
-  //       ...decodedToken,
-  //     };
+    if (!entity || entity.userAgent !== this.request.headers['user-agent']) {
+      throw new UnauthorizedException();
+    }
+    const decodedToken: TokenBody = this.jwt.verify(refreshToken, {
+      secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
+    });
+    delete decodedToken.iat;
+    delete decodedToken.exp;
+    const tokenData: TokenBody = {
+      ...decodedToken,
+    };
 
-  //     return {
-  //       access_token: this.jwt.sign(tokenData),
-  //       refresh_token: refreshToken,
-  //     };
-  //   }
+    return {
+      access_token: this.jwt.sign(tokenData),
+      refresh_token: refreshToken,
+    };
+  }
 
-  //   async logout(refreshToken: string): Promise<void> {
-  //     const entity: RefreshToken = await this.refreshTokenRepository.findOne({
-  //       value: refreshToken,
-  //     });
+  async logout(refreshToken: string): Promise<void> {
+    const entity: CustomerRefreshToken =
+      await this.refreshTokenRepository.findOne({
+        value: refreshToken,
+      });
 
-  //     if (!entity || entity.userAgent !== this.request.headers['user-agent']) {
-  //       throw new UnauthorizedException();
-  //     }
+    if (!entity || entity.userAgent !== this.request.headers['user-agent']) {
+      throw new UnauthorizedException();
+    }
 
-  //     const decodedToken: TokenBody = this.jwt.verify(refreshToken, {
-  //       secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
-  //     });
+    const decodedToken: TokenBody = this.jwt.verify(refreshToken, {
+      secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
+    });
 
-  //     const user = await this.customerRepo.findOne(decodedToken.id);
+    const user = await this.customerRepo.findOne(decodedToken.id);
 
-  //     await this.refreshTokenRepository.delete({
-  //       userAgent: this.request.headers['user-agent'],
-  //       user: user,
-  //     });
-  //   }
+    await this.refreshTokenRepository.delete({
+      userAgent: this.request.headers['user-agent'],
+      customer: user,
+    });
+  }
 }
