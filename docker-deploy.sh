@@ -1,8 +1,9 @@
 #!/bin/sh
 
 date=$(date +%s)
-tag=jester0027/e-commerce-backend:"$date"
+tag="$DOCKERHUB_USERNAME"/e-commerce-backend:"$date"
+latest="$DOCKERHUB_USERNAME"/e-commerce-backend:latest
 
-docker build . --file Dockerfile --tag "$tag"
+docker build . --file Dockerfile -t "$tag" -t "$latest"
 
-docker push "$tag"
+docker push "$tag" "$latest"
