@@ -6,4 +6,5 @@ latest="$DOCKERHUB_USERNAME"/e-commerce-backend:latest
 
 docker build . --file Dockerfile -t "$tag" -t "$latest"
 
-docker push "$tag" "$latest"
+docker push "$tag"
+docker push "$latest"
