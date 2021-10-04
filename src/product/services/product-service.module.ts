@@ -38,7 +38,6 @@ import { AuthModule } from '@app/auth/auth.module';
     TaxService,
     TaxRuleService,
     TaxRuleGroupService,
-    GetCheckDeleteEntityIdService,
   ],
   exports: [
     ProductService,
@@ -47,7 +46,6 @@ import { AuthModule } from '@app/auth/auth.module';
     TaxService,
     TaxRuleService,
     TaxRuleGroupService,
-    GetCheckDeleteEntityIdService,
   ],
 })
 export class ProductServiceModule {}

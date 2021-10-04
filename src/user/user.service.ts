@@ -17,6 +17,8 @@ import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
 import { MailService } from '@app/mail/mail.service';
 import { hash } from 'bcrypt';
+import { CreateUserDto } from './create-user.dto';
+import { RandomizerService } from '@app/shared/services/randomizer.service';
 
 @Injectable()
 export class UserService
@@ -27,6 +29,7 @@ export class UserService
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
+    private readonly randomizerService: RandomizerService,
     private readonly mailService: MailService,
   ) {}
 
@@ -79,7 +82,7 @@ export class UserService
     return this.userRepository.find();
   }
 
-  async create(entity: UserDto): Promise<User> {
+  async create(entity: CreateUserDto): Promise<User> {
     const role = await this.roleRepository.findOne(entity.roleId);
     console.log(role);
     if (!role) {
@@ -87,9 +90,12 @@ export class UserService
     }
     delete entity.roleId;
 
+    const passwordGenerated = this.randomizerService.generatePassword(25);
+    console.log(`Le mdp genere est : ${passwordGenerated}`);
+
     const target: User = {
       ...entity,
-      password: await hash(entity.password, 10),
+      password: await hash(passwordGenerated, 10),
       role,
     };
     console.log(target);
