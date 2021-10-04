@@ -1,6 +1,7 @@
 import { CustomerLogDto } from '@app/customer/services/customer/customer-log.dto';
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Req } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { Request } from '@nestjs/common';
 
 import { AuthService } from './auth.service';
 
@@ -15,13 +16,18 @@ export class AuthController {
     return await this.authService.login(customer);
   }
 
-  //   @Post('refresh')
-  //   async refresh(@Body() { refresh_token }: RefreshTokenDto) {
-  //     return await this.authService.refreshToken(refresh_token);
-  //   }
+  @Post('refresh')
+  async refresh(@Body() { refresh_token }) {
+    return await this.authService.refreshToken(refresh_token);
+  }
 
-  //   @Post('logout')
-  //   async logout(@Body() { refresh_token }: RefreshTokenDto) {
-  //     return await this.authService.logout(refresh_token);
-  //   }
+  @Post('logout')
+  async logout(@Body() { refresh_token }) {
+    return await this.authService.logout(refresh_token);
+  }
+
+  @Post('check')
+  async check(@Req() req: Request) {
+    return await this.authService.check(req);
+  }
 }

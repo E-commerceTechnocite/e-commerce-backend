@@ -15,7 +15,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuthResponseDto } from '../auth-response.dto';
 import * as bcrypt from 'bcrypt';
-import { Request } from 'express';
+import { Request } from '@nestjs/common';
 interface TokenBody {
   id: string;
   username: string;
@@ -77,6 +77,7 @@ export class AuthService {
     await this.refreshTokenRepository.save(refreshToken);
 
     const tokenData: TokenBody = { id, username, email };
+
     return {
       access_token: this.jwt.sign(tokenData),
 
@@ -101,6 +102,7 @@ export class AuthService {
     const tokenData: TokenBody = {
       ...decodedToken,
     };
+    //delete decodedToken.iat;
 
     return {
       access_token: this.jwt.sign(tokenData),
@@ -108,6 +110,7 @@ export class AuthService {
     };
   }
 
+  //-------------------------------
   async logout(refreshToken: string): Promise<void> {
     const entity: CustomerRefreshToken =
       await this.refreshTokenRepository.findOne({
@@ -128,5 +131,17 @@ export class AuthService {
       userAgent: this.request.headers['user-agent'],
       customer: user,
     });
+  }
+
+  // create method check
+
+  async check(req: Request): Promise<void> {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    try {
+      const checkToken = this.jwt.verify(token);
+    } catch (err) {
+      throw new UnauthorizedException();
+    }
   }
 }
