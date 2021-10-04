@@ -89,10 +89,7 @@ export class UserService
       throw new BadRequestException(`Role not found at id ${entity.roleId}`);
     }
     delete entity.roleId;
-
     const passwordGenerated = this.randomizerService.generatePassword(25);
-    console.log(`Le mdp genere est : ${passwordGenerated}`);
-
     const target: User = {
       ...entity,
       password: await hash(passwordGenerated, 10),
