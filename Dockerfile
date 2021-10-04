@@ -1,4 +1,4 @@
-FROM node:14
+FROM node:14-slim
 
 WORKDIR /usr/src/app
 
@@ -13,4 +13,4 @@ RUN yarn build
 
 EXPOSE 3000
 
-CMD ["yarn", "start"]
+CMD ["yarn", "start:prod"]
