@@ -1,6 +1,36 @@
 {
-  "extends": "tsconfig.build.json",
-  "exclude": [
-    "libs/console"
-  ]
+  "compilerOptions": {
+    "module": "commonjs",
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "es2017",
+    "sourceMap": false,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "rootDir": ".",
+    "paths": {
+      "@app/*": [
+        "src/*"
+      ],
+      "@app/e2e/*": [
+        "test/*"
+      ],
+      "@app/console": [
+        "libs/console/src"
+      ],
+      "@app/console/*": [
+        "libs/console/src/*"
+      ]
+    },
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false
+  },
+  "include": ["."],
+  "exclude": ["node_modules", "test", "dist", "libs/console", "**/*spec.ts"]
 }
