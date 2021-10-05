@@ -26,6 +26,11 @@ export class ProductDto {
   price?: number;
 
   @ApiProperty({ required: false })
+  @IsNumber()
+  @IsPositive()
+  quantity?: number;
+
+  @ApiProperty({ required: false })
   @IsUUID()
   categoryId?: string;
 
@@ -35,7 +40,7 @@ export class ProductDto {
   taxRuleGroupId?: string;
 
   @ApiProperty({ required: false, description: 'Picture ids' })
-  @IsUUID(null, { each: true })
+  @IsUUID(4, { each: true })
   @IsOptional()
   picturesId?: string[] = [];
 

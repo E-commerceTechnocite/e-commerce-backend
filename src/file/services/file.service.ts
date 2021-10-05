@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Picture } from '@app/file/entities/picture.entity';
 import { EntityManager } from 'typeorm';
 import { PictureService } from '@app/file/services/picture/picture.service';
@@ -9,6 +13,7 @@ import {
   PaginatorInterface,
 } from '@app/shared/interfaces/paginator.interface';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
+import { PictureDto } from '../dto/picture.dto';
 
 @Injectable()
 export class FileService implements PaginatorInterface<Picture> {
@@ -39,6 +44,24 @@ export class FileService implements PaginatorInterface<Picture> {
     const pictures = this.filterMimetype(files, MimetypeEnum.IMAGE);
 
     await this.pictureService.add(...pictures);
+  }
+
+  async update(
+    id: string | number,
+    entity: PictureDto,
+    mimetype: MimetypeEnum,
+  ): Promise<void> {
+    switch (mimetype) {
+      case MimetypeEnum.IMAGE:
+        const targetDto = {
+          title: entity.title,
+          caption: entity.caption,
+        };
+        await this.pictureService.update(id, targetDto);
+        break;
+      default:
+        throw new BadRequestException('Unknown mimetype provided: ' + mimetype);
+    }
   }
 
   async findById(id: string, mimetype: MimetypeEnum): Promise<any> {

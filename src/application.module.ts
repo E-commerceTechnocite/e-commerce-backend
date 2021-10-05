@@ -11,11 +11,9 @@ import { FileModule } from '@app/file/file.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { JwtAuthGuard } from '@app/auth/admin/jwt-auth.guard';
-/* import { CustomerService } from './customer/services/customer/customer.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Customer } from './customer/entities/customer/customer.entity'; */
 import { CustomerModule } from './customer/customer.module';
 import { ShoppingCartModule } from './shopping-cart/shopping-cart.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -31,6 +29,7 @@ import { ShoppingCartModule } from './shopping-cart/shopping-cart.module';
     FileModule,
     CustomerModule,
     ShoppingCartModule,
+    MailModule,
   ],
   providers: [
     {

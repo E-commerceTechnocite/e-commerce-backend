@@ -16,7 +16,6 @@ import {
   Query,
 } from '@nestjs/common';
 import {
-  ApiBearerAuth,
   ApiBody,
   ApiOkResponse,
   ApiQuery,
@@ -25,9 +24,9 @@ import {
 } from '@nestjs/swagger';
 import { Permission } from '@app/user/enums/permission.enum';
 import { Granted } from '@app/auth/admin/granted.decorator';
-import { ApiOkPaginatedResponse } from '@app/shared/swagger/decorators';
+import { ApiAdminAuth, ApiOkPaginatedResponse } from '@app/shared/swagger';
 
-@ApiBearerAuth()
+@ApiAdminAuth()
 @ApiTags('Country')
 @Controller({ path: 'country', version: '1' })
 export class CountryController {

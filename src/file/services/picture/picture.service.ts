@@ -14,6 +14,7 @@ import {
 } from '@app/shared/interfaces/paginator.interface';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
+import { PictureDto } from '@app/file/dto/picture.dto';
 
 @Injectable()
 export class PictureService implements PaginatorInterface<Picture> {
@@ -60,6 +61,22 @@ export class PictureService implements PaginatorInterface<Picture> {
       });
     });
     return await this.pictureRepo.save(pics);
+  }
+
+  async update(id: string | number, entity: PictureDto): Promise<void> {
+    const picture = await this.pictureRepo.findOne(id);
+    if (!picture) {
+      throw new BadRequestException(`Picture not found with id ${id}`);
+    }
+    delete picture.id;
+
+    const target: Picture = {
+      ...picture,
+      title: entity.title,
+      caption: entity.caption,
+      updatedAt: new Date(Date.now()),
+    };
+    await this.pictureRepo.update(id, target);
   }
 
   async delete(id) {

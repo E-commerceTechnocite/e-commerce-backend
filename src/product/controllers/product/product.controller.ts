@@ -13,7 +13,6 @@ import {
 import { ProductService } from '@app/product/services/product/product.service';
 import { Product } from '@app/product/entities/product.entity';
 import {
-  ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
@@ -26,9 +25,9 @@ import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import { Granted } from '@app/auth/admin/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
-import { ApiOkPaginatedResponse } from '@app/shared/swagger/decorators';
+import { ApiAdminAuth, ApiOkPaginatedResponse } from '@app/shared/swagger';
 
-@ApiBearerAuth()
+@ApiAdminAuth()
 @ApiTags('Products')
 @Controller({ path: 'product', version: '1' })
 export class ProductController {

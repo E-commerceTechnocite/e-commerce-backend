@@ -10,10 +10,27 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   const config = new DocumentBuilder()
     .setTitle('E-commerce endpoints documentation')
-    .addBearerAuth()
+    .addSecurity('customer', {
+      type: 'http',
+      scheme: 'bearer',
+      bearerFormat: 'JWT',
+      name: 'Customer Token',
+      description: 'Customer Token',
+    })
+    .addSecurity('admin', {
+      type: 'http',
+      scheme: 'bearer',
+      bearerFormat: 'JWT',
+      name: 'Admin Token',
+      description: 'Admin Token',
+    })
     .build();
 
-  app.enableCors({ origin: '*', methods: ['GET,POST,PATCH,DELETE'] });
+  app.enableCors({
+    origin: '*',
+    methods: ['GET,POST,PATCH,DELETE'],
+    credentials: true,
+  });
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('', app, document);
