@@ -5,7 +5,6 @@ import { CountryService } from '@app/product/services/country/country.service';
 import { TaxService } from '@app/product/services/tax/tax.service';
 import { TaxRuleService } from '@app/product/services/tax-rule/tax-rule.service';
 import { TaxRuleGroupService } from '@app/product/services/tax-rule-group/tax-rule-group.service';
-import { GetCheckDeleteEntityIdService } from '@app/shared/services/get-check-delete-entity-id.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
 import { Product } from '@app/product/entities/product.entity';
@@ -15,7 +14,6 @@ import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { Country } from '@app/product/entities/country.entity';
 import { Picture } from '@app/file/entities/picture.entity';
 import { SharedModule } from '@app/shared/shared.module';
-import { AuthModule } from '@app/auth/auth.module';
 
 @Module({
   imports: [
@@ -29,7 +27,6 @@ import { AuthModule } from '@app/auth/auth.module';
       Picture,
     ]),
     SharedModule,
-    AuthModule,
   ],
   providers: [
     ProductService,
