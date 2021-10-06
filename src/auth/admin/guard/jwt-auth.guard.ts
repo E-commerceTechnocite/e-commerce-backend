@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Permission } from '@app/user/enums/permission.enum';
-import { PERMISSIONS_KEY } from './granted.decorator';
+import { PERMISSIONS_KEY } from '../granted.decorator';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {

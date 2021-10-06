@@ -15,6 +15,8 @@ import { Customer } from '@app/customer/entities/customer/customer.entity';
 import { CustomerModule } from '@app/customer/customer.module';
 import { AuthStrategy } from './auth-strategy.services';
 import { CustomerRefreshToken } from './refresh-token.entity';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Module({
   imports: [
@@ -27,7 +29,11 @@ import { CustomerRefreshToken } from './refresh-token.entity';
     }),
     TypeOrmModule.forFeature([Customer, CustomerRefreshToken]),
   ],
-  providers: [AuthStrategy, AuthService],
+  providers: [
+    AuthStrategy,
+    AuthService,
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+  ],
   controllers: [AuthController],
   exports: [PassportModule, JwtModule, AuthStrategy],
 })

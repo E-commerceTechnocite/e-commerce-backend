@@ -25,11 +25,10 @@ export class AuthStrategy extends PassportStrategy(Strategy) {
     let customer: Customer;
 
     // todo
-    /*  const user = await this.userRepo
+    const user = await this.customerRepo
       .createQueryBuilder('u')
       .where({ id: payload.id })
-      .leftJoinAndMapOne('u.role', Role, 'r', 'u.id_role = r.id')
-      .getOne(); */
+      .getOne();
     return customer;
   }
 }
