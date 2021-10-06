@@ -4,7 +4,7 @@ import { ApplicationConfigurationModule } from '@app/configuration/application-c
 import * as morgan from 'morgan';
 import { ConfigService } from '@nestjs/config';
 import { SharedModule } from './shared/shared.module';
-import { AuthModule } from './auth/auth.module';
+import { AdminAuthModule } from './auth/admin/admin-auth.module';
 import { UserModule } from './user/user.module';
 import { APP_GUARD } from '@nestjs/core';
 import { FileModule } from '@app/file/file.module';
@@ -24,7 +24,7 @@ import { MailModule } from './mail/mail.module';
     }),
     ProductModule,
     SharedModule,
-    AuthModule,
+    AdminAuthModule,
     UserModule,
     FileModule,
     CustomerModule,
