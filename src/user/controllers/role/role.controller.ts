@@ -4,7 +4,7 @@ import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import { ApiAdminAuth, ApiOkPaginatedResponse } from '@app/shared/swagger';
 import { RoleDto } from '@app/user/dtos/role/role.dto';
 import { Role } from '@app/user/entities/role.entity';
-import { Permission } from '@app/user/enums/permission.enum';
+import { Permission, PermissionUtil } from '@app/user/enums/permission.enum';
 import { RoleService } from '@app/user/services/role/role.service';
 import {
   Body,
@@ -31,6 +31,13 @@ import {
 @Controller({ path: 'role', version: '1' })
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
+
+  @Granted(Permission.READ_ROLE)
+  @ApiResponse({ type: null })
+  @Get('/permissions')
+  getPermissions(): string[] {
+    return Object.values(Permission);
+  }
 
   @Granted(Permission.READ_ROLE)
   @ApiOkPaginatedResponse(Role)
