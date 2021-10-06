@@ -13,6 +13,6 @@
       }
     ],
     "watchAssets": true,
-    "tsConfigPath": "tsconfig.build.json"
+    "tsConfigPath": "tsconfig.prod.json"
   }
 }

@@ -15,12 +15,6 @@
       ],
       "@app/e2e/*": [
         "test/*"
-      ],
-      "@app/console": [
-        "libs/console/src"
-      ],
-      "@app/console/*": [
-        "libs/console/src/*"
       ]
     },
     "incremental": true,
