@@ -73,6 +73,11 @@ export class RoleService
   }
 
   async update(id: string | number, entity: RoleDto): Promise<void> {
+    const oldRole = await this.roleRepo.findOne(id);
+
+    if (oldRole.name == 'Admin') {
+      throw new BadRequestException('The << Admin >> Role cannot be changed !');
+    }
     const target: Role = {
       name: entity.name,
       permissions: entity.permissions,
