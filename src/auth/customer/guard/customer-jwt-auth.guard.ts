@@ -1,20 +1,13 @@
 import { AuthGuard } from '@nestjs/passport';
-import {
-  ExecutionContext,
-  ForbiddenException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
+import { ExecutionContext, Injectable } from '@nestjs/common';
 
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {
-  constructor(private readonly reflector: Reflector) {
+export class JwtAuthGuard extends AuthGuard('customer') {
+  constructor() {
     super();
   }
 
   handleRequest(err, customer, info, context: ExecutionContext) {
-    console.log(customer);
     // if (!customer) {
     //   throw new UnauthorizedException('Unauthenticated');
     // }

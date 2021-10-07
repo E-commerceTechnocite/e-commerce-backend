@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Customer } from '@app/customer/entities/customer/customer.entity';
 
 @Injectable()
-export class AuthStrategy extends PassportStrategy(Strategy) {
+export class AuthStrategy extends PassportStrategy(Strategy, 'customer') {
   constructor(
     private readonly config: ConfigService,
     @InjectRepository(Customer)
@@ -22,10 +22,7 @@ export class AuthStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload): Promise<Customer> {
-    let customer: Customer;
-
-    // todo
-    const user = await this.customerRepo
+    const customer = await this.customerRepo
       .createQueryBuilder('u')
       .where({ id: payload.id })
       .getOne();

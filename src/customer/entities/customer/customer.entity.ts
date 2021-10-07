@@ -1,21 +1,11 @@
-import { Type } from 'class-transformer';
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  OneToMany,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
 import { Gender } from './customer.enum';
-import { IsDate, IsEmail, IsNotEmpty } from 'class-validator';
 import { ShoppingCart } from '@app/shopping-cart/entities/shopping-cart.entity';
 import { EntitySchema } from '@app/shared/entities/entity-schema';
-import { CustomerRefreshToken } from '@app/auth/customer/refresh-token.entity';
+import { CustomerRefreshToken } from '@app/auth/customer/entities/refresh-token.entity';
+
 @Entity()
 export class Customer extends EntitySchema {
-  /*  @PrimaryGeneratedColumn() 
-    id: string;  */
   @Column()
   username: string;
 

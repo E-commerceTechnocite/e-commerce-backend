@@ -23,7 +23,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Permission } from '@app/user/enums/permission.enum';
-import { Granted } from '@app/auth/admin/granted.decorator';
+import { Granted } from '@app/auth/admin/guard/granted.decorator';
 import { ApiAdminAuth, ApiOkPaginatedResponse } from '@app/shared/swagger';
 
 @ApiAdminAuth()

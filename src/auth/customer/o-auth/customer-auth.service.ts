@@ -1,4 +1,4 @@
-import { CustomerRefreshToken } from '../refresh-token.entity';
+import { CustomerRefreshToken } from '../entities/refresh-token.entity';
 import { Customer } from '@app/customer/entities/customer/customer.entity';
 import { CustomerLogDto } from '@app/customer/services/customer/customer-log.dto';
 
@@ -13,7 +13,7 @@ import { REQUEST } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { AuthResponseDto } from '../auth-response.dto';
+import { AuthResponseDto } from '../dto/auth-response.dto';
 import * as bcrypt from 'bcrypt';
 import { Request } from '@nestjs/common';
 interface TokenBody {
@@ -139,7 +139,7 @@ export class AuthService {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
     try {
-      const checkToken = this.jwt.verify(token);
+      this.jwt.verify(token);
     } catch (err) {
       throw new UnauthorizedException();
     }
