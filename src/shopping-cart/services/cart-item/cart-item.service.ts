@@ -78,7 +78,7 @@ export class CartItemService
   async find(id: string | number): Promise<CartItem> {
     const cartItem = await this.cartItemRepo.findOne(id);
     if (!cartItem) {
-      throw new NotFoundException();
+      throw new NotFoundException(`Cart item at id ${id} not found`);
     }
     return cartItem;
   }

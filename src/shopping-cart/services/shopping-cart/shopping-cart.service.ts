@@ -1,3 +1,4 @@
+import { Customer } from '@app/customer/entities/customer/customer.entity';
 import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
@@ -5,8 +6,8 @@ import {
   PaginationOptions,
   PaginatorInterface,
 } from '@app/shared/interfaces/paginator.interface';
-import { ShoppingCartUpdateDto } from '@app/shopping-cart/dto/cart-item/shopping-cart/shopping-cart-update.dto';
-import { ShoppingCartDto } from '@app/shopping-cart/dto/cart-item/shopping-cart/shopping-cart.dto';
+import { ShoppingCartUpdateDto } from '@app/shopping-cart/dto/shopping-cart/shopping-cart-update.dto';
+import { ShoppingCartDto } from '@app/shopping-cart/dto/shopping-cart/shopping-cart.dto';
 import { ShoppingCart } from '@app/shopping-cart/entities/shopping-cart.entity';
 import {
   BadRequestException,
@@ -27,6 +28,8 @@ export class ShoppingCartService
   constructor(
     @InjectRepository(ShoppingCart)
     private readonly shoppingCartRepo: Repository<ShoppingCart>,
+    @InjectRepository(Customer)
+    private readonly customerRepo: Repository<Customer>,
   ) {}
 
   async getPage(
@@ -59,7 +62,7 @@ export class ShoppingCartService
   async find(id: string | number): Promise<ShoppingCart> {
     const shoppingCart = await this.shoppingCartRepo.findOne(id);
     if (!shoppingCart) {
-      throw new NotFoundException('This shopping cart does not exists');
+      throw new NotFoundException(`Shopping cart not found with id ${id}`);
     }
     return shoppingCart;
   }
@@ -69,7 +72,15 @@ export class ShoppingCartService
   }
 
   async create(entity: ShoppingCartDto): Promise<ShoppingCart> {
+    const customer = await this.customerRepo.findOne(entity.customer);
+    if (!customer) {
+      throw new NotFoundException(
+        `Customer not found at id ${entity.customer}`,
+      );
+    }
+
     const target: ShoppingCart = {
+      customer,
       ...entity,
     };
     return await this.shoppingCartRepo.save(target).catch(() => {
@@ -81,15 +92,18 @@ export class ShoppingCartService
     id: string | number,
     entity: ShoppingCartUpdateDto,
   ): Promise<void> {
+    const shopCart = await this.shoppingCartRepo.findOne(id);
+    if (!shopCart) {
+      throw new NotFoundException(`Shopping cart not found with id ${id}`);
+    }
     const target: ShoppingCart = {
+      ...shopCart,
       ...entity,
     };
 
-    const result = await this.shoppingCartRepo.update(id, target);
-    if (result.affected < 1) {
-      throw new BadRequestException(`Shopping cart not found with id ${id}`);
-    }
+    await this.shoppingCartRepo.update(id, target);
   }
+
   async deleteFromId(id: string | number): Promise<void> {
     const result = await this.shoppingCartRepo.delete(id);
     if (result.affected < 1) {
