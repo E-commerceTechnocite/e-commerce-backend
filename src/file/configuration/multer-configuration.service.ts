@@ -40,8 +40,8 @@ export class MulterConfigurationService implements MulterOptionsFactory {
     callback: (error: Error | null, filename: string) => void,
   ): void {
     const extension = path.extname(file.originalname);
-    const fileName = path.basename(file.originalname);
-    callback(null, `${fileName}-${Date.now()}-.${extension}`);
+    const fileName = path.basename(file.originalname).replace(extension, '');
+    callback(null, `${fileName}-${Date.now()}.${extension}`);
   }
 
   private static fileFilter(
@@ -76,7 +76,7 @@ export class MulterConfigurationService implements MulterOptionsFactory {
     ) {
       return callback(
         new BadRequestException(
-          `Image extension not allowed, please provide one of [${allowedImageTypes.join(
+          `Image extension not allowed, provide one of [${allowedImageTypes.join(
             ', ',
           )}]`,
         ),
