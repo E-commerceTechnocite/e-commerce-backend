@@ -7,6 +7,7 @@ import {
 } from '@nestjs/platform-express';
 import { MimetypeEnum, MimetypeEnumUtil } from '@app/file/mimetype.enum';
 import { mkdirSync } from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class MulterConfigurationService implements MulterOptionsFactory {
@@ -38,11 +39,9 @@ export class MulterConfigurationService implements MulterOptionsFactory {
     file: Express.Multer.File,
     callback: (error: Error | null, filename: string) => void,
   ): void {
-    const type = file.mimetype.split('/')[1];
-    callback(
-      null,
-      file.originalname.split('.')[0] + '-' + Date.now() + '.' + type,
-    );
+    const extension = path.extname(file.originalname);
+    const fileName = path.basename(file.originalname);
+    callback(null, `${fileName}-${Date.now()}-.${extension}`);
   }
 
   private static fileFilter(
@@ -50,7 +49,8 @@ export class MulterConfigurationService implements MulterOptionsFactory {
     file: Express.Multer.File,
     callback: (error: Error | null, acceptFile: boolean) => void,
   ): void {
-    const [mimetype, extension] = file.mimetype.split('/');
+    const [mimetype, mimetypeExtension] = file.mimetype.split('/');
+    const extension = path.extname(file.originalname);
     if (!MimetypeEnumUtil.matchMimetype(file)) {
       return callback(
         new BadRequestException(
@@ -59,8 +59,17 @@ export class MulterConfigurationService implements MulterOptionsFactory {
         false,
       );
     }
-    const allowedImageTypes = ['png', 'jpeg', 'jpg', 'gif', 'webp', 'jpe'];
+    const allowedImageTypes = [
+      '.png',
+      '.jpeg',
+      '.jpg',
+      '.gif',
+      '.webp',
+      '.jpe',
+    ];
+    console.log(mimetype === MimetypeEnum.IMAGE);
     console.log(allowedImageTypes.includes(extension));
+    console.log(extension);
     if (
       mimetype === MimetypeEnum.IMAGE &&
       !allowedImageTypes.includes(extension)
