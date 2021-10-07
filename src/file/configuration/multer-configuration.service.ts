@@ -5,7 +5,7 @@ import {
   MulterModuleOptions,
   MulterOptionsFactory,
 } from '@nestjs/platform-express';
-import { MimetypeEnumUtil } from '@app/file/mimetype.enum';
+import { MimetypeEnum, MimetypeEnumUtil } from '@app/file/mimetype.enum';
 import { mkdirSync } from 'fs';
 
 @Injectable()
@@ -19,6 +19,7 @@ export class MulterConfigurationService implements MulterOptionsFactory {
         destination: storageDestination,
       }),
       fileFilter: fileFilter,
+      limits: { fileSize: 1024 * 1024 },
     };
   }
 
@@ -49,8 +50,29 @@ export class MulterConfigurationService implements MulterOptionsFactory {
     file: Express.Multer.File,
     callback: (error: Error | null, acceptFile: boolean) => void,
   ): void {
+    const [mimetype, extension] = file.mimetype.split('/');
     if (!MimetypeEnumUtil.matchMimetype(file)) {
-      return callback(new BadRequestException('Mimetype not supported'), false);
+      return callback(
+        new BadRequestException(
+          `Mimetype not supported: ${mimetype} (${file.originalname})`,
+        ),
+        false,
+      );
+    }
+    const allowedImageTypes = ['png', 'jpeg', 'jpg', 'gif', 'webp', 'jpe'];
+    console.log(allowedImageTypes.includes(extension));
+    if (
+      mimetype === MimetypeEnum.IMAGE &&
+      !allowedImageTypes.includes(extension)
+    ) {
+      return callback(
+        new BadRequestException(
+          `Image extension not allowed, please provide one of [${allowedImageTypes.join(
+            ', ',
+          )}]`,
+        ),
+        false,
+      );
     }
     callback(null, true);
   }
