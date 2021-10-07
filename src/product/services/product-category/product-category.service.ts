@@ -85,7 +85,7 @@ export class ProductCategoryService implements ProductCategoryServiceInterface {
   async find(id: string | number): Promise<ProductCategory> {
     const category = await this.repository.findOne(id);
     if (!category) {
-      throw new NotFoundException();
+      throw new NotFoundException('This product category does not exists');
     }
     return category;
   }
