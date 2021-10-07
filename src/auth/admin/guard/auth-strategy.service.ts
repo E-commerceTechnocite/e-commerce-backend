@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from '@app/user/entities/role.entity';
 
 @Injectable()
-export class AuthStrategy extends PassportStrategy(Strategy) {
+export class AuthStrategy extends PassportStrategy(Strategy, 'admin') {
   constructor(
     private readonly config: ConfigService,
     @InjectRepository(User)

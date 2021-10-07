@@ -12,6 +12,7 @@ import { join } from 'path';
 import { CustomerModule } from './customer/customer.module';
 import { ShoppingCartModule } from './shopping-cart/shopping-cart.module';
 import { MailModule } from './mail/mail.module';
+import { CustomerAuthModule } from '@app/auth/customer/customer-auth.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { MailModule } from './mail/mail.module';
     ProductModule,
     SharedModule,
     AdminAuthModule,
+    CustomerAuthModule,
     UserModule,
     FileModule,
     CustomerModule,
