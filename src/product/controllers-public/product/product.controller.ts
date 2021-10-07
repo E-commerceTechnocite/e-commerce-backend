@@ -31,4 +31,12 @@ export class ProductController {
   ): Promise<PaginationDto<Product>> {
     return this.productService.getPage(page, limit, { orderBy });
   }
+
+  // find product by title
+
+  @ApiOkResponse({ type: Product })
+  @Get(':name')
+  async findByTitle(@Param('name') name: string): Promise<Product> {
+    return this.productService.findByTitle(name);
+  }
 }

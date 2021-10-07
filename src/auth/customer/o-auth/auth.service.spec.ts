@@ -6,7 +6,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { mock } from 'jest-mock-extended';
 import { Repository } from 'typeorm';
 import { CustomerRefreshToken } from '../refresh-token.entity';
-import { AuthService } from './auth.service';
+import { AuthService } from './customer-auth.service';
 import { Request } from '@nestjs/common';
 
 describe('AuthService', () => {
