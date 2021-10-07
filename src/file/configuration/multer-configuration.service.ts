@@ -24,7 +24,7 @@ export class MulterConfigurationService implements MulterOptionsFactory {
 
   private static storageDestination(
     req: Express.Request,
-    file: Express.Response,
+    file: Express.Multer.File,
     callback: (error: Error | null, destination: string) => void,
   ): void {
     const dir = join(__dirname, '..', '..', '..', 'public', 'files');
