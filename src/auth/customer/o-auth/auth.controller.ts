@@ -3,7 +3,7 @@ import { Body, Controller, Post, Req } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from '@nestjs/common';
 
-import { AuthService } from './auth.service';
+import { AuthService } from './customer-auth.service';
 
 @ApiTags('Security')
 // @Controller({ path: 'o-auth', version: '1' })

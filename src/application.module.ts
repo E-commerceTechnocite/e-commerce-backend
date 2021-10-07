@@ -6,11 +6,9 @@ import { ConfigService } from '@nestjs/config';
 import { SharedModule } from './shared/shared.module';
 import { AdminAuthModule } from './auth/admin/admin-auth.module';
 import { UserModule } from './user/user.module';
-import { APP_GUARD } from '@nestjs/core';
 import { FileModule } from '@app/file/file.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { JwtAuthGuard } from '@app/auth/admin/jwt-auth.guard';
 import { CustomerModule } from './customer/customer.module';
 import { ShoppingCartModule } from './shopping-cart/shopping-cart.module';
 import { MailModule } from './mail/mail.module';
@@ -30,12 +28,6 @@ import { MailModule } from './mail/mail.module';
     CustomerModule,
     ShoppingCartModule,
     MailModule,
-  ],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
   ],
 })
 export class ApplicationModule implements NestModule {

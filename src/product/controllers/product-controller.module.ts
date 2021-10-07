@@ -6,9 +6,10 @@ import { TaxController } from '@app/product/controllers/tax/tax.controller';
 import { TaxRuleController } from '@app/product/controllers/tax-rule/tax-rule.controller';
 import { TaxRuleGroupController } from '@app/product/controllers/tax-rule-group/tax-rule-group.controller';
 import { ProductServiceModule } from '@app/product/services/product-service.module';
+import { GuardModule } from '@app/auth/admin/guard/guard.module';
 
 @Module({
-  imports: [ProductServiceModule],
+  imports: [ProductServiceModule, GuardModule],
   controllers: [
     CountryController,
     ProductController,
