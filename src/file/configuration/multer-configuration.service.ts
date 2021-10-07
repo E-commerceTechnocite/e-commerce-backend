@@ -6,18 +6,30 @@ import {
   MulterOptionsFactory,
 } from '@nestjs/platform-express';
 import { MimetypeEnumUtil } from '@app/file/mimetype.enum';
+import { mkdirSync } from 'fs';
 
 @Injectable()
 export class MulterConfigurationService implements MulterOptionsFactory {
   createMulterOptions(): Promise<MulterModuleOptions> | MulterModuleOptions {
-    const { storageFileName, fileFilter } = MulterConfigurationService;
+    const { storageFileName, fileFilter, storageDestination } =
+      MulterConfigurationService;
     return {
       storage: multer.diskStorage({
         filename: storageFileName,
-        destination: join(__dirname, '..', '..', '..', 'public', 'files'),
+        destination: storageDestination,
       }),
       fileFilter: fileFilter,
     };
+  }
+
+  private static storageDestination(
+    req: Express.Request,
+    file: Express.Response,
+    callback: (error: Error | null, destination: string) => void,
+  ): void {
+    const dir = join(__dirname, '..', '..', '..', 'public', 'files');
+    mkdirSync(dir, { recursive: true });
+    return callback(null, dir);
   }
 
   private static storageFileName(
