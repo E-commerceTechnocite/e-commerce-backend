@@ -5,12 +5,14 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
 } from 'typeorm';
 import { ApiProperty, ApiResponseProperty } from '@nestjs/swagger';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { Picture } from '@app/file/entities/picture.entity';
 import { EntitySchema } from '@app/shared/entities/entity-schema';
+import { CartItem } from '@app/shopping-cart/entities/cart-item.entity';
 
 @Entity()
 export class Product extends EntitySchema {
@@ -63,4 +65,7 @@ export class Product extends EntitySchema {
   })
   @JoinColumn({ name: 'picture_thumbnail_id', referencedColumnName: 'id' })
   thumbnail?: Picture;
+
+  @OneToMany(() => CartItem, (cardItem) => cardItem.product, { lazy: true })
+  cartItems?: CartItem[];
 }

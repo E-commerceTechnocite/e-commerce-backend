@@ -10,7 +10,7 @@ import { Permission } from '@app/user/enums/permission.enum';
 import { PERMISSIONS_KEY } from './granted.decorator';
 
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {
+export class JwtAuthGuard extends AuthGuard('admin') {
   constructor(private readonly reflector: Reflector) {
     super();
   }

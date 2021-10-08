@@ -4,14 +4,15 @@ import { ApplicationConfigurationModule } from '@app/configuration/application-c
 import * as morgan from 'morgan';
 import { ConfigService } from '@nestjs/config';
 import { SharedModule } from './shared/shared.module';
-import { AuthModule } from './auth/auth.module';
+import { AdminAuthModule } from './auth/admin/admin-auth.module';
 import { UserModule } from './user/user.module';
-import { APP_GUARD } from '@nestjs/core';
 import { FileModule } from '@app/file/file.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { JwtAuthGuard } from '@app/auth/jwt-auth.guard';
+import { CustomerModule } from './customer/customer.module';
+import { ShoppingCartModule } from './shopping-cart/shopping-cart.module';
 import { MailModule } from './mail/mail.module';
+import { CustomerAuthModule } from '@app/auth/customer/customer-auth.module';
 
 @Module({
   imports: [
@@ -22,16 +23,13 @@ import { MailModule } from './mail/mail.module';
     }),
     ProductModule,
     SharedModule,
-    AuthModule,
+    AdminAuthModule,
+    CustomerAuthModule,
     UserModule,
     FileModule,
+    CustomerModule,
+    ShoppingCartModule,
     MailModule,
-  ],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
   ],
 })
 export class ApplicationModule implements NestModule {

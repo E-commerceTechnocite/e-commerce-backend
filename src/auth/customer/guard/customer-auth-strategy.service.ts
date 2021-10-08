@@ -2,17 +2,17 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { User } from '@app/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Role } from '@app/user/entities/role.entity';
+
+import { Customer } from '@app/customer/entities/customer/customer.entity';
 
 @Injectable()
-export class AuthStrategy extends PassportStrategy(Strategy) {
+export class AuthStrategy extends PassportStrategy(Strategy, 'customer') {
   constructor(
     private readonly config: ConfigService,
-    @InjectRepository(User)
-    private readonly userRepo: Repository<User>,
+    @InjectRepository(Customer)
+    private readonly customerRepo: Repository<Customer>,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -21,12 +21,11 @@ export class AuthStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload): Promise<User> {
-    const user = await this.userRepo
+  async validate(payload): Promise<Customer> {
+    const customer = await this.customerRepo
       .createQueryBuilder('u')
       .where({ id: payload.id })
-      .leftJoinAndMapOne('u.role', Role, 'r', 'u.id_role = r.id')
       .getOne();
-    return user;
+    return customer;
   }
 }

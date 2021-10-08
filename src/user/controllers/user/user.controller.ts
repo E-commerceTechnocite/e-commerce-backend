@@ -1,7 +1,8 @@
-import { Granted } from '@app/auth/granted.decorator';
+import { Granted } from '@app/auth/admin/guard/granted.decorator';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import { ApiAdminAuth, ApiOkPaginatedResponse } from '@app/shared/swagger';
+import { CreateUserDto } from '@app/user/create-user.dto';
 import { User } from '@app/user/entities/user.entity';
 import { Permission } from '@app/user/enums/permission.enum';
 import { UserDto } from '@app/user/user.dto';
@@ -55,11 +56,11 @@ export class UserController {
 
   @Granted(Permission.CREATE_USER)
   @ApiCreatedResponse()
-  @ApiBody({ type: UserDto, required: false })
+  @ApiBody({ type: CreateUserDto, required: false })
   @ApiResponse({ type: null })
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async create(@Body() user: UserDto): Promise<any> {
+  async create(@Body() user: CreateUserDto): Promise<any> {
     return await this.userService.create(user);
   }
 

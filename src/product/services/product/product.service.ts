@@ -199,4 +199,31 @@ export class ProductService implements ProductServiceInterface {
       meta,
     };
   }
+  // get product by title
+  async findByTitle(name: string): Promise<any> {
+    // const query = this.productRepository.createQueryBuilder('p');
+    const product = this.productRepository.findOne({ title: 'name' });
+    /* const product = await query
+      .leftJoinAndMapOne(
+        'p.category',
+        ProductCategory,
+        'c',
+        'p.product_category_id = c.id',
+      )
+      .leftJoinAndMapOne(
+        'p.thumbnail',
+        Picture,
+        'pic',
+        'p.picture_thumbnail_id = pic.id',
+      )
+      .where('p.title = :name'); */
+    //.skip(index * limit - limit)
+    //.take(limit)
+    // .getOne();
+    /* 
+    if (!product) {
+      throw new NotFoundException();
+    } */
+    return product;
+  }
 }

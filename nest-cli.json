@@ -2,10 +2,17 @@
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
   "compilerOptions": {
-    "assets": [{
-      "include": "mail/templates/**/*.hbs",
-      "outDir": "dist/src"
-    }],
-    "watchAssets": true 
+    "assets": [
+      {
+        "include": "../public/**/*",
+        "outDir": "dist/public"
+      },
+      {
+        "include": "**/*.hbs",
+        "outDir": "dist/src"
+      }
+    ],
+    "watchAssets": true,
+    "tsConfigPath": "tsconfig.build.json"
   }
 }

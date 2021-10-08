@@ -1,8 +1,8 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { OAuthService } from '@app/auth/o-auth/o-auth.service';
+import { OAuthService } from '@app/auth/admin/o-auth/o-auth.service';
 import { UserLogDto } from '@app/user/user-log.dto';
-import { RefreshTokenDto } from '../refresh-token.dto';
+import { RefreshTokenDto } from '../dto/refresh-token.dto';
 
 @ApiTags('Security')
 @Controller({ path: 'o-auth', version: '1' })
