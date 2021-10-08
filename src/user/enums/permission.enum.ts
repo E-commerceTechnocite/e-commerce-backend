@@ -43,6 +43,11 @@ export enum Permission {
   CREATE_ROLE = 'c:role',
   UPDATE_ROLE = 'u:role',
   DELETE_ROLE = 'd:role',
+
+  READ_STOCK = 'r:stock',
+  CREATE_STOCK = 'c:stock',
+  UPDATE_STOCK = 'u:stock',
+  DELETE_STOCK = 'd:stock',
 }
 
 export class PermissionUtil {
@@ -123,6 +128,15 @@ export class PermissionUtil {
       Permission.CREATE_ROLE,
       Permission.UPDATE_ROLE,
       Permission.DELETE_ROLE,
+    ];
+  }
+
+  static stockPermissions(): Permission[] {
+    return [
+      Permission.READ_STOCK,
+      Permission.CREATE_STOCK,
+      Permission.UPDATE_STOCK,
+      Permission.DELETE_STOCK,
     ];
   }
 }

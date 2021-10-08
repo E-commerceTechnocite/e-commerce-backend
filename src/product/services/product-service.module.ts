@@ -14,6 +14,7 @@ import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { Country } from '@app/product/entities/country.entity';
 import { Picture } from '@app/file/entities/picture.entity';
 import { SharedModule } from '@app/shared/shared.module';
+import { StockService } from './stock/stock.service';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { SharedModule } from '@app/shared/shared.module';
     TaxService,
     TaxRuleService,
     TaxRuleGroupService,
+    StockService,
   ],
   exports: [
     ProductService,

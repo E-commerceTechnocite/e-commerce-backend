@@ -7,6 +7,7 @@ import { TaxRuleController } from '@app/product/controllers/tax-rule/tax-rule.co
 import { TaxRuleGroupController } from '@app/product/controllers/tax-rule-group/tax-rule-group.controller';
 import { ProductServiceModule } from '@app/product/services/product-service.module';
 import { AdminGuardModule } from '@app/auth/admin/guard/admin-guard.module';
+import { StockController } from './stock/stock.controller';
 
 @Module({
   imports: [ProductServiceModule, AdminGuardModule],
@@ -17,6 +18,7 @@ import { AdminGuardModule } from '@app/auth/admin/guard/admin-guard.module';
     TaxController,
     TaxRuleController,
     TaxRuleGroupController,
+    StockController,
   ],
 })
 export class ProductControllerModule {}
