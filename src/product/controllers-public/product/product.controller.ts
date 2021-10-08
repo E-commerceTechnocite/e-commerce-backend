@@ -35,7 +35,7 @@ export class ProductController {
   // find product by title
 
   @ApiOkResponse({ type: Product })
-  @Get(':name')
+  @Get('/search/:name')
   async findByTitle(@Param('name') name: string): Promise<Product> {
     return this.productService.findByTitle(name);
   }

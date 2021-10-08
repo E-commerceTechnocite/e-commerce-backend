@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from '@app/product/entities/product.entity';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
 import { ProductDto } from '@app/product/dto/product/product.dto';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
@@ -17,7 +17,7 @@ import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-met
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { Picture } from '@app/file/entities/picture.entity';
-
+import { Connection } from 'typeorm';
 export interface ProductServiceInterface
   extends CrudServiceInterface<Product, ProductDto, ProductDto>,
     PaginatorInterface<Product> {}
@@ -200,30 +200,12 @@ export class ProductService implements ProductServiceInterface {
     };
   }
   // get product by title
-  async findByTitle(name: string): Promise<any> {
-    // const query = this.productRepository.createQueryBuilder('p');
-    const product = this.productRepository.findOne({ title: 'name' });
-    /* const product = await query
-      .leftJoinAndMapOne(
-        'p.category',
-        ProductCategory,
-        'c',
-        'p.product_category_id = c.id',
-      )
-      .leftJoinAndMapOne(
-        'p.thumbnail',
-        Picture,
-        'pic',
-        'p.picture_thumbnail_id = pic.id',
-      )
-      .where('p.title = :name'); */
-    //.skip(index * limit - limit)
-    //.take(limit)
-    // .getOne();
-    /* 
-    if (!product) {
-      throw new NotFoundException();
-    } */
-    return product;
+  async findByTitle(name: string): Promise<Product> {
+    /* let connection: Connection;
+    const product = await connection.getRepository(Product).find({
+      title: ILike('%name%'),
+    }); */
+
+    return this.productRepository.findOne(name);
   }
 }
