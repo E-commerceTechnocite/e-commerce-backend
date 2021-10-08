@@ -1,7 +1,6 @@
 import { CustomerLogDto } from '@app/customer/services/customer/customer-log.dto';
 import { Body, Controller, Post, Req } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Request } from '@nestjs/common';
 
 import { AuthService } from './customer-auth.service';
 
@@ -27,7 +26,7 @@ export class AuthController {
   }
 
   @Post('check')
-  async check(@Req() req: Request) {
+  async check(@Req() req: Express.Request & Request) {
     return await this.authService.check(req);
   }
 }
