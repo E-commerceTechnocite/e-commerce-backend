@@ -18,5 +18,5 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build the Docker image
       env:
-        DOCKERHUB_USERNAME: ${{secrets.DOCKERHUB_USERNAME}}
+        DOCKERHUB_USERNAME: thalion198
       run: chmod +x ./docker-deploy.sh && ./docker-deploy.sh
