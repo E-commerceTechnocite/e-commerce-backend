@@ -21,4 +21,16 @@ export class MailService {
       },
     });
   }
+
+  async sendAdminCreation(admin: User, rawPassword: string) {
+    await this.mailerService.sendMail({
+      to: admin.email,
+      subject: 'Superadmin account validation',
+      template: './superadmin-creation',
+      context: {
+        username: admin.username,
+        password: rawPassword,
+      },
+    });
+  }
 }
