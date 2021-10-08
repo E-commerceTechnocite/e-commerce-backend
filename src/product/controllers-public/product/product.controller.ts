@@ -4,10 +4,12 @@ import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import { ApiOkPaginatedResponse } from '@app/shared/swagger/decorators';
 import { ApiCustomerAuth } from '@app/shared/swagger/decorators/auth/api-customer-auth.decorator';
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from '@app/auth/customer/guard/customer-jwt-auth.guard';
 
 @ApiTags('Products')
+@UseGuards(JwtAuthGuard)
 @ApiCustomerAuth()
 @Controller({ path: 'customer/product', version: '1' })
 export class ProductController {

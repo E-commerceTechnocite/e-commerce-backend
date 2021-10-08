@@ -1,10 +1,10 @@
-import { Granted } from '@app/auth/admin/granted.decorator';
+import { Granted } from '@app/auth/admin/guard/granted.decorator';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import { ApiAdminAuth, ApiOkPaginatedResponse } from '@app/shared/swagger';
 import { RoleDto } from '@app/user/dtos/role/role.dto';
 import { Role } from '@app/user/entities/role.entity';
-import { Permission, PermissionUtil } from '@app/user/enums/permission.enum';
+import { Permission } from '@app/user/enums/permission.enum';
 import { RoleService } from '@app/user/services/role/role.service';
 import {
   Body,
