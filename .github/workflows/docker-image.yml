@@ -19,4 +19,4 @@ jobs:
     - name: Build the Docker image
       env:
         DOCKERHUB_USERNAME: thalion198
-      run: chmod +x ./docker-deploy.sh && ./docker-deploy.sh
+      run: chmod +x ./docker-deploy.sh && /bin/bash ./docker-deploy.sh
