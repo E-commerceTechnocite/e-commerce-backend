@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
 import { StripeModule } from 'nestjs-stripe';
-import { PaymentConfigurationService } from '@app/payment/configuration/payment.configuration.service';
+import { StripeConfigurationService } from '@app/payment/configuration/stripe-configuration.service';
 import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     StripeModule.forRootAsync({
-      useClass: PaymentConfigurationService,
+      useClass: StripeConfigurationService,
       inject: [ConfigService],
     }),
   ],
 })
-export class PaymentConfigurationModule {}
+export class StripeConfigurationModule {}
