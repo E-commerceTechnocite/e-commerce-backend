@@ -7,7 +7,6 @@ export class StripeConfigurationService implements StripeOptionsFactory {
   constructor(private readonly config: ConfigService) {}
 
   createStripeOptions(): Promise<StripeOptions> | StripeOptions {
-    console.log(this.config.get('STRIPE_KEY'));
     return {
       apiKey: this.config.get('STRIPE_KEY'),
       apiVersion: '2020-08-27',
