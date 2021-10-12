@@ -1,6 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ProductModule } from '@app/product/product.module';
-import { ApplicationConfigurationModule } from '@app/configuration/application-configuration.module';
+import { ApplicationConfigurationModule } from '@app/configuration';
 import * as morgan from 'morgan';
 import { ConfigService } from '@nestjs/config';
 import { SharedModule } from './shared/shared.module';
