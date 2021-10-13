@@ -2,7 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { MailService } from './mail.service';
 import { join } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
-import { MailerModule, MailerService } from '@nestjs-modules/mailer';
+import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
 
 @Global()
@@ -14,6 +14,7 @@ import { ConfigService } from '@nestjs/config';
         // transport: config.get("MAIL_TRANSPORT"),
         // or
         transport: {
+          host: config.get('MAILER_HOST'),
           port: config.get('MAILER_PORT'),
           secure: false,
           auth: {
