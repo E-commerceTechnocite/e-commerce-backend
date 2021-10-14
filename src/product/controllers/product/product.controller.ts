@@ -16,7 +16,6 @@ import {
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
-  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -25,7 +24,11 @@ import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import { Granted } from '@app/auth/admin/guard/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
-import { ApiAdminAuth, ApiOkPaginatedResponse } from '@app/shared/swagger';
+import {
+  ApiAdminAuth,
+  ApiOkPaginatedResponse,
+  ApiPaginationQueries,
+} from '@app/shared/swagger';
 
 @ApiAdminAuth()
 @ApiTags('Products')
@@ -42,16 +45,15 @@ export class ProductController {
 
   @Granted(Permission.READ_PRODUCT)
   @ApiOkPaginatedResponse(Product)
-  @ApiQuery({ name: 'page', required: false })
-  @ApiQuery({ name: 'limit', required: false })
-  @ApiQuery({ name: 'orderBy', required: false, type: 'string' })
+  @ApiPaginationQueries()
   @Get()
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,
     @Query('limit', IsPositiveIntPipe) limit = 10,
     @Query('orderBy') orderBy: string = null,
+    @Query('order') order: 'DESC' | 'ASC' = null,
   ): Promise<PaginationDto<Product>> {
-    return this.productService.getPage(page, limit, { orderBy });
+    return this.productService.getPage(page, limit, { orderBy, order });
   }
 
   @Granted(Permission.CREATE_PRODUCT)

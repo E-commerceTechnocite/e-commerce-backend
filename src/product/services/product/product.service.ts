@@ -70,7 +70,9 @@ export class ProductService implements ProductServiceInterface {
 
     let thumbnail;
     try {
-      thumbnail = await this.pictureRepository.findOne(entity.thumbnailId);
+      thumbnail = await this.pictureRepository.findOneOrFail({
+        id: entity.thumbnailId,
+      });
     } catch (error) {
       throw new BadRequestException(error);
     }
@@ -173,8 +175,11 @@ export class ProductService implements ProductServiceInterface {
     }
     const query = this.productRepository.createQueryBuilder('p');
     if (opts) {
-      const { orderBy } = opts;
-      await query.orderBy(orderBy ? `p.${orderBy}` : 'p.createdAt');
+      const { orderBy, order } = opts;
+      await query.orderBy(
+        orderBy ? `p.${orderBy}` : 'p.createdAt',
+        order ?? 'DESC',
+      );
     }
 
     const data = await query
