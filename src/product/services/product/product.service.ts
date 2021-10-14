@@ -35,31 +35,34 @@ export class ProductService implements ProductServiceInterface {
     private readonly pictureRepository: Repository<Picture>,
   ) {}
 
-  async gcdei<T>(repo: Repository<T>, dto: any, id: string): Promise<T> {
-    const entity = await repo.findOne(dto[id]);
-    if (!entity) {
-      throw new BadRequestException(`Not found at id ${dto[id]}`);
-    }
-    delete dto[id];
-    return entity;
-  }
-
   async create(entity: ProductDto): Promise<Product> {
     if (!entity.picturesId) {
       entity.picturesId = [];
     }
 
-    const category = await this.gcdei<ProductCategory>(
-      this.productCategoryRepository,
-      entity,
-      'categoryId',
-    );
+    let category;
+    try {
+      category = await this.productCategoryRepository.findOneOrFail({
+        where: { id: entity.categoryId },
+      });
+    } catch {
+      throw new NotFoundException(
+        `Category does not exist at id : ${entity.categoryId}`,
+      );
+    }
+    delete entity.categoryId;
 
-    const taxRuleGroup = await this.gcdei<TaxRuleGroup>(
-      this.taxRuleGroupRepository,
-      entity,
-      'taxRuleGroupId',
-    );
+    let taxRuleGroup;
+    try {
+      taxRuleGroup = await this.taxRuleGroupRepository.findOneOrFail({
+        where: { id: entity.taxRuleGroupId },
+      });
+    } catch {
+      throw new NotFoundException(
+        `Tax Rule Group does not exist at id : ${entity.taxRuleGroupId}`,
+      );
+    }
+    delete entity.taxRuleGroupId;
 
     let pictures;
     try {
@@ -71,7 +74,9 @@ export class ProductService implements ProductServiceInterface {
     let thumbnail;
     try {
       thumbnail = await this.pictureRepository.findOneOrFail({
-        id: entity.thumbnailId,
+        where: {
+          id: entity.thumbnailId,
+        },
       });
     } catch (error) {
       throw new BadRequestException(error);
@@ -104,12 +109,16 @@ export class ProductService implements ProductServiceInterface {
   }
 
   async find(id: string | number): Promise<Product> {
-    const product = await this.productRepository.findOne(id, {
-      loadEagerRelations: true,
-    });
-    if (!product) {
-      throw new NotFoundException();
+    let product;
+    try {
+      product = await this.productRepository.findOneOrFail({
+        where: { id: id },
+        loadEagerRelations: true,
+      });
+    } catch {
+      throw new NotFoundException(`Product does not exist at id : ${id} `);
     }
+
     return product;
   }
 
@@ -118,22 +127,36 @@ export class ProductService implements ProductServiceInterface {
   }
 
   async update(id: string | number, entity: ProductDto): Promise<void> {
-    const category = await this.gcdei<ProductCategory>(
-      this.productCategoryRepository,
-      entity,
-      'categoryId',
-    );
+    let category;
+    try {
+      category = await this.productCategoryRepository.findOneOrFail({
+        where: { id: entity.categoryId },
+      });
+    } catch {
+      throw new NotFoundException(
+        `Category does not exist at id : ${entity.categoryId}`,
+      );
+    }
 
-    const product = await this.productRepository.findOne(id);
-    if (!product) {
+    let product;
+    try {
+      product = await this.productRepository.findOneOrFail({
+        where: { id: id },
+      });
+    } catch {
       throw new BadRequestException(`Product not found with id ${id}`);
     }
 
-    const taxRuleGroup = await this.gcdei<TaxRuleGroup>(
-      this.taxRuleGroupRepository,
-      entity,
-      'taxRuleGroupId',
-    );
+    let taxRuleGroup;
+    try {
+      taxRuleGroup = await this.taxRuleGroupRepository.findOneOrFail({
+        where: { id: entity.taxRuleGroupId },
+      });
+    } catch {
+      throw new NotFoundException(
+        `Tax Rule Groupe doest not exist at id : ${entity.taxRuleGroupId}`,
+      );
+    }
 
     let pictures;
     try {
@@ -144,7 +167,9 @@ export class ProductService implements ProductServiceInterface {
 
     let thumbnail;
     try {
-      thumbnail = await this.pictureRepository.findOne(entity.thumbnailId);
+      thumbnail = await this.pictureRepository.findOneOrFail({
+        where: { id: entity.thumbnailId },
+      });
     } catch (error) {
       throw new BadRequestException(error);
     }
@@ -160,7 +185,7 @@ export class ProductService implements ProductServiceInterface {
       thumbnail,
     };
     console.log(target);
-    await this.productRepository.update(id, target);
+    await this.productRepository.save(target);
   }
 
   async getPage(

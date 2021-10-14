@@ -34,9 +34,7 @@ export class CountryService
     const count = await this.countryRepository.count();
     const meta = new PaginationMetadataDto(index, limit, count);
     if (meta.currentPage > meta.maxPages) {
-      throw new NotFoundException(
-        'This page of countries does not exist',
-      );
+      throw new NotFoundException('This page of countries does not exist');
     }
 
     const query = this.countryRepository.createQueryBuilder('country');
@@ -55,7 +53,7 @@ export class CountryService
   }
 
   async find(id: string | number): Promise<Country> {
-    const country = await this.countryRepository.findOne(id);
+    const country = await this.countryRepository.findOne({ where: { id: id } });
     if (!country) {
       throw new NotFoundException();
     }
