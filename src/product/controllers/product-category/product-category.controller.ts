@@ -24,7 +24,12 @@ import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import { Granted } from '@app/auth/admin/guard/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
-import { ApiAdminAuth, ApiOkPaginatedResponse } from '@app/shared/swagger';
+import {
+  ApiAdminAuth,
+  ApiOkPaginatedResponse,
+  ApiPaginationQueries,
+} from '@app/shared/swagger';
+import { UpdateProductCategoryDto } from '@app/product/dto/product-category/update-product-category.dto';
 
 @ApiAdminAuth()
 @ApiTags('Product Categories')
@@ -36,8 +41,7 @@ export class ProductCategoryController {
 
   @Granted(Permission.READ_CATEGORY)
   @ApiOkPaginatedResponse(ProductCategory)
-  @ApiQuery({ name: 'page', required: false })
-  @ApiQuery({ name: 'limit', required: false })
+  @ApiPaginationQueries()
   @Get()
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,
@@ -64,13 +68,13 @@ export class ProductCategoryController {
   }
 
   @Granted(Permission.UPDATE_CATEGORY)
-  @ApiBody({ type: ProductCategoryDto, required: false })
+  @ApiBody({ type: UpdateProductCategoryDto, required: false })
   @ApiResponse({ type: null })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id')
   async update(
     @Param('id') id: string,
-    @Body() category: ProductCategoryDto,
+    @Body() category: UpdateProductCategoryDto,
   ): Promise<any> {
     return this.productCategoryService.update(id, category);
   }
