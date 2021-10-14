@@ -11,7 +11,7 @@ export class CartItemCreateDto {
   @IsUUID()
   productId: string;
 
-  @ApiProperty()
-  @IsUUID()
-  cartId: string;
+  // @ApiProperty()
+  // @IsUUID()
+  // cartId: string;
 }

@@ -1,34 +1,37 @@
-import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { Gender } from './customer.enum';
 import { ShoppingCart } from '@app/shopping-cart/entities/shopping-cart.entity';
 import { EntitySchema } from '@app/shared/entities/entity-schema';
 import { CustomerRefreshToken } from '@app/auth/customer/entities/refresh-token.entity';
 
 @Entity()
-export class Customer extends EntitySchema {
+export class Customer extends EntitySchema implements Express.User {
   @Column()
-  username: string;
+  username?: string;
 
   @Column()
-  password: string;
+  password?: string;
 
   @Column()
-  email: string;
+  email?: string;
   @Column()
-  phoneNumber: string;
+  phoneNumber?: string;
   @Column()
-  firstName: string;
+  firstName?: string;
   @Column()
-  lastName: string;
+  lastName?: string;
   @Column()
-  gender: Gender;
+  gender?: Gender;
 
   @Column({ type: 'date' })
-  birthDate: Date;
+  birthDate?: Date;
   @Column()
-  newsletter: boolean;
+  newsletter?: boolean;
   // Relation between customer and shopping cart
-  @OneToOne(() => ShoppingCart, (shoppingCart) => shoppingCart.customer)
+  @OneToOne(() => ShoppingCart, (shoppingCart) => shoppingCart.customer, {
+    eager: true,
+  })
+  @JoinColumn({ name: 'shoppingCartId', referencedColumnName: 'id' })
   shoppingCart?: ShoppingCart;
 
   @OneToMany(() => CustomerRefreshToken, (refresh) => refresh.customer)

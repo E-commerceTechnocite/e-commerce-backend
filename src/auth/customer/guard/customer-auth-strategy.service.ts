@@ -26,6 +26,7 @@ export class AuthStrategy extends PassportStrategy(Strategy, 'customer') {
       .createQueryBuilder('u')
       .where({ id: payload.id })
       .getOne();
+    console.log(payload);
     return customer;
   }
 }
