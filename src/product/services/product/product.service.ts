@@ -17,9 +17,10 @@ import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-met
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { Picture } from '@app/file/entities/picture.entity';
+import { UpdateProductDto } from '@app/product/dto/product/update-product.dto';
 
 export interface ProductServiceInterface
-  extends CrudServiceInterface<Product, ProductDto, ProductDto>,
+  extends CrudServiceInterface<Product, ProductDto, UpdateProductDto>,
     PaginatorInterface<Product> {}
 
 @Injectable()
@@ -126,7 +127,7 @@ export class ProductService implements ProductServiceInterface {
     return this.productRepository.find();
   }
 
-  async update(id: string | number, entity: ProductDto): Promise<void> {
+  async update(id: string | number, entity: UpdateProductDto): Promise<void> {
     let category;
     try {
       category = await this.productCategoryRepository.findOneOrFail({
