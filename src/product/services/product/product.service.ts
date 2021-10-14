@@ -128,17 +128,6 @@ export class ProductService implements ProductServiceInterface {
   }
 
   async update(id: string | number, entity: UpdateProductDto): Promise<void> {
-    let category;
-    try {
-      category = await this.productCategoryRepository.findOneOrFail({
-        where: { id: entity.categoryId },
-      });
-    } catch {
-      throw new NotFoundException(
-        `Category does not exist at id : ${entity.categoryId}`,
-      );
-    }
-
     let product;
     try {
       product = await this.productRepository.findOneOrFail({
@@ -148,32 +137,54 @@ export class ProductService implements ProductServiceInterface {
       throw new BadRequestException(`Product not found with id ${id}`);
     }
 
+    let category;
+    if (entity.categoryId != undefined) {
+      try {
+        category = await this.productCategoryRepository.findOneOrFail({
+          where: { id: entity.categoryId },
+        });
+      } catch {
+        throw new NotFoundException(
+          `Category does not exist at id : ${entity.categoryId}`,
+        );
+      }
+    }
+
     let taxRuleGroup;
-    try {
-      taxRuleGroup = await this.taxRuleGroupRepository.findOneOrFail({
-        where: { id: entity.taxRuleGroupId },
-      });
-    } catch {
-      throw new NotFoundException(
-        `Tax Rule Groupe doest not exist at id : ${entity.taxRuleGroupId}`,
-      );
+    if (entity.taxRuleGroupId != undefined) {
+      try {
+        taxRuleGroup = await this.taxRuleGroupRepository.findOneOrFail({
+          where: { id: entity.taxRuleGroupId },
+        });
+      } catch {
+        throw new NotFoundException(
+          `Tax Rule Groupe doest not exist at id : ${entity.taxRuleGroupId}`,
+        );
+      }
     }
 
     let pictures;
-    try {
-      pictures = await this.pictureRepository.findByIds(entity.picturesId);
-    } catch (error) {
-      throw new BadRequestException(error);
+    if (entity.picturesId != undefined) {
+      try {
+        pictures = await this.pictureRepository.findByIds(entity.picturesId);
+      } catch {
+        throw new BadRequestException(`Pictures ids bad request`);
+      }
     }
 
     let thumbnail;
-    try {
-      thumbnail = await this.pictureRepository.findOneOrFail({
-        where: { id: entity.thumbnailId },
-      });
-    } catch (error) {
-      throw new BadRequestException(error);
+    if (entity.thumbnailId != undefined) {
+      try {
+        thumbnail = await this.pictureRepository.findOneOrFail({
+          where: { id: entity.thumbnailId },
+        });
+      } catch {
+        throw new BadRequestException(`thumbnail bad request`);
+      }
     }
+
+    delete entity.categoryId;
+    delete entity.taxRuleGroupId;
     delete entity.picturesId;
     delete entity.thumbnailId;
 

@@ -10,35 +10,35 @@ import {
 
 export class UpdateProductDto {
   @ApiProperty({ required: false })
-  @IsOptional()
   @Length(2, 255)
+  @IsOptional()
   title?: string;
 
   @ApiProperty({ required: false })
-  @IsOptional()
   @Length(2, 255)
+  @IsOptional()
   reference?: string;
 
   @ApiProperty({ required: false })
-  @IsOptional()
   @Length(10)
+  @IsOptional()
   description?: string;
 
   @ApiProperty({ required: false })
   @IsNumber({ maxDecimalPlaces: 2 })
-  @IsOptional()
   @IsPositive()
+  @IsOptional()
   price?: number;
 
   @ApiProperty({ required: false })
-  @IsOptional()
   @IsNumber()
   @IsPositive()
+  @IsOptional()
   quantity?: number;
 
   @ApiProperty({ required: false })
-  @IsOptional()
   @IsUUID()
+  @IsOptional()
   categoryId?: string;
 
   @ApiProperty({ required: false })

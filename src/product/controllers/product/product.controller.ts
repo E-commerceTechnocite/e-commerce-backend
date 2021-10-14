@@ -29,6 +29,7 @@ import {
   ApiOkPaginatedResponse,
   ApiPaginationQueries,
 } from '@app/shared/swagger';
+import { UpdateProductDto } from '@app/product/dto/product/update-product.dto';
 
 @ApiAdminAuth()
 @ApiTags('Products')
@@ -67,12 +68,12 @@ export class ProductController {
   }
 
   @Granted(Permission.UPDATE_PRODUCT)
-  @ApiBody({ type: ProductDto, required: false })
+  @ApiBody({ type: UpdateProductDto, required: false })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id')
   async update(
     @Param('id') id: string,
-    @Body() product: ProductDto,
+    @Body() product: UpdateProductDto,
   ): Promise<void> {
     return this.productService.update(id, product);
   }
