@@ -49,20 +49,16 @@ export class UserService
       await query.orderBy(orderBy ?? 'id');
     }
 
-    const data = await query
+    let data = await query
       .leftJoinAndMapOne('u.role', Role, 'r', 'u.id_role = r.id')
       .skip(index * limit - limit)
       .take(limit)
-      .select([
-        'u.id',
-        'u.username',
-        'u.email',
-        'r.id',
-        'r.name',
-        'u.createdAt',
-      ])
       .getMany();
 
+    data = data.map((item) => {
+      delete item.password;
+      return item;
+    });
     return {
       data,
       meta,
