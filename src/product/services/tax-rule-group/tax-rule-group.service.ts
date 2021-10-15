@@ -15,11 +15,12 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { UpdateTaxRuleGroupDto } from '@app/product/dto/tax-rule-group/update-tax-rule-group.dto';
 
 @Injectable()
 export class TaxRuleGroupService
   implements
-    CrudServiceInterface<TaxRuleGroup, TaxRuleGroupDto, TaxRuleGroupDto>,
+    CrudServiceInterface<TaxRuleGroup, TaxRuleGroupDto, UpdateTaxRuleGroupDto>,
     PaginatorInterface<TaxRuleGroup>
 {
   constructor(
@@ -55,11 +56,16 @@ export class TaxRuleGroupService
   }
 
   async find(id: string | number): Promise<TaxRuleGroup> {
-    const taxRuleGroup = await this.taxRuleGroupRepository.findOne(id);
-    if (!taxRuleGroup) {
-      throw new NotFoundException();
+    let target;
+    try {
+      target = await this.taxRuleGroupRepository.findOneOrFail({
+        where: { id: id },
+      });
+    } catch (err) {
+      console.log(err);
+      throw new NotFoundException(`Entity does not exist at id : ${id}`);
     }
-    return taxRuleGroup;
+    return target;
   }
 
   findAll(): Promise<TaxRuleGroup[]> {
@@ -75,15 +81,24 @@ export class TaxRuleGroupService
     });
   }
 
-  async update(id: string | number, entity: TaxRuleGroupDto): Promise<void> {
+  async update(
+    id: string | number,
+    entity: UpdateTaxRuleGroupDto,
+  ): Promise<void> {
+    let taxRuleGroup;
+    try {
+      taxRuleGroup = await this.taxRuleGroupRepository.findOneOrFail({
+        where: { id: id },
+      });
+    } catch {
+      throw new NotFoundException(`Tax Rule Group not found at id : ${id}`);
+    }
     const target: TaxRuleGroup = {
-      name: entity.name,
+      ...taxRuleGroup,
+      ...entity,
     };
 
-    const result = await this.taxRuleGroupRepository.update(id, target);
-    if (result.affected < 1) {
-      throw new BadRequestException(`TaxRuleGroup not found with id ${id}`);
-    }
+    await this.taxRuleGroupRepository.save(target);
   }
 
   async deleteFromId(id: string | number): Promise<void> {
