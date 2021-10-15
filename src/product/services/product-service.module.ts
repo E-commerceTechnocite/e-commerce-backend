@@ -14,6 +14,8 @@ import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { Country } from '@app/product/entities/country.entity';
 import { Picture } from '@app/file/entities/picture.entity';
 import { SharedModule } from '@app/shared/shared.module';
+import { ParseCountryDto } from '@app/product/dto/country/country.dto';
+import { ProductDtoModule } from '@app/product/dto/product-dto.module';
 
 @Module({
   imports: [
@@ -27,6 +29,7 @@ import { SharedModule } from '@app/shared/shared.module';
       Picture,
     ]),
     SharedModule,
+    ProductDtoModule,
   ],
   providers: [
     ProductService,
@@ -35,6 +38,7 @@ import { SharedModule } from '@app/shared/shared.module';
     TaxService,
     TaxRuleService,
     TaxRuleGroupService,
+    ParseCountryDto,
   ],
   exports: [
     ProductService,

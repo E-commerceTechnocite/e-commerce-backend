@@ -7,9 +7,10 @@ import { TaxRuleController } from '@app/product/controllers/tax-rule/tax-rule.co
 import { TaxRuleGroupController } from '@app/product/controllers/tax-rule-group/tax-rule-group.controller';
 import { ProductServiceModule } from '@app/product/services/product-service.module';
 import { AdminGuardModule } from '@app/auth/admin/guard/admin-guard.module';
+import { ProductDtoModule } from '@app/product/dto/product-dto.module';
 
 @Module({
-  imports: [ProductServiceModule, AdminGuardModule],
+  imports: [ProductServiceModule, AdminGuardModule, ProductDtoModule],
   controllers: [
     CountryController,
     ProductController,

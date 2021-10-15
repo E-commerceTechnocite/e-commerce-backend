@@ -58,6 +58,7 @@ export class CountryController {
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(@Body() country: CountryDto): Promise<any> {
+    console.log(country);
     return await this.countryService.create(country);
   }
 

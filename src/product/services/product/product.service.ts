@@ -7,7 +7,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from '@app/product/entities/product.entity';
 import { Repository } from 'typeorm';
 import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
-import { ProductDto } from '@app/product/dto/product/product.dto';
+import {
+  ParseProductDto,
+  ProductDto,
+} from '@app/product/dto/product/product.dto';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
 import {
   PaginationOptions,
@@ -34,64 +37,11 @@ export class ProductService implements ProductServiceInterface {
     private readonly taxRuleGroupRepository: Repository<TaxRuleGroup>,
     @InjectRepository(Picture)
     private readonly pictureRepository: Repository<Picture>,
+    private readonly parseProduct: ParseProductDto,
   ) {}
 
   async create(entity: ProductDto): Promise<Product> {
-    if (!entity.picturesId) {
-      entity.picturesId = [];
-    }
-
-    let category;
-    try {
-      category = await this.productCategoryRepository.findOneOrFail({
-        where: { id: entity.categoryId },
-      });
-    } catch {
-      throw new NotFoundException(
-        `Category does not exist at id : ${entity.categoryId}`,
-      );
-    }
-    delete entity.categoryId;
-
-    let taxRuleGroup;
-    try {
-      taxRuleGroup = await this.taxRuleGroupRepository.findOneOrFail({
-        where: { id: entity.taxRuleGroupId },
-      });
-    } catch {
-      throw new NotFoundException(
-        `Tax Rule Group does not exist at id : ${entity.taxRuleGroupId}`,
-      );
-    }
-    delete entity.taxRuleGroupId;
-
-    let pictures;
-    try {
-      pictures = await this.pictureRepository.findByIds(entity.picturesId);
-    } catch (error) {
-      throw new BadRequestException(error);
-    }
-
-    let thumbnail;
-    try {
-      thumbnail = await this.pictureRepository.findOneOrFail({
-        where: {
-          id: entity.thumbnailId,
-        },
-      });
-    } catch (error) {
-      throw new BadRequestException(error);
-    }
-
-    delete entity.picturesId;
-    delete entity.thumbnailId;
-    const target: Product = {
-      ...entity,
-      category,
-      taxRuleGroup,
-      pictures,
-      thumbnail,
-    };
+    const target = await this.parseProduct.transform(entity);
     return await this.productRepository.save(target);
   }
 

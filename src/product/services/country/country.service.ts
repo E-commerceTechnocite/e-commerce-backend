@@ -5,7 +5,10 @@ import {
   PaginationOptions,
   PaginatorInterface,
 } from '@app/shared/interfaces/paginator.interface';
-import { CountryDto } from '@app/product/dto/country/country.dto';
+import {
+  CountryDto,
+  ParseCountryDto,
+} from '@app/product/dto/country/country.dto';
 import { Country } from '@app/product/entities/country.entity';
 import {
   BadRequestException,
@@ -24,6 +27,7 @@ export class CountryService
   constructor(
     @InjectRepository(Country)
     private readonly countryRepository: Repository<Country>,
+    private readonly parseCountryDto: ParseCountryDto,
   ) {}
 
   async getPage(
@@ -65,9 +69,7 @@ export class CountryService
   }
 
   async create(entity: CountryDto): Promise<Country> {
-    const target: Country = {
-      ...entity,
-    };
+    const target = await this.parseCountryDto.transform(entity);
     return await this.countryRepository.save(target).catch(() => {
       throw new BadRequestException();
     });

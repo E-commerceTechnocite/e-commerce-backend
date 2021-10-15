@@ -63,7 +63,7 @@ export class ProductController {
   @ApiResponse({ type: null })
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async create(@Body() product: ProductDto): Promise<any> {
+  async create(@Body() product: Product): Promise<any> {
     return await this.productService.create(product);
   }
 
