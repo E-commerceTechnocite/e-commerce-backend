@@ -1,6 +1,6 @@
 import { EntitySchema } from '@app/shared/entities/entity-schema';
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { Product } from './product.entity';
 
 @Entity()
@@ -17,6 +17,10 @@ export class Stock extends EntitySchema {
   @Column({ default: 0 })
   pending?: number;
 
-  @OneToOne(() => Product, (product) => product.stock)
+  @OneToOne(() => Product, (product) => product.stock, {
+    eager: false,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
   product?: Product;
 }

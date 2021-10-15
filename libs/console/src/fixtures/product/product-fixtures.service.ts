@@ -9,6 +9,7 @@ import { Country } from '@app/product/entities/country.entity';
 import { Tax } from '@app/product/entities/tax.entity';
 import { TaxRule } from '@app/product/entities/tax-rule.entity';
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
+import { Stock } from '@app/product/entities/stock.entity';
 
 @Injectable()
 export class ProductFixturesService implements FixturesInterface {
@@ -26,6 +27,8 @@ export class ProductFixturesService implements FixturesInterface {
     private readonly taxRuleRepo: Repository<TaxRule>,
     @InjectRepository(TaxRuleGroup)
     private readonly taxRuleGroupRepo: Repository<TaxRuleGroup>,
+    @InjectRepository(Stock)
+    private readonly stockRepo: Repository<Stock>,
   ) {}
 
   async load() {
@@ -96,7 +99,6 @@ export class ProductFixturesService implements FixturesInterface {
         reference: faker.random.alphaNumeric(10),
         title: faker.commerce.product(),
         price: parseFloat(faker.commerce.price(1, 100, 2)),
-        quantity: Math.floor(Math.random() * 10),
         description: faker.random.words(50),
         category:
           savedCategories[Math.floor(Math.random() * savedCategories.length)],
@@ -104,6 +106,11 @@ export class ProductFixturesService implements FixturesInterface {
           savedTaxRuleGroups[
             Math.floor(Math.random() * savedTaxRuleGroups.length)
           ],
+        stock: {
+          physical: Math.floor(Math.random() * 20),
+          incoming: Math.floor(Math.random() * 20),
+          pending: Math.floor(Math.random() * 20),
+        },
       });
     }
     await this.productRepo.save(products);

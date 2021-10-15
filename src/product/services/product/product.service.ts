@@ -17,6 +17,7 @@ import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-met
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { Picture } from '@app/file/entities/picture.entity';
+import { Stock } from '@app/product/entities/stock.entity';
 
 export interface ProductServiceInterface
   extends CrudServiceInterface<Product, ProductDto, ProductDto>,
@@ -33,6 +34,8 @@ export class ProductService implements ProductServiceInterface {
     private readonly taxRuleGroupRepository: Repository<TaxRuleGroup>,
     @InjectRepository(Picture)
     private readonly pictureRepository: Repository<Picture>,
+    @InjectRepository(Stock)
+    private readonly stockRepository: Repository<Stock>,
   ) {}
 
   async gcdei<T>(repo: Repository<T>, dto: any, id: string): Promise<T> {
@@ -77,12 +80,16 @@ export class ProductService implements ProductServiceInterface {
 
     delete entity.picturesId;
     delete entity.thumbnailId;
+
+    const stock = await this.stockRepository.save(entity.stock);
+
     const target: Product = {
       ...entity,
       category,
       taxRuleGroup,
       pictures,
       thumbnail,
+      stock,
     };
     return await this.productRepository.save(target);
   }
@@ -176,23 +183,10 @@ export class ProductService implements ProductServiceInterface {
       const { orderBy } = opts;
       await query.orderBy(orderBy ? `p.${orderBy}` : 'p.createdAt');
     }
-
-    const data = await query
-      .leftJoinAndMapOne(
-        'p.category',
-        ProductCategory,
-        'c',
-        'p.product_category_id = c.id',
-      )
-      .leftJoinAndMapOne(
-        'p.thumbnail',
-        Picture,
-        'pic',
-        'p.picture_thumbnail_id = pic.id',
-      )
-      .skip(index * limit - limit)
-      .take(limit)
-      .getMany();
+    const data = await this.productRepository.find({
+      take: limit,
+      skip: index * limit - limit,
+    });
 
     return {
       data,

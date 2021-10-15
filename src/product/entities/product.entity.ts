@@ -34,7 +34,12 @@ export class Product extends EntitySchema {
   @Column({ type: 'float' })
   price?: number;
 
-  @OneToOne(() => Stock, (stock) => stock.product)
+  @ApiResponseProperty({ type: () => Stock })
+  @OneToOne(() => Stock, (stock) => stock.product, {
+    eager: true,
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   stock?: Stock;
 
   @ApiResponseProperty({ type: () => ProductCategory })

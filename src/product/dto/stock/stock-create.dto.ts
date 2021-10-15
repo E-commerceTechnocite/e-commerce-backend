@@ -1,6 +1,5 @@
-import { Product } from '@app/product/entities/product.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsPositive, IsUUID } from 'class-validator';
+import { IsNumber, IsPositive } from 'class-validator';
 
 export class CreateStockDto {
   @ApiProperty({ required: false })
@@ -17,8 +16,4 @@ export class CreateStockDto {
   @IsNumber()
   @IsPositive()
   pending?: number;
-
-  @ApiProperty({ required: false })
-  @IsUUID()
-  productId?: string;
 }
