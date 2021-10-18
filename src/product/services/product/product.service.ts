@@ -207,7 +207,7 @@ export class ProductService implements ProductServiceInterface {
   ): Promise<PaginationDto<Product>> {
     const count = await this.productRepository.count();
     const meta = new PaginationMetadataDto(index, limit, count);
-    if (meta.currentPage > meta.maxPages && meta.maxPages !== 0) {
+    if (meta.currentPage > meta.maxPages) {
       throw new NotFoundException('This page of products does not exist');
     }
     const query = this.productRepository.createQueryBuilder('p');
