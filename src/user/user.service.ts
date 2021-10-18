@@ -101,7 +101,7 @@ export class UserService
   async update(id: string | number, entity: UpdateUserDto): Promise<void> {
     console.log(entity);
     let role;
-    if (entity.roleId) {
+    if (entity.roleId != undefined) {
       role = await this.roleRepository
         .findOneOrFail(entity.roleId)
         .catch(() => {
