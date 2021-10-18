@@ -125,7 +125,7 @@ export class UserService
     const target: User = {
       ...user,
       ...entity,
-      password: entity.regenPass ? await hash(newPassword, 10) : newPassword,
+      password: entity.regenPass ? await hash(newPassword, 10) : user.password,
       role,
     };
     await this.userRepository.save(target);
