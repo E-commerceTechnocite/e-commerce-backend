@@ -4,10 +4,10 @@ import { ApiTags } from '@nestjs/swagger';
 import { Request } from '@nestjs/common';
 
 import { AuthService } from './customer-auth.service';
+import { ApiCustomerAuth } from '@app/shared/swagger';
 
-@ApiTags('Security')
-// @Controller({ path: 'o-auth', version: '1' })
-@Controller()
+@ApiTags('Security (Customer)')
+@Controller({ path: '/customer/o-auth', version: '1' })
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -27,6 +27,7 @@ export class AuthController {
   }
 
   @Post('check')
+  @ApiCustomerAuth()
   async check(@Req() req: Request) {
     return await this.authService.check(req);
   }

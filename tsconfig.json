@@ -22,6 +22,12 @@
       ],
       "@app/console/*": [
         "libs/console/src/*"
+      ],
+      "@app/release-console": [
+        "libs/release-console/src"
+      ],
+      "@app/release-console/*": [
+        "libs/release-console/src/*"
       ]
     },
     "incremental": true,
