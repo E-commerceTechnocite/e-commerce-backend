@@ -17,7 +17,6 @@ import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-met
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { Picture } from '@app/file/entities/picture.entity';
-import { Stock } from '@app/product/entities/stock.entity';
 import { UpdateProductDto } from '@app/product/dto/product/update-product.dto';
 
 export interface ProductServiceInterface
@@ -35,8 +34,6 @@ export class ProductService implements ProductServiceInterface {
     private readonly taxRuleGroupRepository: Repository<TaxRuleGroup>,
     @InjectRepository(Picture)
     private readonly pictureRepository: Repository<Picture>,
-    @InjectRepository(Stock)
-    private readonly stockRepository: Repository<Stock>,
   ) {}
 
   async create(entity: ProductDto): Promise<Product> {
