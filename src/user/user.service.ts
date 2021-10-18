@@ -117,7 +117,7 @@ export class UserService
       throw new BadRequestException(`User not found with id ${id}`);
     }
 
-    let newPassword = user.password;
+    let newPassword = null;
     if (entity.regenPass) {
       newPassword = this.randomizerService.generatePassword(25);
     }
