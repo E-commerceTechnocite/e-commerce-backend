@@ -92,7 +92,7 @@ export class UserService
       role,
     };
     console.log(target);
-    await this.mailService.sendUserConfirmation(target);
+    await this.mailService.sendUserConfirmation(target, passwordGenerated);
     await this.userRepository.save(target);
     delete target.password;
     return target;
