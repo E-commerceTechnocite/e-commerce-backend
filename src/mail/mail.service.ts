@@ -6,7 +6,7 @@ import { Injectable } from '@nestjs/common';
 export class MailService {
   constructor(private mailerService: MailerService) {}
 
-  async sendUserConfirmation(user: User) {
+  async sendUserConfirmation(user: User, password: string) {
     const url = `example.com/auth/confirm?token=`;
 
     await this.mailerService.sendMail({
@@ -17,6 +17,7 @@ export class MailService {
       context: {
         // ✏️ filling curly brackets with content
         name: user.username,
+        password,
         url,
       },
     });
