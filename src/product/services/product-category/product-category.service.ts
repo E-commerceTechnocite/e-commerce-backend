@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductCategoryDto } from '@app/product/dto/product-category/product-category.dto';
 import {
@@ -14,12 +14,13 @@ import {
 } from '@app/shared/interfaces/paginator.interface';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
+import { UpdateProductCategoryDto } from '@app/product/dto/product-category/update-product-category.dto';
 
 export interface ProductCategoryServiceInterface
   extends CrudServiceInterface<
       ProductCategory,
       ProductCategoryDto,
-      ProductCategoryDto
+      UpdateProductCategoryDto
     >,
     PaginatorInterface<ProductCategory> {}
 
@@ -94,13 +95,22 @@ export class ProductCategoryService implements ProductCategoryServiceInterface {
     return this.repository.find();
   }
 
-  async update(id: string | number, entity: ProductCategoryDto): Promise<void> {
-    const target: ProductCategory = {
-      label: entity.label,
-    };
-    const result = await this.repository.update(id, target);
-    if (result.affected < 1) {
-      throw new BadRequestException(`Category not found with id ${id}`);
+  async update(
+    id: string | number,
+    entity: UpdateProductCategoryDto,
+  ): Promise<void> {
+    let category;
+    try {
+      category = await this.repository.findOneOrFail({ where: { id: id } });
+    } catch {
+      throw new NotFoundException(`Category does not exist at id : ${id}`);
     }
+
+    const target: ProductCategory = {
+      ...category,
+      ...entity,
+    };
+
+    await this.repository.save(target);
   }
 }

@@ -14,11 +14,12 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { UpdateCountryDto } from '@app/product/dto/country/update-country.dto';
 
 @Injectable()
 export class CountryService
   implements
-    CrudServiceInterface<Country, CountryDto, CountryDto>,
+    CrudServiceInterface<Country, CountryDto, UpdateCountryDto>,
     PaginatorInterface<Country>
 {
   constructor(
@@ -53,9 +54,13 @@ export class CountryService
   }
 
   async find(id: string | number): Promise<Country> {
-    const country = await this.countryRepository.findOne({ where: { id: id } });
-    if (!country) {
-      throw new NotFoundException();
+    let country;
+    try {
+      country = await this.countryRepository.findOneOrFail({
+        where: { id: id },
+      });
+    } catch {
+      throw new NotFoundException(`Country does not exist at id : ${id}`);
     }
     return country;
   }
@@ -76,16 +81,22 @@ export class CountryService
     });
   }
 
-  async update(id: string | number, entity: CountryDto): Promise<void> {
+  async update(id: string | number, entity: UpdateCountryDto): Promise<void> {
+    let country;
+    try {
+      country = await this.countryRepository.findOneOrFail({
+        where: { id: id },
+      });
+    } catch {
+      throw new NotFoundException(`Country does not exist at id : ${id}`);
+    }
+
     const target: Country = {
-      name: entity.name,
-      code: entity.code,
+      ...country,
+      ...entity,
     };
 
-    const result = await this.countryRepository.update(id, target);
-    if (result.affected < 1) {
-      throw new BadRequestException(`Country not found with id ${id}`);
-    }
+    await this.countryRepository.save(target);
   }
 
   async deleteFromId(id: string | number): Promise<void> {

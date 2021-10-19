@@ -33,4 +33,7 @@ export class Customer extends EntitySchema {
 
   @OneToMany(() => CustomerRefreshToken, (refresh) => refresh.customer)
   refreshTokens?: CustomerRefreshToken;
+
+  @Column({ type: 'boolean', default: () => false })
+  confirmRegistration?: boolean;
 }

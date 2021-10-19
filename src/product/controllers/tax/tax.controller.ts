@@ -24,7 +24,12 @@ import {
 } from '@nestjs/swagger';
 import { Granted } from '@app/auth/admin/guard/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
-import { ApiAdminAuth, ApiOkPaginatedResponse } from '@app/shared/swagger';
+import {
+  ApiAdminAuth,
+  ApiOkPaginatedResponse,
+  ApiPaginationQueries,
+} from '@app/shared/swagger';
+import { UpdateTaxDto } from '@app/product/dto/tax/update-tax.dto';
 
 @ApiAdminAuth()
 @ApiTags('Tax')
@@ -34,8 +39,7 @@ export class TaxController {
 
   @Granted(Permission.READ_TAX)
   @ApiOkPaginatedResponse(Tax)
-  @ApiQuery({ name: 'page', required: false })
-  @ApiQuery({ name: 'limit', required: false })
+  @ApiPaginationQueries()
   @Get()
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,
@@ -62,11 +66,14 @@ export class TaxController {
   }
 
   @Granted(Permission.UPDATE_TAX)
-  @ApiBody({ type: TaxDto, required: false })
+  @ApiBody({ type: UpdateTaxDto, required: false })
   @ApiResponse({ type: null })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() tax: TaxDto): Promise<any> {
+  async update(
+    @Param('id') id: string,
+    @Body() tax: UpdateTaxDto,
+  ): Promise<any> {
     return this.taxService.update(id, tax);
   }
 

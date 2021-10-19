@@ -3,6 +3,7 @@ import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import { ApiAdminAuth, ApiOkPaginatedResponse } from '@app/shared/swagger';
 import { RoleDto } from '@app/user/dtos/role/role.dto';
+import { UpdateRoleDto } from '@app/user/dtos/role/update-role.dto';
 import { Role } from '@app/user/entities/role.entity';
 import { Permission } from '@app/user/enums/permission.enum';
 import { RoleService } from '@app/user/services/role/role.service';
@@ -69,11 +70,14 @@ export class RoleController {
   }
 
   @Granted(Permission.UPDATE_ROLE)
-  @ApiBody({ type: RoleDto, required: false })
+  @ApiBody({ type: UpdateRoleDto, required: false })
   @ApiResponse({ type: null })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() role: RoleDto): Promise<any> {
+  async update(
+    @Param('id') id: string,
+    @Body() role: UpdateRoleDto,
+  ): Promise<any> {
     return this.roleService.update(id, role);
   }
 

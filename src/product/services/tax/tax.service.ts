@@ -52,9 +52,11 @@ export class TaxService
   }
 
   async find(id: string | number): Promise<Tax> {
-    const tax = await this.taxRepository.findOne(id);
-    if (!tax) {
-      throw new NotFoundException();
+    let tax;
+    try {
+      tax = await this.taxRepository.findOneOrFail({ where: { id: id } });
+    } catch {
+      throw new NotFoundException(`Entity doest exist at id : ${id}`);
     }
     return tax;
   }
@@ -73,14 +75,19 @@ export class TaxService
   }
 
   async update(id: string | number, entity: TaxDto): Promise<void> {
+    let tax;
+    try {
+      tax = await this.taxRepository.findOneOrFail({ where: { id: id } });
+    } catch {
+      throw new NotFoundException(`Tax does not exist at id : ${id}`);
+    }
+
     const target: Tax = {
-      rate: entity.rate,
+      ...tax,
+      ...entity,
     };
 
-    const result = await this.taxRepository.update(id, target);
-    if (result.affected < 1) {
-      throw new BadRequestException(`Tax not found with id ${id}`);
-    }
+    await this.taxRepository.save(target);
   }
 
   async deleteFromId(id: string | number): Promise<void> {

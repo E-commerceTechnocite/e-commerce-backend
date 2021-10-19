@@ -6,6 +6,7 @@ import {
   PaginatorInterface,
 } from '@app/shared/interfaces/paginator.interface';
 import { RoleDto } from '@app/user/dtos/role/role.dto';
+import { UpdateRoleDto } from '@app/user/dtos/role/update-role.dto';
 import { Role } from '@app/user/entities/role.entity';
 import {
   BadRequestException,
@@ -18,7 +19,7 @@ import { Repository } from 'typeorm';
 @Injectable()
 export class RoleService
   implements
-    CrudServiceInterface<Role, RoleDto, RoleDto>,
+    CrudServiceInterface<Role, RoleDto, UpdateRoleDto>,
     PaginatorInterface<Role>
 {
   constructor(
@@ -53,12 +54,15 @@ export class RoleService
   }
 
   async find(id: string | number): Promise<Role> {
-    const role = await this.roleRepo.findOne(id);
-    if (!role) {
-      throw new NotFoundException();
+    let role;
+    try {
+      role = await this.roleRepo.findOneOrFail({ where: { id: id } });
+    } catch {
+      throw new NotFoundException(`Role does not found at id : ${id}`);
     }
     return role;
   }
+
   findAll(): Promise<Role[]> {
     return this.roleRepo.find();
   }
@@ -72,16 +76,21 @@ export class RoleService
     });
   }
 
-  async update(id: string | number, entity: RoleDto): Promise<void> {
+  async update(id: string | number, entity: UpdateRoleDto): Promise<void> {
+    let role;
+    try {
+      role = await this.roleRepo.findOneOrFail({ where: { id: id } });
+    } catch {
+      throw new NotFoundException(`Role does not exist at id : ${id}`);
+    }
+
     const target: Role = {
+      ...role,
       name: entity.name,
       permissions: entity.permissions,
     };
 
-    const result = await this.roleRepo.update(id, target);
-    if (result.affected < 1) {
-      throw new BadRequestException(`Role not found with id ${id}`);
-    }
+    await this.roleRepo.save(target);
   }
 
   async deleteFromId(id: string | number): Promise<void> {

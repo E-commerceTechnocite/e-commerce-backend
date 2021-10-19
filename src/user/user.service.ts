@@ -59,6 +59,7 @@ export class UserService
       delete item.password;
       return item;
     });
+
     return {
       data,
       meta,
@@ -66,9 +67,11 @@ export class UserService
   }
 
   async find(id: string | number): Promise<User> {
-    const user = await this.userRepository.findOne(id);
-    if (!user) {
-      throw new NotFoundException();
+    let user;
+    try {
+      user = await this.userRepository.findOneOrFail({ where: { id: id } });
+    } catch {
+      throw new NotFoundException(`User does not exist at id : ${id}`);
     }
     delete user.password;
     return user;
@@ -79,10 +82,15 @@ export class UserService
   }
 
   async create(entity: CreateUserDto): Promise<User> {
-    const role = await this.roleRepository.findOne(entity.roleId);
-    console.log(role);
-    if (!role) {
-      throw new BadRequestException(`Role not found at id ${entity.roleId}`);
+    let role;
+    try {
+      role = await this.roleRepository.findOneOrFail({
+        where: { id: entity.roleId },
+      });
+    } catch {
+      throw new NotFoundException(
+        `Role does not exist at id : ${entity.roleId}`,
+      );
     }
     delete entity.roleId;
     const passwordGenerated = this.randomizerService.generatePassword(25);
@@ -112,9 +120,11 @@ export class UserService
     }
     console.log(role);
     delete entity.roleId;
-    const user = await this.userRepository.findOne(id);
-    if (!user) {
-      throw new BadRequestException(`User not found with id ${id}`);
+    let user;
+    try {
+      user = await this.userRepository.findOneOrFail({ where: { id: id } });
+    } catch {
+      throw new NotFoundException(`User does not exist with id : ${id}`);
     }
 
     let newPassword = null;
