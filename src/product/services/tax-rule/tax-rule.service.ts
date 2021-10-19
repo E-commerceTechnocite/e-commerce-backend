@@ -81,8 +81,11 @@ export class TaxRuleService
     return target;
   }
 
-  findAll(): Promise<TaxRule[]> {
-    return this.taxRuleRepository.find();
+  findAll(): Promise<any[]> {
+    return this.taxRuleRepository
+      .createQueryBuilder('tax_rule')
+      .select(['tax_rule.id', 'tax_rule.description'])
+      .getMany();
   }
 
   async create(entity: TaxRuleDto): Promise<TaxRule> {

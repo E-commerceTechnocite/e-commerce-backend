@@ -51,6 +51,14 @@ export class TaxController {
   @Granted(Permission.READ_TAX)
   @ApiOkResponse()
   @ApiResponse({ type: Tax })
+  @Get('all')
+  async findAll(): Promise<any[]> {
+    return this.taxService.findAll();
+  }
+
+  @Granted(Permission.READ_TAX)
+  @ApiOkResponse()
+  @ApiResponse({ type: Tax })
   @Get(':id')
   async findById(@Param('id') id: string): Promise<Tax> {
     return this.taxService.find(id);

@@ -61,8 +61,11 @@ export class TaxService
     return tax;
   }
 
-  findAll(): Promise<Tax[]> {
-    return this.taxRepository.find();
+  findAll(): Promise<any[]> {
+    return this.taxRepository
+      .createQueryBuilder('tax')
+      .select(['tax.id', 'tax.rate'])
+      .getMany();
   }
 
   async create(entity: TaxDto): Promise<Tax> {

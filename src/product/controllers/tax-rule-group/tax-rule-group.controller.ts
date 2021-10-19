@@ -48,6 +48,14 @@ export class TaxRuleGroupController {
   @Granted(Permission.READ_TAX_RULE_GROUP)
   @ApiOkResponse()
   @ApiResponse({ type: TaxRuleGroup })
+  @Get('all')
+  async findAll(): Promise<any[]> {
+    return this.taxRuleGroupService.findAll();
+  }
+
+  @Granted(Permission.READ_TAX_RULE_GROUP)
+  @ApiOkResponse()
+  @ApiResponse({ type: TaxRuleGroup })
   @Get(':id')
   async findById(@Param('id') id: string): Promise<TaxRuleGroup> {
     return this.taxRuleGroupService.find(id);
