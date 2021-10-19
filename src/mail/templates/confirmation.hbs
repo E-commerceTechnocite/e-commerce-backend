@@ -3,7 +3,11 @@
 <p>Please click below to confirm your email</p>
 
 <p>
-    <p>Here is your password : {{ password }}</p>
+    {{#if password}}
+    <p>Here is your password: {{ password }}</p>
+    {{else}}
+    <p>Your password is unchanged</p>
+    {{/if}}
     <a href="{{ url }}">Confirm</a>
 </p>
 

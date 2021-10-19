@@ -65,8 +65,11 @@ export class CountryService
     return country;
   }
 
-  findAll(): Promise<Country[]> {
-    return this.countryRepository.find();
+  findAll(): Promise<any[]> {
+    return this.countryRepository
+      .createQueryBuilder('country')
+      .select(['country.id', 'country.name'])
+      .getMany();
   }
 
   async create(entity: CountryDto): Promise<Country> {

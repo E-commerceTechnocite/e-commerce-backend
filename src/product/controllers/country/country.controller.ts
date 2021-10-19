@@ -51,6 +51,14 @@ export class CountryController {
   @Granted(Permission.READ_COUNTRY)
   @ApiOkResponse()
   @ApiResponse({ type: Country })
+  @Get('all')
+  async findAll(): Promise<any[]> {
+    return await this.countryService.findAll();
+  }
+
+  @Granted(Permission.READ_COUNTRY)
+  @ApiOkResponse()
+  @ApiResponse({ type: Country })
   @Get(':id')
   async findById(@Param('id') id: string): Promise<Country> {
     return this.countryService.find(id);

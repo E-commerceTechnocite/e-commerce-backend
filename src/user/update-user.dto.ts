@@ -17,4 +17,8 @@ export class UpdateUserDto {
   @ApiProperty({ required: false })
   @IsOptional()
   roleId?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  regenPass?: boolean;
 }

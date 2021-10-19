@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '@app/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
+import { UpdateUserDto } from './update-user.dto';
 import { Role } from './entities/role.entity';
 import {
   PaginationOptions,
@@ -18,7 +19,6 @@ import { MailService } from '@app/mail/mail.service';
 import { hash } from 'bcrypt';
 import { CreateUserDto } from './create-user.dto';
 import { RandomizerService } from '@app/shared/services/randomizer.service';
-import { UpdateUserDto } from './update-user.dto';
 
 @Injectable()
 export class UserService
@@ -109,7 +109,7 @@ export class UserService
   async update(id: string | number, entity: UpdateUserDto): Promise<void> {
     console.log(entity);
     let role;
-    if (entity.roleId) {
+    if (entity.roleId != undefined) {
       role = await this.roleRepository
         .findOneOrFail(entity.roleId)
         .catch(() => {
@@ -127,13 +127,20 @@ export class UserService
       throw new NotFoundException(`User does not exist with id : ${id}`);
     }
 
+    let newPassword = null;
+    if (entity.regenPass) {
+      newPassword = this.randomizerService.generatePassword(25);
+    }
+
     const target: User = {
       ...user,
       ...entity,
-      password: await hash(entity.password, 10),
+      password: entity.regenPass ? await hash(newPassword, 10) : user.password,
       role,
     };
     await this.userRepository.save(target);
+    delete target.password;
+    await this.mailService.sendUserConfirmation(target, newPassword);
   }
 
   async deleteFromId(id: string | number): Promise<void> {
