@@ -24,7 +24,7 @@ export class JwtAuthGuard extends AuthGuard('admin') {
       return true;
     }
 
-    console.log(user);
+    console.log('admin guard');
     if (!user) {
       throw new UnauthorizedException('Unauthenticated');
     }

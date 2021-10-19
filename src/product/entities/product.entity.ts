@@ -13,6 +13,7 @@ import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { Picture } from '@app/file/entities/picture.entity';
 import { EntitySchema } from '@app/shared/entities/entity-schema';
 import { CartItem } from '@app/shopping-cart/entities/cart-item.entity';
+import { OrderProduct } from '@app/order/entities/order-product.entity';
 
 @Entity()
 export class Product extends EntitySchema {
@@ -68,4 +69,10 @@ export class Product extends EntitySchema {
 
   @OneToMany(() => CartItem, (cardItem) => cardItem.product, { lazy: true })
   cartItems?: CartItem[];
+
+  // Relation avec l'entity OrderProduct
+  @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.product, {
+    lazy: true,
+  })
+  orderProducts?: OrderProduct[];
 }

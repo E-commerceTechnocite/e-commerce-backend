@@ -11,7 +11,7 @@ export class JwtAuthGuard extends AuthGuard('customer') {
     // if (!customer) {
     //   throw new UnauthorizedException('Unauthenticated');
     // }
-
+    console.log('customer guard');
     return customer;
   }
 }
