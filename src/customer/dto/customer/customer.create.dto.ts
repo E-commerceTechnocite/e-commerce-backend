@@ -1,25 +1,41 @@
-import { Gender } from "@app/customer/entities/customer/customer.enum";
-import { IsDate, IsEmail, IsNotEmpty } from "class-validator";
+import { Gender } from '@app/customer/entities/customer/customer.enum';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsDate, IsEmail, IsNotEmpty } from 'class-validator';
 
 export class CustomerCreateDto {
-    
-  
-    @IsNotEmpty()
-    username: string;
-    @IsNotEmpty()
-    password: string;
-    @IsEmail()
-    email: string;
-    @IsNotEmpty()
-    phoneNumber: string;
-    @IsNotEmpty()
-    firstName: string;
-    @IsNotEmpty()
-    lastName: string;
-    @IsNotEmpty()
-    gender: Gender;
-    //@IsDate()
-    birthDate: Date;
-    @IsNotEmpty()
-    newsletter: boolean
+  @ApiProperty({ required: false })
+  @IsNotEmpty()
+  username: string;
+
+  @ApiProperty({ required: false })
+  @IsNotEmpty()
+  password: string;
+
+  @ApiProperty({ required: false })
+  @IsEmail()
+  email: string;
+
+  @IsNotEmpty()
+  @ApiProperty({ required: false })
+  phoneNumber: string;
+
+  @ApiProperty({ required: false })
+  @IsNotEmpty()
+  firstName: string;
+
+  @ApiProperty({ required: false })
+  @IsNotEmpty()
+  lastName: string;
+
+  @ApiProperty({ required: false })
+  @IsNotEmpty()
+  gender: Gender;
+
+  //@IsDate()
+  @ApiProperty({ required: false })
+  birthDate: Date;
+
+  @ApiProperty({ required: false })
+  @IsNotEmpty()
+  newsletter: boolean;
 }
