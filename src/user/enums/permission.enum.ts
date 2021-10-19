@@ -19,15 +19,15 @@ export enum Permission {
   UPDATE_TAX = 'u:tax',
   DELETE_TAX = 'd:tax',
 
-  READ_TAX_RULE = 'r:tax_rule',
-  CREATE_TAX_RULE = 'c:tax_rule',
-  UPDATE_TAX_RULE = 'u:tax_rule',
-  DELETE_TAX_RULE = 'd:tax_rule',
+  READ_TAX_RULE = 'r:tax-rule',
+  CREATE_TAX_RULE = 'c:tax-rule',
+  UPDATE_TAX_RULE = 'u:tax-rule',
+  DELETE_TAX_RULE = 'd:tax-rule',
 
-  READ_TAX_RULE_GROUP = 'r:tax_rule_group',
-  CREATE_TAX_RULE_GROUP = 'c:tax_rule_group',
-  UPDATE_TAX_RULE_GROUP = 'u:tax_rule_group',
-  DELETE_TAX_RULE_GROUP = 'd:tax_rule_group',
+  READ_TAX_RULE_GROUP = 'r:tax-rule-group',
+  CREATE_TAX_RULE_GROUP = 'c:tax-rule-group',
+  UPDATE_TAX_RULE_GROUP = 'u:tax-rule-group',
+  DELETE_TAX_RULE_GROUP = 'd:tax-rule-group',
 
   READ_USER = 'r:user',
   CREATE_USER = 'c:user',
