@@ -53,6 +53,14 @@ export class ProductCategoryController {
   @Granted(Permission.READ_CATEGORY)
   @ApiOkResponse()
   @ApiResponse({ type: ProductCategory })
+  @Get('all')
+  async findAll(): Promise<any[]> {
+    return this.productCategoryService.findAll();
+  }
+
+  @Granted(Permission.READ_CATEGORY)
+  @ApiOkResponse()
+  @ApiResponse({ type: ProductCategory })
   @Get(':id')
   async findById(@Param('id') id: string): Promise<ProductCategory> {
     return this.productCategoryService.find(id);

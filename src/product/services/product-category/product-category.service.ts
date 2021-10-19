@@ -91,8 +91,11 @@ export class ProductCategoryService implements ProductCategoryServiceInterface {
     return category;
   }
 
-  findAll(): Promise<ProductCategory[]> {
-    return this.repository.find();
+  findAll(): Promise<any[]> {
+    return this.repository
+      .createQueryBuilder('product_category')
+      .select(['product_category.id', 'product_category.label'])
+      .getMany();
   }
 
   async update(
