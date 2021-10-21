@@ -34,7 +34,7 @@ export class OAuthController {
   @ApiAdminAuth()
   @ApiResponse({
     description: "returns the authenticated user's permissions",
-    type: 'string',
+    type: String,
     isArray: true,
   })
   @Get('permissions')
