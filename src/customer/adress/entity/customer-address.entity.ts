@@ -18,6 +18,9 @@ export class AddressCustomer extends EntitySchema {
   @Column()
   region?: string;
 
+  /* @Column()
+  countryId?: string; */
+
   // relation Address- order
   @OneToMany(() => Order, (order) => order.address)
   orders: Order[];

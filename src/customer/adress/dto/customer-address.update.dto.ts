@@ -1,6 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
 
-export class CustomerAddressCreateDto {
+export class CustomerAddressUpdateDto {
   @IsNotEmpty()
   address?: string;
   @IsNotEmpty()
