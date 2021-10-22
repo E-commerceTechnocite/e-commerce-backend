@@ -87,9 +87,8 @@ export class TaxController {
 
   @Granted(Permission.DELETE_TAX)
   @ApiResponse({ type: null })
-  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
-  async delete(@Param('id') id: string): Promise<any> {
-    return this.taxService.deleteFromId(id);
+  async delete(@Param('id') id: string): Promise<any[]> {
+    return this.taxService.deleteWithId(id);
   }
 }
