@@ -10,6 +10,7 @@ export class TaxRule extends EntitySchema {
   @ApiResponseProperty({ type: () => TaxRuleGroup })
   @ManyToOne(() => TaxRuleGroup, (taxRuleGroup) => taxRuleGroup.taxRules, {
     eager: true,
+    onDelete: 'CASCADE',
   })
   @JoinColumn()
   taxRuleGroup?: TaxRuleGroup;

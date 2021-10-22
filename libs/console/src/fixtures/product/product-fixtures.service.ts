@@ -33,7 +33,7 @@ export class ProductFixturesService implements FixturesInterface {
     const products: Product[] = [];
 
     // Ajout des catégories
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 20; i++) {
       categories.push({
         label: faker.commerce.productAdjective(),
       });
@@ -44,7 +44,7 @@ export class ProductFixturesService implements FixturesInterface {
 
     // Ajout des TaxRuleGroups
     const taxRuleGroups: TaxRuleGroup[] = [];
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 20; i++) {
       taxRuleGroups.push({
         name: faker.commerce.productMaterial(),
       });
@@ -55,7 +55,7 @@ export class ProductFixturesService implements FixturesInterface {
 
     // Ajout des Countries
     const countries: Country[] = [];
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 20; i++) {
       countries.push({
         name: faker.address.country(),
         code: faker.address.countryCode(),
@@ -65,7 +65,7 @@ export class ProductFixturesService implements FixturesInterface {
 
     // Ajout des Taxes
     const taxes: Tax[] = [];
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 20; i++) {
       taxes.push({
         rate: parseFloat(faker.commerce.price(1, 30, 2)),
       });

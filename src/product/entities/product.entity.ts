@@ -46,6 +46,7 @@ export class Product extends EntitySchema {
   @ApiResponseProperty({ type: () => TaxRuleGroup })
   @ManyToOne(() => TaxRuleGroup, (taxRuleGroup) => taxRuleGroup.products, {
     eager: true,
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'tax_rule_group_id', referencedColumnName: 'id' })
   taxRuleGroup?: TaxRuleGroup;

@@ -56,7 +56,7 @@ export class TaxService
     try {
       tax = await this.taxRepository.findOneOrFail({ where: { id: id } });
     } catch {
-      throw new NotFoundException(`Entity doest exist at id : ${id}`);
+      throw new NotFoundException(`Entity does not exist at id : ${id}`);
     }
     return tax;
   }
