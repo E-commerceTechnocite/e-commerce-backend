@@ -15,6 +15,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UpdateCountryDto } from '@app/product/dto/country/update-country.dto';
+import { TaxRule } from '@app/product/entities/tax-rule.entity';
 
 @Injectable()
 export class CountryService
@@ -25,6 +26,8 @@ export class CountryService
   constructor(
     @InjectRepository(Country)
     private readonly countryRepository: Repository<Country>,
+    @InjectRepository(TaxRule)
+    private readonly taxRuleRepository: Repository<TaxRule>,
   ) {}
 
   async getPage(
@@ -104,6 +107,30 @@ export class CountryService
     if (result.affected < 1) {
       throw new BadRequestException('Country not found or already deleted');
     }
+  }
+
+  async deleteWithId(id: string | number): Promise<any[]> {
+    let target;
+    try {
+      target = await this.countryRepository.findOneOrFail({
+        where: { id: id },
+      });
+    } catch {
+      throw new BadRequestException(
+        `Country not found or already deleted at id : ${id}`,
+      );
+    }
+    const taxRules = {
+      entityType: 'TaxRule',
+      taxRules: await this.taxRuleRepository
+        .createQueryBuilder('tax_rule')
+        .where('tax_rule.countryId=:id', { id: id })
+        .getMany(),
+    };
+
+    await this.countryRepository.delete(id);
+
+    return [taxRules];
   }
 
   async delete(entity: Country): Promise<void> {

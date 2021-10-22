@@ -83,7 +83,7 @@ export class TaxRuleGroupController {
   }
 
   @Granted(Permission.DELETE_TAX_RULE_GROUP)
-  @ApiResponse({ description: 'Tax Rule Group has been correctly deleted' })
+  @ApiResponse({ type: null })
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<any[]> {
     return await this.taxRuleGroupService.deleteWithId(id);
