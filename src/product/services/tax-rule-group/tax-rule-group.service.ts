@@ -70,9 +70,8 @@ export class TaxRuleGroupService
       target = await this.taxRuleGroupRepository.findOneOrFail({
         where: { id: id },
       });
-    } catch (err) {
-      console.log(err);
-      throw new NotFoundException(`Entity does not exist at id : ${id}`);
+    } catch {
+      throw new NotFoundException(`TaxRuleGroup does not exist at id : ${id}`);
     }
     return target;
   }

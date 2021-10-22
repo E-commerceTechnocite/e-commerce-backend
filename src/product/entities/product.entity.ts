@@ -39,6 +39,7 @@ export class Product extends EntitySchema {
   @ApiResponseProperty({ type: () => ProductCategory })
   @ManyToOne(() => ProductCategory, (category) => category.products, {
     eager: true,
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'product_category_id', referencedColumnName: 'id' })
   category?: ProductCategory;
