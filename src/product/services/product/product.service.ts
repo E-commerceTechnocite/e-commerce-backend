@@ -119,7 +119,6 @@ export class ProductService implements ProductServiceInterface {
     } catch {
       throw new NotFoundException(`Product does not exist at id : ${id} `);
     }
-
     return product;
   }
 
@@ -218,23 +217,10 @@ export class ProductService implements ProductServiceInterface {
         order ?? 'DESC',
       );
     }
-
-    const data = await query
-      .leftJoinAndMapOne(
-        'p.category',
-        ProductCategory,
-        'c',
-        'p.product_category_id = c.id',
-      )
-      .leftJoinAndMapOne(
-        'p.thumbnail',
-        Picture,
-        'pic',
-        'p.picture_thumbnail_id = pic.id',
-      )
-      .skip(index * limit - limit)
-      .take(limit)
-      .getMany();
+    const data = await this.productRepository.find({
+      take: limit,
+      skip: index * limit - limit,
+    });
 
     return {
       data,

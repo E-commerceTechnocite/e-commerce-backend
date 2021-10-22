@@ -1,9 +1,10 @@
-import { Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Index, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiProperty, ApiResponseProperty } from '@nestjs/swagger';
 
 export abstract class EntitySchema {
   @ApiResponseProperty()
   @PrimaryGeneratedColumn('uuid')
+  @Index({})
   id?: string;
 
   @ApiProperty()
@@ -11,7 +12,12 @@ export abstract class EntitySchema {
   createdAt?: Date;
 
   @ApiProperty()
-  @Column({ type: 'datetime', nullable: true, onUpdate: 'NOW()' })
+  @Column({
+    type: 'datetime',
+    nullable: true,
+    onUpdate: 'NOW()',
+    default: () => 'NOW()',
+  })
   updatedAt?: Date;
 
   @ApiProperty()
