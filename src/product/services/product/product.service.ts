@@ -190,6 +190,10 @@ export class ProductService implements ProductServiceInterface {
     const target: Product = {
       ...product,
       ...entity,
+      stock: {
+        ...product.stock,
+        ...entity.stock,
+      },
       category,
       taxRuleGroup,
       pictures,

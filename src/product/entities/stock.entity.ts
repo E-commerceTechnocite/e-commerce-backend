@@ -20,6 +20,7 @@ export class Stock extends EntitySchema {
   @OneToOne(() => Product, (product) => product.stock, {
     eager: false,
     onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
   })
   @JoinColumn()
   product?: Product;

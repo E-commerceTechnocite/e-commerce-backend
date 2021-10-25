@@ -7,6 +7,7 @@ import {
   IsUUID,
   Length,
 } from 'class-validator';
+import { UpdateStockDto } from '../stock/stock-update.dto';
 
 export class UpdateProductDto {
   @ApiProperty({ required: false })
@@ -31,10 +32,8 @@ export class UpdateProductDto {
   price?: number;
 
   @ApiProperty({ required: false })
-  @IsNumber()
-  @IsPositive()
   @IsOptional()
-  quantity?: number;
+  stock?: UpdateStockDto;
 
   @ApiProperty({ required: false })
   @IsUUID()

@@ -39,6 +39,7 @@ export class Product extends EntitySchema {
     eager: true,
     cascade: true,
     onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
   })
   stock?: Stock;
 
