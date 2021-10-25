@@ -18,6 +18,7 @@ import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { Picture } from '@app/file/entities/picture.entity';
 import { UpdateProductDto } from '@app/product/dto/product/update-product.dto';
+import { JSDOM } from 'jsdom';
 
 export interface ProductServiceInterface
   extends CrudServiceInterface<Product, ProductDto, UpdateProductDto>,
@@ -37,6 +38,14 @@ export class ProductService implements ProductServiceInterface {
   ) {}
 
   async create(entity: ProductDto): Promise<Product> {
+    const domDescription = new JSDOM(entity.description);
+    const document = domDescription.window.document;
+    const strippedDescription = document.body.textContent;
+    if (document.querySelector('script')) {
+      throw new BadRequestException(
+        'Script tags are not authorized inside descriptions',
+      );
+    }
     if (!entity.picturesId) {
       entity.picturesId = [];
     }
@@ -87,6 +96,7 @@ export class ProductService implements ProductServiceInterface {
     delete entity.thumbnailId;
     const target: Product = {
       ...entity,
+      strippedDescription,
       category,
       taxRuleGroup,
       pictures,

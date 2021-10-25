@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   JoinTable,
   ManyToMany,
@@ -20,15 +21,21 @@ import { Stock } from './stock.entity';
 export class Product extends EntitySchema {
   @ApiProperty({ required: true })
   @Column()
+  @Index({ fulltext: true })
   title?: string;
 
   @ApiProperty({ required: true })
   @Column()
+  @Index({ fulltext: true })
   reference?: string;
 
   @ApiProperty({ required: true })
   @Column({ type: 'text' })
   description?: string;
+
+  @Column({ type: 'text' })
+  @Index({ fulltext: true })
+  strippedDescription?: string;
 
   @ApiProperty({ required: true })
   @Column({ type: 'float' })
