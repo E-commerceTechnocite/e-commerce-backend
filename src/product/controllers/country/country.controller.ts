@@ -87,9 +87,8 @@ export class CountryController {
 
   @Granted(Permission.DELETE_COUNTRY)
   @ApiResponse({ type: null })
-  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
-  async delete(@Param('id') id: string): Promise<any> {
-    return this.countryService.deleteFromId(id);
+  async delete(@Param('id') id: string): Promise<any[]> {
+    return await this.countryService.deleteWithId(id);
   }
 }

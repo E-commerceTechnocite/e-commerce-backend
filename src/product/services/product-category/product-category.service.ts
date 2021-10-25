@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
-import { Not, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductCategoryDto } from '@app/product/dto/product-category/product-category.dto';
 import {
@@ -15,6 +15,7 @@ import {
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
 import { UpdateProductCategoryDto } from '@app/product/dto/product-category/update-product-category.dto';
+import { Product } from '@app/product/entities/product.entity';
 
 export interface ProductCategoryServiceInterface
   extends CrudServiceInterface<
@@ -29,6 +30,8 @@ export class ProductCategoryService implements ProductCategoryServiceInterface {
   constructor(
     @InjectRepository(ProductCategory)
     private readonly repository: Repository<ProductCategory>,
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>,
   ) {}
 
   async getPage(
@@ -83,12 +86,39 @@ export class ProductCategoryService implements ProductCategoryServiceInterface {
     }
   }
 
-  async find(id: string | number): Promise<ProductCategory> {
-    const category = await this.repository.findOne(id);
-    if (!category) {
-      throw new NotFoundException();
+  async deleteWithId(id: string | number): Promise<any[]> {
+    let target;
+    try {
+      target = await this.repository.findOneOrFail({ where: { id: id } });
+    } catch {
+      throw new BadRequestException(
+        `Category not found or already deleted at id : ${id}`,
+      );
     }
-    return category;
+
+    const products = {
+      entityType: 'Product',
+      products: await this.productRepository
+        .createQueryBuilder('product')
+        .where('product.product_category_id=:id', { id: id })
+        .getMany(),
+    };
+
+    await this.repository.delete(id);
+
+    return [products];
+  }
+
+  async find(id: string | number): Promise<ProductCategory> {
+    let target;
+    try {
+      target = await this.repository.findOneOrFail({
+        where: { id: id },
+      });
+    } catch {
+      throw new NotFoundException(`Category does not exist at id : ${id}`);
+    }
+    return target;
   }
 
   findAll(): Promise<any[]> {

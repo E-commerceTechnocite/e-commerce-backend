@@ -89,9 +89,8 @@ export class ProductCategoryController {
 
   @Granted(Permission.DELETE_CATEGORY)
   @ApiResponse({ type: null })
-  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
-  async delete(@Param('id') id: string): Promise<any> {
-    return this.productCategoryService.deleteFromId(id);
+  async delete(@Param('id') id: string): Promise<any[]> {
+    return this.productCategoryService.deleteWithId(id);
   }
 }

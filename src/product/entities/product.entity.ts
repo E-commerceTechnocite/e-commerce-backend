@@ -46,6 +46,7 @@ export class Product extends EntitySchema {
   @ApiResponseProperty({ type: () => ProductCategory })
   @ManyToOne(() => ProductCategory, (category) => category.products, {
     eager: true,
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'product_category_id', referencedColumnName: 'id' })
   category?: ProductCategory;
@@ -53,6 +54,7 @@ export class Product extends EntitySchema {
   @ApiResponseProperty({ type: () => TaxRuleGroup })
   @ManyToOne(() => TaxRuleGroup, (taxRuleGroup) => taxRuleGroup.products, {
     eager: true,
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'tax_rule_group_id', referencedColumnName: 'id' })
   taxRuleGroup?: TaxRuleGroup;
