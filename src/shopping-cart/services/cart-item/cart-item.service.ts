@@ -83,7 +83,7 @@ export class CartItemService
       shoppingCart,
       ...entity,
     };
-    console.log(shoppingCart.id);
+    //console.log(shoppingCart.id);
     console.log(customerId);
 
     return await this.cartItemRepo.save(target);

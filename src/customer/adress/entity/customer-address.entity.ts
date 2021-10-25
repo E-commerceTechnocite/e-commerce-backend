@@ -2,7 +2,7 @@ import { Customer } from '@app/customer/entities/customer/customer.entity';
 import { Order } from '@app/order/entities/order.entity';
 import { Country } from '@app/product/entities/country.entity';
 import { EntitySchema } from '@app/shared/entities/entity-schema';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 
 @Entity()
 export class AddressCustomer extends EntitySchema {
@@ -22,7 +22,8 @@ export class AddressCustomer extends EntitySchema {
   countryId?: string; */
 
   // relation Address- order
-  @OneToMany(() => Order, (order) => order.address)
+  @OneToMany(() => Order, (order) => order.address, { eager: true })
+  @JoinColumn({ name: 'addressId', referencedColumnName: 'id' })
   orders: Order[];
 
   // relation Address- Customer

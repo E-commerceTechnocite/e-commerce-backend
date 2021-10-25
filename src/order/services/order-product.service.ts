@@ -11,6 +11,8 @@ import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { CartItem } from '@app/shopping-cart/entities/cart-item.entity';
 import { Product } from '@app/product/entities/product.entity';
+import { AddressCustomer } from '@app/customer/adress/entity/customer-address.entity';
+import { OrderProductCreateDto } from '../dto/order-create.dto';
 
 @Injectable()
 export class OrderProductService {
@@ -30,7 +32,7 @@ export class OrderProductService {
     private readonly request: Request,
   ) {}
 
-  async createOrderProduct(): Promise<Product> {
+  async createOrderProduct(data: OrderProductCreateDto): Promise<void> {
     //  recupérer  l'id du customer plus validation
     if (!this.request.user) {
       throw new NotFoundException('User not found !');
@@ -53,20 +55,41 @@ export class OrderProductService {
       );
     }
 
-    // recuperer le product
-    const product = await this.productRepository.findOne(cartItem['product']);
-    if (!product) {
-      throw new NotFoundException(
-        `Product not found at id ${cartItem['product']}`,
-      );
-    }
+    let orderCartItem: Order = {
+      status: 0,
+      paymentType: 0,
+      customer,
+      address: customer.addressCustomers[0],
+    };
 
-    // recuperer le product
-    const order = await this.orderRepository.findOne(customerId);
+    const order = await this.creatreOrder(orderCartItem);
+    const orderProducts = [];
     if (!order) {
       throw new NotFoundException(`Order  not found at id ${customerId}`);
     }
-    return product;
+    cartItem.forEach((item) => {
+      const orderProduct: OrderProduct = {
+        quantity: item.quantity,
+        product: item.product,
+        order,
+      };
+      orderProducts.push(orderProduct);
+    });
+
+    console.log(order);
+
+    await this.orderRepositoryProduct.save(orderProducts);
+
+    await this.orderRepository.save(order);
+
+    // supprimer l'ordere dans la table cartItem
+    await cartItem.forEach((item) => {
+      this.cartItemRepository.remove(item);
+    });
+
+    /* if (!result) {
+      throw new NotFoundException(`Cart item not found or already deleted`);
+    } */
   }
 
   // cette fonction permet de recupérer le customer par son id
@@ -82,29 +105,24 @@ export class OrderProductService {
     }
   }
   // recuperer la cartItem du customer sur base du shoppingCartId
-  async getCartItem(shoppingCartId): Promise<CartItem> {
+  async getCartItem(shoppingCartId): Promise<CartItem[]> {
     try {
-      //
-      const cartItem = getRepository(CartItem)
-        .createQueryBuilder('cart')
-        .where('cart.shoppingCartId =:shoppingCartId', {
-          shoppingCartId: shoppingCartId,
-        })
-        .getOne();
-
-      return cartItem;
+      return this.cartItemRepository.find({
+        where: { shoppingCart: { id: shoppingCartId } },
+        relations: ['product'],
+      });
     } catch (err) {
       throw new NotFoundException("Customer doesn't exist !");
     }
   }
 
-  // recuperer la cartItem du customer sur base du shoppingCartId
+  //
   async getOrder(customerId): Promise<Order> {
     try {
       //
-      const order = getRepository(Order)
+      const order = await getRepository(Order)
         .createQueryBuilder('myorder')
-        .where('myorder.idCustomer =:customerId', {
+        .where('myorder.CustomerId =:customerId', {
           customerId: customerId,
         })
         .getOne();
@@ -113,5 +131,9 @@ export class OrderProductService {
     } catch (err) {
       throw new NotFoundException("order  doesn't exist  for this customer!");
     }
+  }
+
+  async creatreOrder(orderCartItem): Promise<Order> {
+    return await this.orderRepository.save(orderCartItem);
   }
 }

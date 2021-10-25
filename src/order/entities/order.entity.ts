@@ -1,8 +1,6 @@
 import { EntitySchema } from '@app/shared/entities/entity-schema';
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
-import { PaymentType } from './order-payment-type.enum';
-import { Status } from './order-status.enum';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { OrderProduct } from './order-product.entity';
 import { Customer } from '@app/customer/entities/customer/customer.entity';
 import { AddressCustomer } from '@app/customer/adress/entity/customer-address.entity';
@@ -11,20 +9,26 @@ import { AddressCustomer } from '@app/customer/adress/entity/customer-address.en
 export class Order extends EntitySchema {
   @ApiProperty({ required: true })
   @Column()
-  status: Status = 0; // enum
+  status?: number = 0; // enum
 
   @ApiProperty({ required: false })
   @Column()
-  paymentType: PaymentType = 0; //enum
+  paymentType?: number = 0; //enum
 
   // relation avec la table orderProduct
-  @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.order)
-  orderProducts: OrderProduct[];
+  @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.order, {
+    lazy: true,
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  orderProducts?: OrderProduct[];
 
   // relation avec la table customer
   @ManyToOne(() => Customer, (customer) => customer.orders)
-  customer: Customer;
+  customer?: Customer;
   // relation address - order
   @ManyToOne(() => AddressCustomer, (address) => address.orders)
-  address: AddressCustomer;
+  // @JoinColumn({ name: 'addressId', referencedColumnName: 'id' })
+  address?: AddressCustomer;
 }

@@ -54,6 +54,6 @@ export class Customer extends EntitySchema implements Express.User {
       eager: true,
     },
   )
-  @JoinColumn({ name: 'IdAddress', referencedColumnName: 'id' })
+  @JoinColumn({ name: 'addressId', referencedColumnName: 'id' })
   addressCustomers?: AddressCustomer[];
 }
