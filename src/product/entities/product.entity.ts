@@ -18,11 +18,21 @@ import { CartItem } from '@app/shopping-cart/entities/cart-item.entity';
 import { Stock } from './stock.entity';
 
 @Entity()
+@Index(
+  'product_fulltext_index',
+  ['title', 'reference', 'strippedDescription'],
+  {
+    fulltext: true,
+  },
+)
 export class Product extends EntitySchema {
   @ApiProperty({ required: true })
   @Column()
   @Index({ fulltext: true })
   title?: string;
+
+  @Column()
+  metaphoneTitle?: string;
 
   @ApiProperty({ required: true })
   @Column()
@@ -36,6 +46,9 @@ export class Product extends EntitySchema {
   @Column({ type: 'text' })
   @Index({ fulltext: true })
   strippedDescription?: string;
+
+  @Column({ type: 'text' })
+  metaphoneDescription?: string;
 
   @ApiProperty({ required: true })
   @Column({ type: 'float' })

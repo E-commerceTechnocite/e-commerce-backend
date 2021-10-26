@@ -19,6 +19,7 @@ import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { Picture } from '@app/file/entities/picture.entity';
 import { UpdateProductDto } from '@app/product/dto/product/update-product.dto';
 import { JSDOM } from 'jsdom';
+import * as metaphone from 'talisman/phonetics/metaphone';
 
 export interface ProductServiceInterface
   extends CrudServiceInterface<Product, ProductDto, UpdateProductDto>,
@@ -37,15 +38,31 @@ export class ProductService implements ProductServiceInterface {
     private readonly pictureRepository: Repository<Picture>,
   ) {}
 
-  async create(entity: ProductDto): Promise<Product> {
-    const domDescription = new JSDOM(entity.description);
+  private formatDescription(description): {
+    stripped: string;
+    metaphoned: string;
+  } {
+    if (!description) return null;
+    const domDescription = new JSDOM(description);
     const document = domDescription.window.document;
-    const strippedDescription = document.body.textContent;
     if (document.querySelector('script')) {
       throw new BadRequestException(
         'Script tags are not authorized inside descriptions',
       );
     }
+    const stripped = document.body.textContent;
+    const metaphoned = stripped.split(' ').map(metaphone).join(' ');
+
+    return {
+      metaphoned,
+      stripped,
+    };
+  }
+
+  async create(entity: ProductDto): Promise<Product> {
+    const desc = this.formatDescription(entity.description);
+    const metaphoneTitle = entity.title?.split(' ').map(metaphone).join(' ');
+
     if (!entity.picturesId) {
       entity.picturesId = [];
     }
@@ -96,7 +113,9 @@ export class ProductService implements ProductServiceInterface {
     delete entity.thumbnailId;
     const target: Product = {
       ...entity,
-      strippedDescription,
+      metaphoneDescription: desc.metaphoned,
+      strippedDescription: desc.stripped,
+      metaphoneTitle,
       category,
       taxRuleGroup,
       pictures,
@@ -137,7 +156,9 @@ export class ProductService implements ProductServiceInterface {
   }
 
   async update(id: string | number, entity: UpdateProductDto): Promise<void> {
-    let product;
+    const desc = this.formatDescription(entity.description);
+    const metaphoneTitle = entity.title?.split(' ').map(metaphone).join(' ');
+    let product: Product;
     try {
       product = await this.productRepository.findOneOrFail({
         where: { id: id },
@@ -200,6 +221,9 @@ export class ProductService implements ProductServiceInterface {
     const target: Product = {
       ...product,
       ...entity,
+      strippedDescription: desc?.stripped ?? product.strippedDescription,
+      metaphoneDescription: desc?.metaphoned ?? product.metaphoneDescription,
+      metaphoneTitle: metaphoneTitle ?? product.metaphoneTitle,
       stock: {
         ...product.stock,
         ...entity.stock,
@@ -209,7 +233,6 @@ export class ProductService implements ProductServiceInterface {
       pictures,
       thumbnail,
     };
-    console.log(target);
     await this.productRepository.save(target);
   }
 
@@ -241,31 +264,81 @@ export class ProductService implements ProductServiceInterface {
       meta,
     };
   }
+
+  async search(
+    query: string,
+    index: number,
+    limit: number,
+  ): Promise<PaginationDto<Product>> {
+    if (!query) {
+      throw new BadRequestException('No query string provided');
+    }
+
+    const SQLQuery = this.productRepository
+      .createQueryBuilder('p')
+      .addSelect('MATCH (title) AGAINST (:query)', 'rel_title')
+      .addSelect('MATCH (reference) AGAINST (:query)', 'rel_reference')
+      .addSelect(
+        'MATCH (strippedDescription) AGAINST (:query)',
+        'rel_stripped_description',
+      )
+      .setParameters({
+        query,
+      })
+      .where(
+        `MATCH(title, reference, strippedDescription) AGAINST (:query IN BOOLEAN MODE)`,
+        { query },
+      )
+      .orderBy(
+        '(rel_title*3)+(rel_reference*2)+(rel_stripped_description)',
+        'DESC',
+      );
+
+    let count = await SQLQuery.getCount();
+
+    if (count === 0) {
+      query = `%${query.split(' ').map(metaphone).join(' ')}%`;
+      SQLQuery.orWhere(`p.metaphoneTitle LIKE :query`, {
+        query,
+      }).orWhere(`p.metaphoneDescription LIKE :query`, {
+        query,
+      });
+      count = await SQLQuery.getCount();
+    }
+
+    const data = await SQLQuery.skip(index * limit - limit)
+      .take(limit)
+      .getMany();
+    const meta = new PaginationMetadataDto(index, limit, count);
+
+    return { data, meta };
+  }
+
   // get product by title
   async findByTitle(name: string): Promise<any> {
     // const query = this.productRepository.createQueryBuilder('p');
     const product = this.productRepository.findOne({ title: 'name' });
     /* const product = await query
-      .leftJoinAndMapOne(
-        'p.category',
-        ProductCategory,
-        'c',
-        'p.product_category_id = c.id',
-      )
-      .leftJoinAndMapOne(
-        'p.thumbnail',
-        Picture,
-        'pic',
-        'p.picture_thumbnail_id = pic.id',
-      )
-      .where('p.title = :name'); */
+          .leftJoinAndMapOne(
+            'p.category',
+            ProductCategory,
+            'c',
+            'p.product_category_id = c.id',
+          )
+          .leftJoinAndMapOne(
+            'p.thumbnail',
+            Picture,
+            'pic',
+            'p.picture_thumbnail_id = pic.id',
+          )
+          .where('p.title = :name'); */
     //.skip(index * limit - limit)
     //.take(limit)
     // .getOne();
     /* 
-    if (!product) {
-      throw new NotFoundException();
-    } */
+        if (!product) {
+          throw new NotFoundException();
+        } */
     return product;
   }
 }

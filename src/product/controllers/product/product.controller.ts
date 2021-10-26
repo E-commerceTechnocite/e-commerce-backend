@@ -16,6 +16,7 @@ import {
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -55,6 +56,19 @@ export class ProductController {
     @Query('order') order: 'DESC' | 'ASC' = null,
   ): Promise<PaginationDto<Product>> {
     return this.productService.getPage(page, limit, { orderBy, order });
+  }
+
+  @Granted(Permission.READ_PRODUCT)
+  @ApiQuery({ name: 'q', description: 'Query string' })
+  @ApiQuery({ name: 'page', description: 'Page', required: false })
+  @ApiOkPaginatedResponse(Product)
+  @HttpCode(HttpStatus.OK)
+  @Get('search')
+  async search(
+    @Query('q') queryString: string,
+    @Query('page') page = 1,
+  ): Promise<PaginationDto<Product>> {
+    return this.productService.search(queryString, page, 10);
   }
 
   @Granted(Permission.CREATE_PRODUCT)

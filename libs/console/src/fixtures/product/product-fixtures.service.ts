@@ -10,6 +10,8 @@ import { Tax } from '@app/product/entities/tax.entity';
 import { TaxRule } from '@app/product/entities/tax-rule.entity';
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { Stock } from '@app/product/entities/stock.entity';
+import { JSDOM } from 'jsdom';
+import * as metaphone from 'talisman/phonetics/metaphone';
 
 @Injectable()
 export class ProductFixturesService implements FixturesInterface {
@@ -92,14 +94,37 @@ export class ProductFixturesService implements FixturesInterface {
       });
     }
     await this.taxRuleRepo.save(taxRules);
+    const randomWords = (around = 100) =>
+      faker.random.words(Math.ceil(Math.random() * around + 10));
 
     // Ajout des produits
     for (let i = 0; i < 50; i++) {
+      const description = `
+        <p>${randomWords()}</p>
+        <p>${randomWords()}</p>
+        <p>${randomWords()}</p>
+        <p>${randomWords()}</p>
+        <p>${randomWords()}</p>
+      `;
+      const strippedDescription = new JSDOM(description).window.document.body
+        .textContent;
+
+      const metaphoneDescription = strippedDescription
+        .split(' ')
+        .map(metaphone)
+        .join(' ');
+
+      const title = faker.commerce.product();
+      const metaphoneTitle = title.split(' ').map(metaphone).join(' ');
+
       products.push({
         reference: faker.random.alphaNumeric(10),
-        title: faker.commerce.product(),
+        title,
+        metaphoneTitle,
         price: parseFloat(faker.commerce.price(1, 100, 2)),
-        description: faker.random.words(50),
+        description,
+        metaphoneDescription,
+        strippedDescription,
         category:
           savedCategories[Math.floor(Math.random() * savedCategories.length)],
         taxRuleGroup:
