@@ -16,6 +16,7 @@ import { Picture } from '@app/file/entities/picture.entity';
 import { EntitySchema } from '@app/shared/entities/entity-schema';
 import { CartItem } from '@app/shopping-cart/entities/cart-item.entity';
 import { Stock } from './stock.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 @Index(
@@ -32,6 +33,7 @@ export class Product extends EntitySchema {
   title?: string;
 
   @Column()
+  @Exclude()
   metaphoneTitle?: string;
 
   @ApiProperty({ required: true })
@@ -45,9 +47,11 @@ export class Product extends EntitySchema {
 
   @Column({ type: 'text' })
   @Index({ fulltext: true })
+  @Exclude()
   strippedDescription?: string;
 
   @Column({ type: 'text' })
+  @Exclude()
   metaphoneDescription?: string;
 
   @ApiProperty({ required: true })
