@@ -273,42 +273,48 @@ export class ProductService implements ProductServiceInterface {
     if (!query) {
       throw new BadRequestException('No query string provided');
     }
+    const metaphoneQuery = `%${query.split(' ').map(metaphone).join(' ')}%`;
 
     const SQLQuery = this.productRepository
       .createQueryBuilder('p')
-      .addSelect('MATCH (title) AGAINST (:query)', 'rel_title')
-      .addSelect('MATCH (reference) AGAINST (:query)', 'rel_reference')
+      .select('p.title')
+      .addSelect('MATCH (p.title) AGAINST (:query)', 'rel_title')
+      .addSelect(`p.metaphoneTitle LIKE :metaphone`, 'rel_metaphone_title')
+      .addSelect('MATCH (p.reference) AGAINST (:query)', 'rel_reference')
       .addSelect(
-        'MATCH (strippedDescription) AGAINST (:query)',
+        'MATCH (p.strippedDescription) AGAINST (:query)',
         'rel_stripped_description',
       )
+      .addSelect(
+        `p.metaphoneDescription LIKE :metaphone`,
+        'rel_metaphone_description',
+      )
+      .where(
+        `MATCH(p.title, p.reference, p.strippedDescription) AGAINST (:query IN BOOLEAN MODE)`,
+      )
+      .orWhere(`p.metaphoneTitle LIKE :metaphone`)
+      .orWhere(`p.metaphoneDescription LIKE :metaphone`)
       .setParameters({
         query,
+        metaphone: metaphoneQuery,
       })
-      .where(
-        `MATCH(title, reference, strippedDescription) AGAINST (:query IN BOOLEAN MODE)`,
-        { query },
-      )
       .orderBy(
-        '(rel_title*3)+(rel_reference*2)+(rel_stripped_description)',
+        '(rel_title * POWER(2, 5))' +
+          '+(rel_metaphone_title * POWER(2, 4))' +
+          '+(rel_reference * POWER(2, 3))' +
+          '+(rel_stripped_description * POWER(2, 2))' +
+          '+(rel_metaphone_description * POWER(2, 1))',
         'DESC',
       );
 
-    let count = await SQLQuery.getCount();
+    console.log(await SQLQuery.take(2).execute());
 
-    if (count === 0) {
-      query = `%${query.split(' ').map(metaphone).join(' ')}%`;
-      SQLQuery.orWhere(`p.metaphoneTitle LIKE :query`, {
-        query,
-      }).orWhere(`p.metaphoneDescription LIKE :query`, {
-        query,
-      });
-      count = await SQLQuery.getCount();
-    }
+    const count = await SQLQuery.getCount();
 
     const data = await SQLQuery.skip(index * limit - limit)
       .take(limit)
       .getMany();
+
     const meta = new PaginationMetadataDto(index, limit, count);
 
     return { data, meta };
@@ -316,29 +322,6 @@ export class ProductService implements ProductServiceInterface {
 
   // get product by title
   async findByTitle(name: string): Promise<any> {
-    // const query = this.productRepository.createQueryBuilder('p');
-    const product = this.productRepository.findOne({ title: 'name' });
-    /* const product = await query
-          .leftJoinAndMapOne(
-            'p.category',
-            ProductCategory,
-            'c',
-            'p.product_category_id = c.id',
-          )
-          .leftJoinAndMapOne(
-            'p.thumbnail',
-            Picture,
-            'pic',
-            'p.picture_thumbnail_id = pic.id',
-          )
-          .where('p.title = :name'); */
-    //.skip(index * limit - limit)
-    //.take(limit)
-    // .getOne();
-    /* 
-        if (!product) {
-          throw new NotFoundException();
-        } */
-    return product;
+    return this.productRepository.findOne({ title: name });
   }
 }
