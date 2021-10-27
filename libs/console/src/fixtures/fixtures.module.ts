@@ -13,6 +13,7 @@ import { TaxRule } from '@app/product/entities/tax-rule.entity';
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { FileFixturesService } from '@app/console/fixtures/file/file-fixtures.service';
 import { Picture } from '@app/file/entities/picture.entity';
+import { Stock } from '@app/product/entities/stock.entity';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { Picture } from '@app/file/entities/picture.entity';
       TaxRule,
       TaxRuleGroup,
       Picture,
+      Stock,
     ]),
   ],
   providers: [

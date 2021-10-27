@@ -14,16 +14,20 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { UpdateCountryDto } from '@app/product/dto/country/update-country.dto';
+import { TaxRule } from '@app/product/entities/tax-rule.entity';
 
 @Injectable()
 export class CountryService
   implements
-    CrudServiceInterface<Country, CountryDto, CountryDto>,
+    CrudServiceInterface<Country, CountryDto, UpdateCountryDto>,
     PaginatorInterface<Country>
 {
   constructor(
     @InjectRepository(Country)
     private readonly countryRepository: Repository<Country>,
+    @InjectRepository(TaxRule)
+    private readonly taxRuleRepository: Repository<TaxRule>,
   ) {}
 
   async getPage(
@@ -34,9 +38,7 @@ export class CountryService
     const count = await this.countryRepository.count();
     const meta = new PaginationMetadataDto(index, limit, count);
     if (meta.currentPage > meta.maxPages) {
-      throw new NotFoundException(
-        'This page of countries does not exist',
-      );
+      throw new NotFoundException('This page of countries does not exist');
     }
 
     const query = this.countryRepository.createQueryBuilder('country');
@@ -55,15 +57,22 @@ export class CountryService
   }
 
   async find(id: string | number): Promise<Country> {
-    const country = await this.countryRepository.findOne(id);
-    if (!country) {
-      throw new NotFoundException();
+    let country;
+    try {
+      country = await this.countryRepository.findOneOrFail({
+        where: { id: id },
+      });
+    } catch {
+      throw new NotFoundException(`Country does not exist at id : ${id}`);
     }
     return country;
   }
 
-  findAll(): Promise<Country[]> {
-    return this.countryRepository.find();
+  findAll(): Promise<any[]> {
+    return this.countryRepository
+      .createQueryBuilder('country')
+      .select(['country.id', 'country.name'])
+      .getMany();
   }
 
   async create(entity: CountryDto): Promise<Country> {
@@ -75,16 +84,22 @@ export class CountryService
     });
   }
 
-  async update(id: string | number, entity: CountryDto): Promise<void> {
+  async update(id: string | number, entity: UpdateCountryDto): Promise<void> {
+    let country;
+    try {
+      country = await this.countryRepository.findOneOrFail({
+        where: { id: id },
+      });
+    } catch {
+      throw new NotFoundException(`Country does not exist at id : ${id}`);
+    }
+
     const target: Country = {
-      name: entity.name,
-      code: entity.code,
+      ...country,
+      ...entity,
     };
 
-    const result = await this.countryRepository.update(id, target);
-    if (result.affected < 1) {
-      throw new BadRequestException(`Country not found with id ${id}`);
-    }
+    await this.countryRepository.save(target);
   }
 
   async deleteFromId(id: string | number): Promise<void> {
@@ -92,6 +107,30 @@ export class CountryService
     if (result.affected < 1) {
       throw new BadRequestException('Country not found or already deleted');
     }
+  }
+
+  async deleteWithId(id: string | number): Promise<any[]> {
+    let target;
+    try {
+      target = await this.countryRepository.findOneOrFail({
+        where: { id: id },
+      });
+    } catch {
+      throw new BadRequestException(
+        `Country not found or already deleted at id : ${id}`,
+      );
+    }
+    const taxRules = {
+      entityType: 'TaxRule',
+      taxRules: await this.taxRuleRepository
+        .createQueryBuilder('tax_rule')
+        .where('tax_rule.countryId=:id', { id: id })
+        .getMany(),
+    };
+
+    await this.countryRepository.delete(id);
+
+    return [taxRules];
   }
 
   async delete(entity: Country): Promise<void> {

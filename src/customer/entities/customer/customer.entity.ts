@@ -56,4 +56,6 @@ export class Customer extends EntitySchema implements Express.User {
   )
   @JoinColumn({ name: 'addressId', referencedColumnName: 'id' })
   addressCustomers?: AddressCustomer[];
+  @Column({ type: 'boolean', default: () => false })
+  confirmRegistration?: boolean;
 }

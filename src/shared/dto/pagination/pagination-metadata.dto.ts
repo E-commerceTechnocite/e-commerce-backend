@@ -7,7 +7,7 @@ export class PaginationMetadataDto {
     this.limit = +limit;
     this.nextPage = +index + 1 <= maxPages ? +index + 1 : null;
     this.prevPage = +index - 1 > 0 ? +index - 1 : null;
-    this.maxPages = maxPages;
+    this.maxPages = maxPages === 0 ? 1 : maxPages;
     this.count = count;
   }
 

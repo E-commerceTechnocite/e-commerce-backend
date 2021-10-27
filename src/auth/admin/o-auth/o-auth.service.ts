@@ -32,7 +32,7 @@ export class OAuthService {
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     private readonly jwt: JwtService,
     @Inject(REQUEST)
-    private readonly request: Request,
+    private readonly request: Express.Request & Request,
     @InjectRepository(RefreshToken)
     private readonly refreshTokenRepository: Repository<RefreshToken>,
     private readonly configService: ConfigService,
@@ -71,7 +71,6 @@ export class OAuthService {
       ),
     };
 
-    console.log(refreshToken);
     await this.refreshTokenRepository.save(refreshToken);
 
     const tokenData: TokenBody = { id, username, email, roleId };
@@ -123,5 +122,20 @@ export class OAuthService {
       userAgent: this.request.headers['user-agent'],
       user: user,
     });
+  }
+
+  async check() {
+    const token = this.request.headers.authorization?.split(' ')[1];
+    try {
+      return this.jwt.verify<any>(token);
+    } catch (err) {
+      throw new UnauthorizedException('Unauthenticated');
+    }
+  }
+
+  async getPermissions() {
+    const user = await this.check();
+    const { role } = await this.userRepo.findOne({ id: user.id });
+    return role.permissions;
   }
 }

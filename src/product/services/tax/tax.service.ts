@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { TaxRule } from '@app/product/entities/tax-rule.entity';
 
 @Injectable()
 export class TaxService
@@ -22,6 +23,8 @@ export class TaxService
   constructor(
     @InjectRepository(Tax)
     private readonly taxRepository: Repository<Tax>,
+    @InjectRepository(TaxRule)
+    private readonly taxRuleRepository: Repository<TaxRule>,
   ) {}
 
   async getPage(
@@ -52,15 +55,20 @@ export class TaxService
   }
 
   async find(id: string | number): Promise<Tax> {
-    const tax = await this.taxRepository.findOne(id);
-    if (!tax) {
-      throw new NotFoundException();
+    let tax;
+    try {
+      tax = await this.taxRepository.findOneOrFail({ where: { id: id } });
+    } catch {
+      throw new NotFoundException(`Entity does not exist at id : ${id}`);
     }
     return tax;
   }
 
-  findAll(): Promise<Tax[]> {
-    return this.taxRepository.find();
+  findAll(): Promise<any[]> {
+    return this.taxRepository
+      .createQueryBuilder('tax')
+      .select(['tax.id', 'tax.rate'])
+      .getMany();
   }
 
   async create(entity: TaxDto): Promise<Tax> {
@@ -73,14 +81,19 @@ export class TaxService
   }
 
   async update(id: string | number, entity: TaxDto): Promise<void> {
+    let tax;
+    try {
+      tax = await this.taxRepository.findOneOrFail({ where: { id: id } });
+    } catch {
+      throw new NotFoundException(`Tax does not exist at id : ${id}`);
+    }
+
     const target: Tax = {
-      rate: entity.rate,
+      ...tax,
+      ...entity,
     };
 
-    const result = await this.taxRepository.update(id, target);
-    if (result.affected < 1) {
-      throw new BadRequestException(`Tax not found with id ${id}`);
-    }
+    await this.taxRepository.save(target);
   }
 
   async deleteFromId(id: string | number): Promise<void> {
@@ -88,6 +101,29 @@ export class TaxService
     if (result.affected < 1) {
       throw new BadRequestException('Tax not found or already deleted');
     }
+  }
+
+  async deleteWithId(id: string | number): Promise<any[]> {
+    let target;
+    try {
+      target = await this.taxRepository.findOneOrFail({ where: { id: id } });
+    } catch {
+      throw new BadRequestException(
+        `Tax not found or already deleted at id : ${id}`,
+      );
+    }
+
+    const taxRules = {
+      entityType: 'TaxRule',
+      taxRules: await this.taxRuleRepository
+        .createQueryBuilder('tax_rule')
+        .where('tax_rule.taxId=:id', { id: id })
+        .getMany(),
+    };
+
+    await this.taxRepository.delete(id);
+
+    return [taxRules];
   }
 
   async delete(entity: Tax): Promise<void> {

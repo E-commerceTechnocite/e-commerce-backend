@@ -25,6 +25,7 @@ import {
 import { Granted } from '@app/auth/admin/guard/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
 import { ApiAdminAuth, ApiOkPaginatedResponse } from '@app/shared/swagger';
+import { UpdateTaxRuleGroupDto } from '@app/product/dto/tax-rule-group/update-tax-rule-group.dto';
 
 @ApiAdminAuth()
 @ApiTags('TaxRuleGroup')
@@ -47,6 +48,14 @@ export class TaxRuleGroupController {
   @Granted(Permission.READ_TAX_RULE_GROUP)
   @ApiOkResponse()
   @ApiResponse({ type: TaxRuleGroup })
+  @Get('all')
+  async findAll(): Promise<any[]> {
+    return this.taxRuleGroupService.findAll();
+  }
+
+  @Granted(Permission.READ_TAX_RULE_GROUP)
+  @ApiOkResponse()
+  @ApiResponse({ type: TaxRuleGroup })
   @Get(':id')
   async findById(@Param('id') id: string): Promise<TaxRuleGroup> {
     return this.taxRuleGroupService.find(id);
@@ -62,22 +71,21 @@ export class TaxRuleGroupController {
   }
 
   @Granted(Permission.UPDATE_TAX_RULE_GROUP)
-  @ApiBody({ type: TaxRuleGroupDto, required: false })
+  @ApiBody({ type: UpdateTaxRuleGroupDto, required: false })
   @ApiResponse({ type: null })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id')
   async update(
     @Param('id') id: string,
-    @Body() taxRuleGroup: TaxRuleGroupDto,
+    @Body() taxRuleGroup: UpdateTaxRuleGroupDto,
   ): Promise<any> {
     return this.taxRuleGroupService.update(id, taxRuleGroup);
   }
 
   @Granted(Permission.DELETE_TAX_RULE_GROUP)
   @ApiResponse({ type: null })
-  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
-  async delete(@Param('id') id: string): Promise<any> {
-    return this.taxRuleGroupService.deleteFromId(id);
+  async delete(@Param('id') id: string): Promise<any[]> {
+    return await this.taxRuleGroupService.deleteWithId(id);
   }
 }

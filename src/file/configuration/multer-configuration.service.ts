@@ -41,7 +41,7 @@ export class MulterConfigurationService implements MulterOptionsFactory {
   ): void {
     const extension = path.extname(file.originalname);
     const fileName = path.basename(file.originalname).replace(extension, '');
-    callback(null, `${fileName}-${Date.now()}.${extension}`);
+    callback(null, `${fileName}-${Date.now()}${extension}`);
   }
 
   private static fileFilter(

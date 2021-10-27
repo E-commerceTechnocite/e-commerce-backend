@@ -5,7 +5,7 @@ import { ApiAdminAuth, ApiOkPaginatedResponse } from '@app/shared/swagger';
 import { CreateUserDto } from '@app/user/create-user.dto';
 import { User } from '@app/user/entities/user.entity';
 import { Permission } from '@app/user/enums/permission.enum';
-import { UserDto } from '@app/user/user.dto';
+import { UpdateUserDto } from '@app/user/update-user.dto';
 import { UserService } from '@app/user/user.service';
 import {
   Body,
@@ -65,10 +65,13 @@ export class UserController {
   }
 
   @Granted(Permission.UPDATE_USER)
-  @ApiBody({ type: UserDto, required: false })
+  @ApiBody({ type: UpdateUserDto, required: false })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() user: UserDto): Promise<void> {
+  async update(
+    @Param('id') id: string,
+    @Body() user: UpdateUserDto,
+  ): Promise<void> {
     return this.userService.update(id, user);
   }
 
