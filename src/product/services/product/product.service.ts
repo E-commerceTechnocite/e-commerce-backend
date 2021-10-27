@@ -122,8 +122,12 @@ export class ProductService implements ProductServiceInterface {
     return product;
   }
 
-  findAll(): Promise<Product[]> {
-    return this.productRepository.find();
+  async findAll(): Promise<any[]> {
+    return await this.productRepository
+      .createQueryBuilder('product')
+      .select('id')
+      .addSelect("CONCAT(product.title,' ',product.price)", 'detail')
+      .execute();
   }
 
   async update(id: string | number, entity: UpdateProductDto): Promise<void> {

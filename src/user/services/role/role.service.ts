@@ -63,8 +63,11 @@ export class RoleService
     return role;
   }
 
-  findAll(): Promise<Role[]> {
-    return this.roleRepo.find();
+  findAll(): Promise<any[]> {
+    return this.roleRepo
+      .createQueryBuilder('role')
+      .select(['role.id', 'role.name'])
+      .getMany();
   }
 
   async create(entity: RoleDto): Promise<Role> {
