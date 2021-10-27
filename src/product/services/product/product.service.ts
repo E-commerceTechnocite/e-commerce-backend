@@ -277,7 +277,6 @@ export class ProductService implements ProductServiceInterface {
 
     const SQLQuery = this.productRepository
       .createQueryBuilder('p')
-      .select('p.title')
       .addSelect('MATCH (p.title) AGAINST (:query)', 'rel_title')
       .addSelect(`p.metaphoneTitle LIKE :metaphone`, 'rel_metaphone_title')
       .addSelect('MATCH (p.reference) AGAINST (:query)', 'rel_reference')
