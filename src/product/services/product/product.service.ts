@@ -20,6 +20,7 @@ import { Picture } from '@app/file/entities/picture.entity';
 import { UpdateProductDto } from '@app/product/dto/product/update-product.dto';
 import { JSDOM } from 'jsdom';
 import * as metaphone from 'talisman/phonetics/metaphone';
+import { MysqlSearchEngineService } from '@app/shared/services/mysql-search-engine.service';
 
 export interface ProductServiceInterface
   extends CrudServiceInterface<Product, ProductDto, UpdateProductDto>,
@@ -36,6 +37,7 @@ export class ProductService implements ProductServiceInterface {
     private readonly taxRuleGroupRepository: Repository<TaxRuleGroup>,
     @InjectRepository(Picture)
     private readonly pictureRepository: Repository<Picture>,
+    private readonly searchEngineService: MysqlSearchEngineService,
   ) {}
 
   private formatDescription(description): {
@@ -270,53 +272,32 @@ export class ProductService implements ProductServiceInterface {
     index: number,
     limit: number,
   ): Promise<PaginationDto<Product>> {
-    if (!query) {
-      throw new BadRequestException('No query string provided');
-    }
-    const metaphoneQuery = `%${query.split(' ').map(metaphone).join(' ')}%`;
-
-    const SQLQuery = this.productRepository
-      .createQueryBuilder('p')
-      .addSelect('MATCH (p.title) AGAINST (:query)', 'rel_title')
-      .addSelect(`p.metaphoneTitle LIKE :metaphone`, 'rel_metaphone_title')
-      .addSelect('MATCH (p.reference) AGAINST (:query)', 'rel_reference')
-      .addSelect(
-        'MATCH (p.strippedDescription) AGAINST (:query)',
-        'rel_stripped_description',
-      )
-      .addSelect(
-        `p.metaphoneDescription LIKE :metaphone`,
-        'rel_metaphone_description',
-      )
-      .where(
-        `MATCH(p.title, p.reference, p.strippedDescription) AGAINST (:query IN BOOLEAN MODE)`,
-      )
-      .orWhere(`p.metaphoneTitle LIKE :metaphone`)
-      .orWhere(`p.metaphoneDescription LIKE :metaphone`)
-      .setParameters({
+    try {
+      const SQLQuery = this.searchEngineService.createSearchQuery(
+        this.productRepository,
         query,
-        metaphone: metaphoneQuery,
-      })
-      .orderBy(
-        '(rel_title * POWER(2, 5))' +
-          '+(rel_metaphone_title * POWER(2, 4))' +
-          '+(rel_reference * POWER(2, 3))' +
-          '+(rel_stripped_description * POWER(2, 2))' +
-          '+(rel_metaphone_description * POWER(2, 1))',
-        'DESC',
+        [
+          { name: 'title' },
+          { name: 'metaphoneTitle', type: 'metaphone' },
+          { name: 'reference' },
+          { name: 'strippedDescription' },
+          { name: 'metaphoneDescription', type: 'metaphone' },
+        ],
       );
 
-    console.log(await SQLQuery.take(2).execute());
+      const count = await SQLQuery.getCount();
 
-    const count = await SQLQuery.getCount();
+      const data = await SQLQuery.skip(index * limit - limit)
+        .take(limit)
+        .getMany();
 
-    const data = await SQLQuery.skip(index * limit - limit)
-      .take(limit)
-      .getMany();
+      const meta = new PaginationMetadataDto(index, limit, count);
 
-    const meta = new PaginationMetadataDto(index, limit, count);
-
-    return { data, meta };
+      return { data, meta };
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err.message);
+    }
   }
 
   // get product by title
