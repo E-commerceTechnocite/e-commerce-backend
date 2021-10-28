@@ -26,6 +26,11 @@ import { Exclude } from 'class-transformer';
     fulltext: true,
   },
 )
+@Index(
+  'product_metaphone_fulltext_index',
+  ['metaphoneTitle', 'metaphoneDescription'],
+  { fulltext: true },
+)
 export class Product extends EntitySchema {
   @ApiProperty({ required: true })
   @Column()
@@ -33,6 +38,7 @@ export class Product extends EntitySchema {
   title?: string;
 
   @Column()
+  @Index({ fulltext: true })
   @Exclude()
   metaphoneTitle?: string;
 
@@ -51,6 +57,7 @@ export class Product extends EntitySchema {
   strippedDescription?: string;
 
   @Column({ type: 'text' })
+  @Index({ fulltext: true })
   @Exclude()
   metaphoneDescription?: string;
 

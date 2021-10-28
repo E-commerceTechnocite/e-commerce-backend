@@ -17,25 +17,16 @@ export class MysqlSearchEngineService {
     if (!query) {
       throw new Error('No query string provided');
     }
-
-    const metaphoneQuery = `%${query.split(' ').map(metaphone).join(' ')}%`;
+    const setParam = (f: Field) =>
+      f.type === 'metaphone' ? ':metaphone' : ':query';
+    const metaphoneQuery = query.split(' ').map(metaphone).join(' ');
 
     const SQLQuery = repository.createQueryBuilder('p');
-    fields.forEach((field) => {
-      switch (field.type) {
-        case 'metaphone':
-          SQLQuery.addSelect(
-            `p.${field.name} LIKE :metaphone`,
-            `rel_${field.name}`,
-          );
-          break;
-        case 'default':
-        default:
-          SQLQuery.addSelect(
-            `MATCH (p.${field.name}) AGAINST (:query)`,
-            `rel_${field.name}`,
-          );
-      }
+    fields.forEach((f) => {
+      SQLQuery.addSelect(
+        `MATCH (p.${f.name}) AGAINST (${setParam(f)})`,
+        `rel_${f.name}`,
+      );
     });
     const fulltexts = fields.filter((f) => f.type === 'default' || !f.type);
     const metaphones = fields.filter((f) => f.type === 'metaphone');
@@ -45,19 +36,21 @@ export class MysqlSearchEngineService {
         .map((f) => `p.${f.name}`)
         .join(', ')}) AGAINST (:query IN BOOLEAN MODE)`,
     );
-    metaphones.forEach((f) => {
-      SQLQuery.orWhere(`p.${f.name} LIKE :metaphone`);
-    });
-    SQLQuery.setParameters({
+    SQLQuery.orWhere(
+      `MATCH(${metaphones
+        .map((f) => `p.${f.name}`)
+        .join(', ')}) AGAINST (:metaphone IN BOOLEAN MODE)`,
+    ).setParameters({
       query,
       metaphone: metaphoneQuery,
     });
 
-    const order = [];
-    for (let i = fields.length - 1; i >= 0; i--) {
-      order.push(`(rel_${fields[i].name} * POWER(2, ${i}))`);
-    }
+    const order = fields.map(
+      (f, i, { length }) => `(rel_${f.name} * POWER(2, ${length - i}))`,
+    );
     SQLQuery.orderBy(order.join('+'), 'DESC');
+
+    console.log(SQLQuery.getQueryAndParameters());
 
     return SQLQuery;
   }
