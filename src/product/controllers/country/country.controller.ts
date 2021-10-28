@@ -38,6 +38,19 @@ export class CountryController {
   constructor(private readonly countryService: CountryService) {}
 
   @Granted(Permission.READ_COUNTRY)
+  @ApiQuery({ name: 'q', description: 'Query string' })
+  @ApiQuery({ name: 'page', description: 'Page', required: false })
+  @ApiOkPaginatedResponse(Country)
+  @HttpCode(HttpStatus.OK)
+  @Get('search')
+  async search(
+    @Query('q') queryString: string,
+    @Query('page') page = 1,
+  ): Promise<PaginationDto<Country>> {
+    return this.countryService.search(queryString, page, 10);
+  }
+
+  @Granted(Permission.READ_COUNTRY)
   @ApiOkPaginatedResponse(Country)
   @ApiPaginationQueries()
   @Get()
