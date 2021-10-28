@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from '@app/product/entities/product.entity';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
 import { ProductDto } from '@app/product/dto/product/product.dto';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
@@ -21,10 +21,13 @@ import { UpdateProductDto } from '@app/product/dto/product/update-product.dto';
 import { JSDOM } from 'jsdom';
 import * as metaphone from 'talisman/phonetics/metaphone';
 import { MysqlSearchEngineService } from '@app/shared/services/mysql-search-engine.service';
+import { SearchServiceInterface } from '@app/shared/interfaces/search-service.interface';
+import { RuntimeException } from '@nestjs/core/errors/exceptions/runtime.exception';
 
 export interface ProductServiceInterface
   extends CrudServiceInterface<Product, ProductDto, UpdateProductDto>,
-    PaginatorInterface<Product> {}
+    PaginatorInterface<Product>,
+    SearchServiceInterface<Product> {}
 
 @Injectable()
 export class ProductService implements ProductServiceInterface {
@@ -295,8 +298,10 @@ export class ProductService implements ProductServiceInterface {
 
       return { data, meta };
     } catch (err) {
-      console.log(err);
-      throw new BadRequestException(err.message);
+      if (err instanceof RuntimeException || err instanceof QueryFailedError) {
+        throw new BadRequestException(err.message);
+      }
+      throw err;
     }
   }
 

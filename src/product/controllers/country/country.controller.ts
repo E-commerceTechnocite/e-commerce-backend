@@ -15,19 +15,14 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import {
-  ApiBody,
-  ApiOkResponse,
-  ApiQuery,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBody, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Permission } from '@app/user/enums/permission.enum';
 import { Granted } from '@app/auth/admin/guard/granted.decorator';
 import {
   ApiAdminAuth,
   ApiOkPaginatedResponse,
   ApiPaginationQueries,
+  ApiSearchQueries,
 } from '@app/shared/swagger';
 import { UpdateCountryDto } from '@app/product/dto/country/update-country.dto';
 
@@ -38,8 +33,7 @@ export class CountryController {
   constructor(private readonly countryService: CountryService) {}
 
   @Granted(Permission.READ_COUNTRY)
-  @ApiQuery({ name: 'q', description: 'Query string' })
-  @ApiQuery({ name: 'page', description: 'Page', required: false })
+  @ApiSearchQueries()
   @ApiOkPaginatedResponse(Country)
   @HttpCode(HttpStatus.OK)
   @Get('search')

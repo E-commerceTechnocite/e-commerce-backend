@@ -16,7 +16,6 @@ import {
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
-  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -29,6 +28,7 @@ import {
   ApiAdminAuth,
   ApiOkPaginatedResponse,
   ApiPaginationQueries,
+  ApiSearchQueries,
 } from '@app/shared/swagger';
 import { UpdateProductDto } from '@app/product/dto/product/update-product.dto';
 
@@ -39,8 +39,7 @@ export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Granted(Permission.READ_PRODUCT)
-  @ApiQuery({ name: 'q', description: 'Query string' })
-  @ApiQuery({ name: 'page', description: 'Page', required: false })
+  @ApiSearchQueries()
   @ApiOkPaginatedResponse(Product)
   @HttpCode(HttpStatus.OK)
   @Get('search')

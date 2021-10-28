@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import * as metaphone from 'talisman/phonetics/metaphone';
+import { RuntimeException } from '@nestjs/core/errors/exceptions/runtime.exception';
 
 export interface Field {
   type?: 'metaphone' | 'default';
@@ -15,43 +16,50 @@ export class MysqlSearchEngineService {
     fields: Field[],
   ): SelectQueryBuilder<T> {
     if (!query) {
-      throw new Error('No query string provided');
+      throw new RuntimeException('No query string provided');
     }
-    const setParam = (f: Field) =>
-      f.type === 'metaphone' ? ':metaphone' : ':query';
-    const metaphoneQuery = query.split(' ').map(metaphone).join(' ');
+    try {
+      const setParam = (f: Field) =>
+        f.type === 'metaphone' ? ':metaphone' : ':query';
+      const metaphoneQuery = query.split(' ').map(metaphone).join(' ');
 
-    const SQLQuery = repository.createQueryBuilder('p');
-    fields.forEach((f) => {
-      SQLQuery.addSelect(
-        `MATCH (p.${f.name}) AGAINST (${setParam(f)})`,
-        `rel_${f.name}`,
+      const SQLQuery = repository.createQueryBuilder('p');
+      fields.forEach((f) => {
+        SQLQuery.addSelect(
+          `MATCH (p.${f.name}) AGAINST (${setParam(f)})`,
+          `rel_${f.name}`,
+        );
+      });
+      const fulltexts = fields.filter((f) => f.type === 'default' || !f.type);
+      const metaphones = fields.filter((f) => f.type === 'metaphone');
+
+      if (fulltexts.length > 0) {
+        SQLQuery.where(
+          `MATCH(${fulltexts
+            .map((f) => `p.${f.name}`)
+            .join(', ')}) AGAINST (:query IN BOOLEAN MODE)`,
+        );
+      }
+      if (metaphones.length > 0) {
+        SQLQuery.orWhere(
+          `MATCH(${metaphones
+            .map((f) => `p.${f.name}`)
+            .join(', ')}) AGAINST (:metaphone IN BOOLEAN MODE)`,
+        );
+      }
+      SQLQuery.setParameters({
+        query,
+        metaphone: metaphoneQuery,
+      });
+
+      const order = fields.map(
+        (f, i, { length }) => `(rel_${f.name} * POWER(2, ${length - i}))`,
       );
-    });
-    const fulltexts = fields.filter((f) => f.type === 'default' || !f.type);
-    const metaphones = fields.filter((f) => f.type === 'metaphone');
+      SQLQuery.orderBy(order.join('+'), 'DESC');
 
-    SQLQuery.where(
-      `MATCH(${fulltexts
-        .map((f) => `p.${f.name}`)
-        .join(', ')}) AGAINST (:query IN BOOLEAN MODE)`,
-    );
-    SQLQuery.orWhere(
-      `MATCH(${metaphones
-        .map((f) => `p.${f.name}`)
-        .join(', ')}) AGAINST (:metaphone IN BOOLEAN MODE)`,
-    ).setParameters({
-      query,
-      metaphone: metaphoneQuery,
-    });
-
-    const order = fields.map(
-      (f, i, { length }) => `(rel_${f.name} * POWER(2, ${length - i}))`,
-    );
-    SQLQuery.orderBy(order.join('+'), 'DESC');
-
-    console.log(SQLQuery.getQueryAndParameters());
-
-    return SQLQuery;
+      return SQLQuery;
+    } catch {
+      throw new RuntimeException('Incorrect query');
+    }
   }
 }

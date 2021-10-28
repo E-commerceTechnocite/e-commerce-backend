@@ -17,12 +17,15 @@ import { Repository } from 'typeorm';
 import { UpdateCountryDto } from '@app/product/dto/country/update-country.dto';
 import { TaxRule } from '@app/product/entities/tax-rule.entity';
 import { MysqlSearchEngineService } from '@app/shared/services/mysql-search-engine.service';
+import { SearchServiceInterface } from '@app/shared/interfaces/search-service.interface';
+import { RuntimeException } from '@nestjs/core/errors/exceptions/runtime.exception';
 
 @Injectable()
 export class CountryService
   implements
     CrudServiceInterface<Country, CountryDto, UpdateCountryDto>,
-    PaginatorInterface<Country>
+    PaginatorInterface<Country>,
+    SearchServiceInterface<Country>
 {
   constructor(
     @InjectRepository(Country)
@@ -147,20 +150,30 @@ export class CountryService
     index: number,
     limit: number,
   ): Promise<PaginationDto<Country>> {
-    const sqlQuery = await this.searchService.createSearchQuery(
-      this.countryRepository,
-      query,
-      [{ name: 'name' }, { name: 'code' }],
-    );
+    try {
+      const sqlQuery = await this.searchService.createSearchQuery(
+        this.countryRepository,
+        query,
+        [{ name: 'name' }, { name: 'code' }],
+      );
 
-    const count = await sqlQuery.getCount();
+      console.log(sqlQuery.getQueryAndParameters());
 
-    const meta = new PaginationMetadataDto(index, limit, count);
-    const data = await sqlQuery
-      .skip(index * limit - limit)
-      .take(limit)
-      .getMany();
+      const count = await sqlQuery.getCount();
 
-    return { data, meta };
+      const meta = new PaginationMetadataDto(index, limit, count);
+      const data = await sqlQuery
+        .skip(index * limit - limit)
+        .take(limit)
+        .getMany();
+
+      return { data, meta };
+    } catch (err) {
+      if (err instanceof RuntimeException) {
+        throw new BadRequestException(err.message);
+      }
+      console.log(err.message);
+      throw err;
+    }
   }
 }
