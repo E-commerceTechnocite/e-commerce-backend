@@ -4,3 +4,4 @@ export { ApiOkPaginatedResponse } from '@app/shared/swagger/decorators/response/
 export { ApiAdminAuth } from '@app/shared/swagger/decorators/auth/api-admin-auth.decorator';
 export { ApiCustomerAuth } from '@app/shared/swagger/decorators/auth/api-customer-auth.decorator';
 export { ApiPaginationQueries } from '@app/shared/swagger/decorators/request/api-pagination-queries.decorator';
+export { ApiSearchQueries } from '@app/shared/swagger/decorators/request/api-search-queries.decorator';

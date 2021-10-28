@@ -7,6 +7,7 @@ import { ProductCategory } from '@app/product/entities/product-category.entity';
 import { mock } from 'jest-mock-extended';
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { Picture } from '@app/file/entities/picture.entity';
+import { MysqlSearchEngineService } from '@app/shared/services/mysql-search-engine.service';
 
 describe('ProductService', () => {
   let service: ProductService;
@@ -14,6 +15,7 @@ describe('ProductService', () => {
   const categoryRepository = mock<Repository<ProductCategory>>();
   const taxRuleGroupRepository = mock<Repository<TaxRuleGroup>>();
   const pictureRepository = mock<Repository<Picture>>();
+  const searchEngineService = mock<MysqlSearchEngineService>();
 
   const productStub: Product = {
     category: undefined,
@@ -40,6 +42,10 @@ describe('ProductService', () => {
         {
           provide: getRepositoryToken(Picture),
           useValue: pictureRepository,
+        },
+        {
+          provide: MysqlSearchEngineService,
+          useValue: searchEngineService,
         },
       ],
     }).compile();

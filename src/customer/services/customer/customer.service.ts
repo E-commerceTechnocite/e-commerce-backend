@@ -11,15 +11,23 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm/repository/Repository';
 import { hash } from 'bcrypt';
 import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
+import { SearchServiceInterface } from '@app/shared/interfaces/search-service.interface';
+import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
+import { MysqlSearchEngineService } from '@app/shared/services/mysql-search-engine.service';
+import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
+import { RuntimeException } from '@nestjs/core/errors/exceptions/runtime.exception';
+import { QueryFailedError } from 'typeorm';
 
 @Injectable()
 export class CustomerService
   implements
-    CrudServiceInterface<Customer, CustomerCreateDto, CustomerUpdateDto>
+    CrudServiceInterface<Customer, CustomerCreateDto, CustomerUpdateDto>,
+    SearchServiceInterface<Customer>
 {
   constructor(
     @InjectRepository(Customer)
     private readonly customerRepository: Repository<Customer>,
+    private readonly searchService: MysqlSearchEngineService,
   ) {}
 
   async find(id: string | number): Promise<Customer> {
@@ -82,6 +90,35 @@ export class CustomerService
   findAll(): Promise<CustomerDto[]> {
     return this.customerRepository.find();
   }
+
+  async search(
+    query: string,
+    index: number,
+    limit: number,
+  ): Promise<PaginationDto<Customer>> {
+    try {
+      const sqlQuery = this.searchService.createSearchQuery(
+        this.customerRepository,
+        query,
+        [{ name: 'username' }, { name: 'lastName' }, { name: 'firstName' }],
+      );
+
+      const count = await sqlQuery.getCount();
+      const meta = new PaginationMetadataDto(index, limit, count);
+      const data = await sqlQuery
+        .skip(index * limit - limit)
+        .take(limit)
+        .getMany();
+
+      return { data, meta };
+    } catch (err) {
+      if (err instanceof RuntimeException || err instanceof QueryFailedError) {
+        throw new BadRequestException(err.message);
+      }
+      throw err;
+    }
+  }
+
   // Find one customer
   // async getCustomerById(customerId): Promise<CustomerDto> {
   //   try {

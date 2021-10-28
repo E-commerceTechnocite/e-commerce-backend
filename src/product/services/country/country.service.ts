@@ -16,18 +16,23 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UpdateCountryDto } from '@app/product/dto/country/update-country.dto';
 import { TaxRule } from '@app/product/entities/tax-rule.entity';
+import { MysqlSearchEngineService } from '@app/shared/services/mysql-search-engine.service';
+import { SearchServiceInterface } from '@app/shared/interfaces/search-service.interface';
+import { RuntimeException } from '@nestjs/core/errors/exceptions/runtime.exception';
 
 @Injectable()
 export class CountryService
   implements
     CrudServiceInterface<Country, CountryDto, UpdateCountryDto>,
-    PaginatorInterface<Country>
+    PaginatorInterface<Country>,
+    SearchServiceInterface<Country>
 {
   constructor(
     @InjectRepository(Country)
     private readonly countryRepository: Repository<Country>,
     @InjectRepository(TaxRule)
     private readonly taxRuleRepository: Repository<TaxRule>,
+    private readonly searchService: MysqlSearchEngineService,
   ) {}
 
   async getPage(
@@ -137,6 +142,38 @@ export class CountryService
     const result = await this.countryRepository.delete(entity);
     if (result.affected < 1) {
       throw new BadRequestException('Country not found or already deleted');
+    }
+  }
+
+  async search(
+    query: string,
+    index: number,
+    limit: number,
+  ): Promise<PaginationDto<Country>> {
+    try {
+      const sqlQuery = await this.searchService.createSearchQuery(
+        this.countryRepository,
+        query,
+        [{ name: 'name' }, { name: 'code' }],
+      );
+
+      console.log(sqlQuery.getQueryAndParameters());
+
+      const count = await sqlQuery.getCount();
+
+      const meta = new PaginationMetadataDto(index, limit, count);
+      const data = await sqlQuery
+        .skip(index * limit - limit)
+        .take(limit)
+        .getMany();
+
+      return { data, meta };
+    } catch (err) {
+      if (err instanceof RuntimeException) {
+        throw new BadRequestException(err.message);
+      }
+      console.log(err.message);
+      throw err;
     }
   }
 }
