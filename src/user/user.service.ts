@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '@app/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
-import { UserDto } from './user.dto';
+import { UpdateUserDto } from './update-user.dto';
 import { Role } from './entities/role.entity';
 import {
   PaginationOptions,
@@ -23,7 +23,7 @@ import { RandomizerService } from '@app/shared/services/randomizer.service';
 @Injectable()
 export class UserService
   implements
-    CrudServiceInterface<User, UserDto, UserDto>,
+    CrudServiceInterface<User, CreateUserDto, UpdateUserDto>,
     PaginatorInterface<User>
 {
   constructor(
@@ -49,19 +49,16 @@ export class UserService
       await query.orderBy(orderBy ?? 'id');
     }
 
-    const data = await query
+    let data = await query
       .leftJoinAndMapOne('u.role', Role, 'r', 'u.id_role = r.id')
       .skip(index * limit - limit)
       .take(limit)
-      .select([
-        'u.id',
-        'u.username',
-        'u.email',
-        'r.id',
-        'r.name',
-        'u.createdAt',
-      ])
       .getMany();
+
+    data = data.map((item) => {
+      delete item.password;
+      return item;
+    });
 
     return {
       data,
@@ -70,9 +67,11 @@ export class UserService
   }
 
   async find(id: string | number): Promise<User> {
-    const user = await this.userRepository.findOne(id);
-    if (!user) {
-      throw new NotFoundException();
+    let user;
+    try {
+      user = await this.userRepository.findOneOrFail({ where: { id: id } });
+    } catch {
+      throw new NotFoundException(`User does not exist at id : ${id}`);
     }
     delete user.password;
     return user;
@@ -83,10 +82,15 @@ export class UserService
   }
 
   async create(entity: CreateUserDto): Promise<User> {
-    const role = await this.roleRepository.findOne(entity.roleId);
-    console.log(role);
-    if (!role) {
-      throw new BadRequestException(`Role not found at id ${entity.roleId}`);
+    let role;
+    try {
+      role = await this.roleRepository.findOneOrFail({
+        where: { id: entity.roleId },
+      });
+    } catch {
+      throw new NotFoundException(
+        `Role does not exist at id : ${entity.roleId}`,
+      );
     }
     delete entity.roleId;
     const passwordGenerated = this.randomizerService.generatePassword(25);
@@ -96,16 +100,16 @@ export class UserService
       role,
     };
     console.log(target);
-    await this.mailService.sendUserConfirmation(target);
+    await this.mailService.sendUserConfirmation(target, passwordGenerated);
     await this.userRepository.save(target);
     delete target.password;
     return target;
   }
 
-  async update(id: string | number, entity: UserDto): Promise<void> {
+  async update(id: string | number, entity: UpdateUserDto): Promise<void> {
     console.log(entity);
     let role;
-    if (entity.roleId) {
+    if (entity.roleId != undefined) {
       role = await this.roleRepository
         .findOneOrFail(entity.roleId)
         .catch(() => {
@@ -116,17 +120,27 @@ export class UserService
     }
     console.log(role);
     delete entity.roleId;
-    const user = await this.userRepository.findOne(id);
-    if (!user) {
-      throw new BadRequestException(`User not found with id ${id}`);
+    let user;
+    try {
+      user = await this.userRepository.findOneOrFail({ where: { id: id } });
+    } catch {
+      throw new NotFoundException(`User does not exist with id : ${id}`);
     }
+
+    let newPassword = null;
+    if (entity.regenPass) {
+      newPassword = this.randomizerService.generatePassword(25);
+    }
+
     const target: User = {
       ...user,
       ...entity,
-      password: await hash(entity.password, 10),
+      password: entity.regenPass ? await hash(newPassword, 10) : user.password,
       role,
     };
     await this.userRepository.save(target);
+    delete target.password;
+    await this.mailService.sendUserConfirmation(target, newPassword);
   }
 
   async deleteFromId(id: string | number): Promise<void> {

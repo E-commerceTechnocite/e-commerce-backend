@@ -61,7 +61,7 @@ describe('ProductService', () => {
   describe('findOne', () => {
     it('should return a product', async () => {
       const product: Product = productStub;
-      productRepository.findOne.mockResolvedValueOnce(product);
+      productRepository.findOneOrFail.mockResolvedValueOnce(product);
       expect(await service.find('1')).toEqual(product);
     });
   });

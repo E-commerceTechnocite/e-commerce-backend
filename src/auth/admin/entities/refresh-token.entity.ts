@@ -10,7 +10,9 @@ export class RefreshToken extends EntitySchema {
   @Column({ default: '' })
   userAgent?: string = '';
 
-  @ManyToOne(() => User, (user) => user.refreshTokens)
+  @ManyToOne(() => User, (user) => user.refreshTokens, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user?: User;
 }

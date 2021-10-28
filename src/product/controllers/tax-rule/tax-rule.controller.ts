@@ -29,7 +29,7 @@ import { ApiAdminAuth, ApiOkPaginatedResponse } from '@app/shared/swagger';
 
 @ApiAdminAuth()
 @ApiTags('TaxRule')
-@Controller('tax-rule')
+@Controller({ path: 'tax-rule', version: '1' })
 export class TaxRuleController {
   constructor(private readonly taxRuleService: TaxRuleService) {}
 
@@ -43,6 +43,14 @@ export class TaxRuleController {
     @Query('limit', IsPositiveIntPipe) limit = 10,
   ): Promise<PaginationDto<TaxRule>> {
     return this.taxRuleService.getPage(page, limit);
+  }
+
+  @Granted(Permission.READ_TAX_RULE)
+  @ApiOkResponse()
+  @ApiResponse({ type: TaxRule })
+  @Get('all')
+  async findAll(): Promise<any[]> {
+    return this.taxRuleService.findAll();
   }
 
   @Granted(Permission.READ_TAX_RULE)

@@ -24,7 +24,12 @@ import {
 } from '@nestjs/swagger';
 import { Granted } from '@app/auth/admin/guard/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
-import { ApiAdminAuth, ApiOkPaginatedResponse } from '@app/shared/swagger';
+import {
+  ApiAdminAuth,
+  ApiOkPaginatedResponse,
+  ApiPaginationQueries,
+} from '@app/shared/swagger';
+import { UpdateTaxDto } from '@app/product/dto/tax/update-tax.dto';
 
 @ApiAdminAuth()
 @ApiTags('Tax')
@@ -34,14 +39,21 @@ export class TaxController {
 
   @Granted(Permission.READ_TAX)
   @ApiOkPaginatedResponse(Tax)
-  @ApiQuery({ name: 'page', required: false })
-  @ApiQuery({ name: 'limit', required: false })
+  @ApiPaginationQueries()
   @Get()
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,
     @Query('limit', IsPositiveIntPipe) limit = 10,
   ): Promise<PaginationDto<Tax>> {
     return this.taxService.getPage(page, limit);
+  }
+
+  @Granted(Permission.READ_TAX)
+  @ApiOkResponse()
+  @ApiResponse({ type: Tax })
+  @Get('all')
+  async findAll(): Promise<any[]> {
+    return this.taxService.findAll();
   }
 
   @Granted(Permission.READ_TAX)
@@ -62,19 +74,21 @@ export class TaxController {
   }
 
   @Granted(Permission.UPDATE_TAX)
-  @ApiBody({ type: TaxDto, required: false })
+  @ApiBody({ type: UpdateTaxDto, required: false })
   @ApiResponse({ type: null })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() tax: TaxDto): Promise<any> {
+  async update(
+    @Param('id') id: string,
+    @Body() tax: UpdateTaxDto,
+  ): Promise<any> {
     return this.taxService.update(id, tax);
   }
 
   @Granted(Permission.DELETE_TAX)
   @ApiResponse({ type: null })
-  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
-  async delete(@Param('id') id: string): Promise<any> {
-    return this.taxService.deleteFromId(id);
+  async delete(@Param('id') id: string): Promise<any[]> {
+    return this.taxService.deleteWithId(id);
   }
 }

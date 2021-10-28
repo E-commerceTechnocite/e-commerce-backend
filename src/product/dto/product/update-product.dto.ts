@@ -1,36 +1,43 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsFirebasePushId,
   IsNumber,
   IsOptional,
   IsPositive,
   IsUUID,
   Length,
 } from 'class-validator';
-import { CreateStockDto } from '@app/product/dto/stock/stock-create.dto';
+import { UpdateStockDto } from '../stock/stock-update.dto';
 
-export class ProductDto {
+export class UpdateProductDto {
   @ApiProperty({ required: false })
   @Length(2, 255)
+  @IsOptional()
   title?: string;
 
   @ApiProperty({ required: false })
   @Length(2, 255)
+  @IsOptional()
   reference?: string;
 
   @ApiProperty({ required: false })
   @Length(10)
+  @IsOptional()
   description?: string;
 
   @ApiProperty({ required: false })
   @IsNumber({ maxDecimalPlaces: 2 })
   @IsPositive()
+  @IsOptional()
   price?: number;
 
-  @ApiProperty({ required: true })
-  stock?: CreateStockDto;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  stock?: UpdateStockDto;
 
   @ApiProperty({ required: false })
   @IsUUID()
+  @IsOptional()
   categoryId?: string;
 
   @ApiProperty({ required: false })
