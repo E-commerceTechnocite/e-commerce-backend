@@ -4,7 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { EntitySchema } from '@app/shared/entities/entity-schema';
 
 @Entity()
-@Index(['label'], { fulltext: true })
+@Index('product_category_fulltext_index', ['label'], { fulltext: true })
 export class ProductCategory extends EntitySchema {
   @ApiProperty()
   @Column()
