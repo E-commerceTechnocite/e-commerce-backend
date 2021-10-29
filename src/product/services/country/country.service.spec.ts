@@ -6,20 +6,13 @@ import { Country } from '@app/product/entities/country.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { TaxRule } from '@app/product/entities/tax-rule.entity';
 import { MysqlSearchEngineService } from '@app/shared/services/mysql-search-engine.service';
-import { FindOneOptions } from 'typeorm/find-options/FindOneOptions';
+import { country } from '@app/test/stub';
 
 describe('CountryService', () => {
   let service: CountryService;
   const countryRepository = mock<Repository<Country>>();
   const taxRuleRepository = mock<Repository<TaxRule>>();
   const searchEngineService = mock<MysqlSearchEngineService>();
-
-  const countryStub = (): Country => ({
-    id: Math.round(Math.random() * 1000000) + '',
-    name: 'Belgium',
-    code: 'BE',
-    taxRules: undefined,
-  });
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -40,40 +33,47 @@ describe('CountryService', () => {
 
   describe('findAll', () => {
     it('should return a list of objects', async () => {
-      const returnResponse = [countryStub(), countryStub()].map((c) => ({
+      // GIVEN
+      const countries = [country(), country()];
+
+      const returnResponse = countries.map((c) => ({
         id: c.id,
         name: c.name,
       }));
 
       const qb = mock<SelectQueryBuilder<Country>>({
-        select: mockFn().calledWith().mockReturnThis(),
-        getMany(): Promise<any[]> {
-          return Promise.resolve(returnResponse);
-        },
+        select: mockFn().mockReturnThis(),
+        getMany: mockFn().mockResolvedValueOnce(returnResponse),
       });
 
-      countryRepository.createQueryBuilder
-        .calledWith('country')
-        .mockReturnValueOnce(qb);
+      countryRepository.createQueryBuilder.mockReturnValueOnce(qb);
 
-      // expect(qb.select).toHaveBeenCalledWith(['country.id', 'country.name']);
-      expect(await service.findAll()).toEqual(returnResponse);
+      // WHEN
+      const response = await service.findAll();
+
+      // THEN
+      expect(response).toEqual(returnResponse);
+      expect(countryRepository.createQueryBuilder).toHaveBeenCalledWith(
+        'country',
+      );
+      expect(qb.select).toHaveBeenCalledWith(['country.id', 'country.name']);
+      expect(qb.select.mock.calls.length).toEqual(1);
+      expect(qb.getMany).toHaveBeenCalled();
+      expect(qb.getMany.mock.calls.length).toEqual(1);
     });
   });
 
   describe('findOne', () => {
     it('should return a country', async () => {
-      const country = countryStub();
+      const c = country();
+      countryRepository.findOneOrFail.mockResolvedValueOnce(c);
 
-      const fn = mockFn<
-        (options?: FindOneOptions<Country>) => Promise<Country>
-      >()
-        .calledWith({ where: { id: country.name } })
-        .mockResolvedValueOnce(country)();
+      const response = await service.find(c.id);
 
-      countryRepository.findOneOrFail.mockResolvedValueOnce(fn);
-
-      expect(await service.find(country.id)).toEqual(country);
+      expect(response).toEqual(c);
+      expect(countryRepository.findOneOrFail).toHaveBeenCalledWith({
+        where: { id: c.id },
+      });
     });
   });
 });

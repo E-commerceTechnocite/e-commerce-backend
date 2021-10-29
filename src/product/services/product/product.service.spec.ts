@@ -8,6 +8,7 @@ import { mock } from 'jest-mock-extended';
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { Picture } from '@app/file/entities/picture.entity';
 import { MysqlSearchEngineService } from '@app/shared/services/mysql-search-engine.service';
+import { product } from '@app/test/stub';
 
 describe('ProductService', () => {
   let service: ProductService;
@@ -16,15 +17,6 @@ describe('ProductService', () => {
   const taxRuleGroupRepository = mock<Repository<TaxRuleGroup>>();
   const pictureRepository = mock<Repository<Picture>>();
   const searchEngineService = mock<MysqlSearchEngineService>();
-
-  const productStub: Product = {
-    category: undefined,
-    title: 'title',
-    reference: '1234',
-    price: 39.99,
-    description: 'description',
-    id: '1',
-  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -58,7 +50,7 @@ describe('ProductService', () => {
 
   describe('findAll', () => {
     it('should return a list of products', async () => {
-      const products: Product[] = [productStub];
+      const products: Product[] = [product()];
       productRepository.find.mockResolvedValueOnce(products);
       expect(await service.findAll()).toEqual(products);
     });
@@ -66,9 +58,9 @@ describe('ProductService', () => {
 
   describe('findOne', () => {
     it('should return a product', async () => {
-      const product: Product = productStub;
-      productRepository.findOneOrFail.mockResolvedValueOnce(product);
-      expect(await service.find('1')).toEqual(product);
+      const p: Product = product();
+      productRepository.findOneOrFail.mockResolvedValueOnce(p);
+      expect(await service.find('1')).toEqual(p);
     });
   });
 });
