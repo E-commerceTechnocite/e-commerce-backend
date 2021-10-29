@@ -8,8 +8,10 @@ import { mock } from 'jest-mock-extended';
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { Picture } from '@app/file/entities/picture.entity';
 import { MysqlSearchEngineService } from '@app/shared/services/mysql-search-engine.service';
-import { createProductDto, product } from '@app/test/stub';
+import { createProductDto, product, updateProductDto } from '@app/test/stub';
+import * as metaphone from 'talisman/phonetics/metaphone';
 import { id } from '@app/test/util/id';
+import { JSDOM } from 'jsdom';
 
 describe('ProductService', () => {
   let service: ProductService;
@@ -115,6 +117,51 @@ describe('ProductService', () => {
       expect(categoryRepository.findOneOrFail).toHaveBeenCalledWith({
         where: { id: categoryId },
       });
+    });
+  });
+
+  describe('update', () => {
+    it('should accept a dto with no relations', async () => {
+      const p = updateProductDto();
+      const entity = product();
+      p.picturesId = [];
+      p.taxRuleGroupId = undefined;
+      p.categoryId = undefined;
+      p.thumbnailId = undefined;
+      productRepository.findOneOrFail.mockResolvedValueOnce(entity);
+
+      const strippedDesc = new JSDOM(p.description)?.window.document.body
+        .textContent;
+
+      const updatedEntity: Product = {
+        ...entity,
+        ...p,
+        stock: {
+          ...entity.stock,
+          ...p.stock,
+        },
+        metaphoneTitle: p.title?.split(' ').map(metaphone).join(' '),
+        metaphoneDescription: strippedDesc.split(' ').map(metaphone).join(' '),
+        strippedDescription: strippedDesc,
+        category: undefined,
+        taxRuleGroup: undefined,
+        pictures: undefined,
+        thumbnail: undefined,
+      };
+      for (const key of Object.keys(updatedEntity)) {
+        if (key.match(/.*Id$/)) {
+          delete updatedEntity[key];
+        }
+      }
+      productRepository.save.mockResolvedValueOnce(updatedEntity);
+
+      const response = await service.update(entity.id, p);
+
+      expect(response).toBeUndefined();
+      expect(productRepository.findOneOrFail).toHaveBeenCalledWith({
+        where: { id: entity.id },
+      });
+      expect(productRepository.save).toHaveBeenCalledWith(updatedEntity);
     });
   });
 });

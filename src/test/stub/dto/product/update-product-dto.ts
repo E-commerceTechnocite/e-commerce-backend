@@ -12,8 +12,8 @@ export const updateProductDto = () => {
   };
   stub.description = 'hello description';
   stub.reference = '123456789';
-  stub.thumbnailId = undefined;
-  stub.picturesId = [];
-  stub.taxRuleGroupId = undefined;
+  stub.thumbnailId = '3f736e98-e50f-4920-aeff-c6b808350ea6';
+  stub.picturesId = ['3f736e98-e50f-4920-aeff-c6b808350ea6'];
+  stub.taxRuleGroupId = '3f736e98-e50f-4920-aeff-c6b808350ea6';
   return stub;
 };

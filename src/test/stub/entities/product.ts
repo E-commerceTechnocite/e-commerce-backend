@@ -3,7 +3,7 @@ import { id } from '@app/test/util/id';
 
 export const product = (): Product => ({
   id: id(),
-  category: undefined,
+  category: {},
   title: 'title',
   reference: '1234',
   price: 39.99,
@@ -13,4 +13,7 @@ export const product = (): Product => ({
     pending: 10,
     incoming: 10,
   },
+  pictures: [],
+  thumbnail: { uri: '/1' },
+  taxRuleGroup: {},
 });
