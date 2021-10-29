@@ -51,8 +51,13 @@ export class CountryController {
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,
     @Query('limit', IsPositiveIntPipe) limit = 10,
+    @Query('orderBy') orderBy = null,
+    @Query('order') order: 'DESC' | 'ASC' = 'DESC',
   ): Promise<PaginationDto<Country>> {
-    return this.countryService.getPage(page, limit);
+    return this.countryService.getPage(page, limit, {
+      orderBy,
+      order,
+    });
   }
 
   @Granted(Permission.READ_COUNTRY)
