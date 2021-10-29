@@ -8,7 +8,8 @@ import { mock } from 'jest-mock-extended';
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { Picture } from '@app/file/entities/picture.entity';
 import { MysqlSearchEngineService } from '@app/shared/services/mysql-search-engine.service';
-import { product } from '@app/test/stub';
+import { createProductDto, product } from '@app/test/stub';
+import { id } from '@app/test/util/id';
 
 describe('ProductService', () => {
   let service: ProductService;
@@ -52,7 +53,11 @@ describe('ProductService', () => {
     it('should return a list of products', async () => {
       const products: Product[] = [product()];
       productRepository.find.mockResolvedValueOnce(products);
-      expect(await service.findAll()).toEqual(products);
+
+      const response = await service.findAll();
+
+      expect(response).toEqual(products);
+      expect(productRepository.find).toHaveBeenCalled();
     });
   });
 
@@ -60,7 +65,56 @@ describe('ProductService', () => {
     it('should return a product', async () => {
       const p: Product = product();
       productRepository.findOneOrFail.mockResolvedValueOnce(p);
-      expect(await service.find('1')).toEqual(p);
+
+      const response = await service.find(p.id);
+
+      expect(response).toEqual(p);
+      expect(productRepository.findOneOrFail).toHaveBeenCalledWith({
+        where: { id: p.id },
+        loadEagerRelations: true,
+      });
+    });
+  });
+
+  describe('create', () => {
+    it('should use repositories for relations', async () => {
+      // GIVEN
+      const p = createProductDto();
+      const { picturesId, taxRuleGroupId, categoryId, thumbnailId } = p;
+      const taxRuleGroup = {};
+      const pictures = [{ uri: '/1' }, { uri: '/2' }];
+      const thumbnail = { uri: '/1' };
+      const category = {};
+      taxRuleGroupRepository.findOneOrFail.mockResolvedValueOnce(taxRuleGroup);
+      pictureRepository.findByIds.mockResolvedValueOnce(pictures);
+      pictureRepository.findOneOrFail.mockResolvedValueOnce(thumbnail);
+      categoryRepository.findOneOrFail.mockResolvedValueOnce(category);
+
+      const entity: Product = {
+        ...p,
+        taxRuleGroup,
+        pictures,
+        thumbnail,
+        category,
+      };
+      const savedEntity = { id: id(), ...entity };
+      productRepository.save.mockResolvedValueOnce(savedEntity);
+
+      // WHEN
+      const response = await service.create(p);
+
+      // THEN
+      expect(response).toEqual(savedEntity);
+      expect(taxRuleGroupRepository.findOneOrFail).toHaveBeenCalledWith({
+        where: { id: taxRuleGroupId },
+      });
+      expect(pictureRepository.findByIds).toHaveBeenCalledWith(picturesId);
+      expect(pictureRepository.findOneOrFail).toHaveBeenCalledWith({
+        where: { id: thumbnailId },
+      });
+      expect(categoryRepository.findOneOrFail).toHaveBeenCalledWith({
+        where: { id: categoryId },
+      });
     });
   });
 });
