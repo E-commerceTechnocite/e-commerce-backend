@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from '@app/product/entities/product.entity';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
 import { ProductDto } from '@app/product/dto/product/product.dto';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
@@ -18,10 +18,16 @@ import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { Picture } from '@app/file/entities/picture.entity';
 import { UpdateProductDto } from '@app/product/dto/product/update-product.dto';
+import { JSDOM } from 'jsdom';
+import * as metaphone from 'talisman/phonetics/metaphone';
+import { MysqlSearchEngineService } from '@app/shared/services/mysql-search-engine.service';
+import { SearchServiceInterface } from '@app/shared/interfaces/search-service.interface';
+import { RuntimeException } from '@nestjs/core/errors/exceptions/runtime.exception';
 
 export interface ProductServiceInterface
   extends CrudServiceInterface<Product, ProductDto, UpdateProductDto>,
-    PaginatorInterface<Product> {}
+    PaginatorInterface<Product>,
+    SearchServiceInterface<Product> {}
 
 @Injectable()
 export class ProductService implements ProductServiceInterface {
@@ -34,9 +40,34 @@ export class ProductService implements ProductServiceInterface {
     private readonly taxRuleGroupRepository: Repository<TaxRuleGroup>,
     @InjectRepository(Picture)
     private readonly pictureRepository: Repository<Picture>,
+    private readonly searchEngineService: MysqlSearchEngineService,
   ) {}
 
+  private formatDescription(description): {
+    stripped: string;
+    metaphoned: string;
+  } {
+    if (!description) return null;
+    const domDescription = new JSDOM(description);
+    const document = domDescription.window.document;
+    if (document.querySelector('script')) {
+      throw new BadRequestException(
+        'Script tags are not authorized inside descriptions',
+      );
+    }
+    const stripped = document.body.textContent;
+    const metaphoned = stripped.split(' ').map(metaphone).join(' ');
+
+    return {
+      metaphoned,
+      stripped,
+    };
+  }
+
   async create(entity: ProductDto): Promise<Product> {
+    const desc = this.formatDescription(entity.description);
+    const metaphoneTitle = entity.title?.split(' ').map(metaphone).join(' ');
+
     if (!entity.picturesId) {
       entity.picturesId = [];
     }
@@ -87,6 +118,9 @@ export class ProductService implements ProductServiceInterface {
     delete entity.thumbnailId;
     const target: Product = {
       ...entity,
+      metaphoneDescription: desc.metaphoned,
+      strippedDescription: desc.stripped,
+      metaphoneTitle,
       category,
       taxRuleGroup,
       pictures,
@@ -127,7 +161,9 @@ export class ProductService implements ProductServiceInterface {
   }
 
   async update(id: string | number, entity: UpdateProductDto): Promise<void> {
-    let product;
+    const desc = this.formatDescription(entity.description);
+    const metaphoneTitle = entity.title?.split(' ').map(metaphone).join(' ');
+    let product: Product;
     try {
       product = await this.productRepository.findOneOrFail({
         where: { id: id },
@@ -190,6 +226,9 @@ export class ProductService implements ProductServiceInterface {
     const target: Product = {
       ...product,
       ...entity,
+      strippedDescription: desc?.stripped ?? product.strippedDescription,
+      metaphoneDescription: desc?.metaphoned ?? product.metaphoneDescription,
+      metaphoneTitle: metaphoneTitle ?? product.metaphoneTitle,
       stock: {
         ...product.stock,
         ...entity.stock,
@@ -199,7 +238,6 @@ export class ProductService implements ProductServiceInterface {
       pictures,
       thumbnail,
     };
-    console.log(target);
     await this.productRepository.save(target);
   }
 
@@ -231,31 +269,44 @@ export class ProductService implements ProductServiceInterface {
       meta,
     };
   }
+
+  async search(
+    query: string,
+    index: number,
+    limit: number,
+  ): Promise<PaginationDto<Product>> {
+    try {
+      const SQLQuery = this.searchEngineService.createSearchQuery(
+        this.productRepository,
+        query,
+        [
+          { name: 'title' },
+          { name: 'metaphoneTitle', type: 'metaphone' },
+          { name: 'reference' },
+          { name: 'strippedDescription' },
+          { name: 'metaphoneDescription', type: 'metaphone' },
+        ],
+      );
+
+      const count = await SQLQuery.getCount();
+
+      const data = await SQLQuery.skip(index * limit - limit)
+        .take(limit)
+        .getMany();
+
+      const meta = new PaginationMetadataDto(index, limit, count);
+
+      return { data, meta };
+    } catch (err) {
+      if (err instanceof RuntimeException || err instanceof QueryFailedError) {
+        throw new BadRequestException(err.message);
+      }
+      throw err;
+    }
+  }
+
   // get product by title
   async findByTitle(name: string): Promise<any> {
-    // const query = this.productRepository.createQueryBuilder('p');
-    const product = this.productRepository.findOne({ title: 'name' });
-    /* const product = await query
-      .leftJoinAndMapOne(
-        'p.category',
-        ProductCategory,
-        'c',
-        'p.product_category_id = c.id',
-      )
-      .leftJoinAndMapOne(
-        'p.thumbnail',
-        Picture,
-        'pic',
-        'p.picture_thumbnail_id = pic.id',
-      )
-      .where('p.title = :name'); */
-    //.skip(index * limit - limit)
-    //.take(limit)
-    // .getOne();
-    /* 
-    if (!product) {
-      throw new NotFoundException();
-    } */
-    return product;
+    return this.productRepository.findOne({ title: name });
   }
 }

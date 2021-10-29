@@ -5,13 +5,13 @@ import { Repository } from 'typeorm';
 import { Country } from '@app/product/entities/country.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { TaxRule } from '@app/product/entities/tax-rule.entity';
-import { TaxRuleService } from '../tax-rule/tax-rule.service';
+import { MysqlSearchEngineService } from '@app/shared/services/mysql-search-engine.service';
 
 describe('CountryService', () => {
   let service: CountryService;
-  let serviceTaxRule: TaxRuleService;
   const countryRepository = mock<Repository<Country>>();
   const taxRuleRepository = mock<Repository<TaxRule>>();
+  const searchEngineService = mock<MysqlSearchEngineService>();
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -19,6 +19,7 @@ describe('CountryService', () => {
         CountryService,
         { provide: getRepositoryToken(Country), useValue: countryRepository },
         { provide: getRepositoryToken(TaxRule), useValue: taxRuleRepository },
+        { provide: MysqlSearchEngineService, useValue: searchEngineService },
       ],
     }).compile();
 
