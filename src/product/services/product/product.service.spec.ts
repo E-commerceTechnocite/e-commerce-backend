@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProductService } from '@app/product/services/product/product.service';
 import { Product } from '@app/product/entities/product.entity';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
 import { mock } from 'jest-mock-extended';
@@ -162,6 +162,19 @@ describe('ProductService', () => {
         where: { id: entity.id },
       });
       expect(productRepository.save).toHaveBeenCalledWith(updatedEntity);
+    });
+  });
+
+  describe('delete', () => {
+    it('should', async () => {
+      const id = '1234';
+      const result: DeleteResult = { affected: 1, raw: {} };
+      productRepository.delete.mockResolvedValueOnce(result);
+
+      const response = await service.deleteFromId(id);
+
+      expect(response).toBeUndefined();
+      expect(productRepository.delete).toHaveBeenCalledWith(id);
     });
   });
 });
