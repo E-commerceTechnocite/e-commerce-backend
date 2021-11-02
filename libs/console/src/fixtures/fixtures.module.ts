@@ -13,6 +13,10 @@ import { TaxRule } from '@app/product/entities/tax-rule.entity';
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { FileFixturesService } from '@app/console/fixtures/file/file-fixtures.service';
 import { Picture } from '@app/file/entities/picture.entity';
+import { Stock } from '@app/product/entities/stock.entity';
+import { CustomersFixturesService } from './customers/customers-fixtures.service';
+import { Customer } from '@app/customer/entities/customer/customer.entity';
+import { SharedModule } from '@app/shared/shared.module';
 
 @Module({
   imports: [
@@ -26,13 +30,17 @@ import { Picture } from '@app/file/entities/picture.entity';
       TaxRule,
       TaxRuleGroup,
       Picture,
+      Stock,
+      Customer,
     ]),
+    SharedModule,
   ],
   providers: [
     FixturesService,
     ProductFixturesService,
     UserFixturesService,
     FileFixturesService,
+    CustomersFixturesService,
     ConsoleLogger,
   ],
 })

@@ -6,6 +6,7 @@ import {
   IsUUID,
   Length,
 } from 'class-validator';
+import { CreateStockDto } from '@app/product/dto/stock/stock-create.dto';
 
 export class ProductDto {
   @ApiProperty({ required: false })
@@ -25,6 +26,9 @@ export class ProductDto {
   @IsPositive()
   price?: number;
 
+  @ApiProperty({ required: true })
+  stock?: CreateStockDto;
+
   @ApiProperty({ required: false })
   @IsUUID()
   categoryId?: string;
@@ -35,7 +39,7 @@ export class ProductDto {
   taxRuleGroupId?: string;
 
   @ApiProperty({ required: false, description: 'Picture ids' })
-  @IsUUID(null, { each: true })
+  @IsUUID(4, { each: true })
   @IsOptional()
   picturesId?: string[] = [];
 

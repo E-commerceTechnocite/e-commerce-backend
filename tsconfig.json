@@ -5,11 +5,11 @@
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true,
     "target": "es2017",
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
+    "rootDir": ".",
     "paths": {
       "@app/*": [
         "src/*"
@@ -22,6 +22,12 @@
       ],
       "@app/console/*": [
         "libs/console/src/*"
+      ],
+      "@app/release-console": [
+        "libs/release-console/src"
+      ],
+      "@app/release-console/*": [
+        "libs/release-console/src/*"
       ]
     },
     "incremental": true,

@@ -13,30 +13,45 @@ import {
 import { ProductService } from '@app/product/services/product/product.service';
 import { Product } from '@app/product/entities/product.entity';
 import {
-  ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
-  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { ProductDto } from '@app/product/dto/product/product.dto';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
-import { Granted } from '@app/auth/granted.decorator';
+import { Granted } from '@app/auth/admin/guard/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
-import { ApiOkPaginatedResponse } from '@app/shared/swagger/decorators';
+import {
+  ApiAdminAuth,
+  ApiOkPaginatedResponse,
+  ApiPaginationQueries,
+  ApiSearchQueries,
+} from '@app/shared/swagger';
+import { UpdateProductDto } from '@app/product/dto/product/update-product.dto';
 
-@ApiBearerAuth()
+@ApiAdminAuth()
 @ApiTags('Products')
 @Controller({ path: 'product', version: '1' })
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Granted(Permission.READ_PRODUCT)
-  @ApiOkResponse()
-  @ApiResponse({ type: Product })
+  @ApiSearchQueries()
+  @ApiOkPaginatedResponse(Product)
+  @HttpCode(HttpStatus.OK)
+  @Get('search')
+  async search(
+    @Query('q') queryString: string,
+    @Query('page') page = 1,
+  ): Promise<PaginationDto<Product>> {
+    return this.productService.search(queryString, page, 10);
+  }
+
+  @Granted(Permission.READ_PRODUCT)
+  @ApiOkResponse({ type: Product })
   @Get(':id')
   async findById(@Param('id') id: string): Promise<Product> {
     return this.productService.find(id);
@@ -44,14 +59,15 @@ export class ProductController {
 
   @Granted(Permission.READ_PRODUCT)
   @ApiOkPaginatedResponse(Product)
-  @ApiQuery({ name: 'page', required: false })
-  @ApiQuery({ name: 'limit', required: false })
+  @ApiPaginationQueries()
   @Get()
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,
     @Query('limit', IsPositiveIntPipe) limit = 10,
+    @Query('orderBy') orderBy: string = null,
+    @Query('order') order: 'DESC' | 'ASC' = null,
   ): Promise<PaginationDto<Product>> {
-    return this.productService.getPage(page, limit);
+    return this.productService.getPage(page, limit, { orderBy, order });
   }
 
   @Granted(Permission.CREATE_PRODUCT)
@@ -65,12 +81,12 @@ export class ProductController {
   }
 
   @Granted(Permission.UPDATE_PRODUCT)
-  @ApiBody({ type: ProductDto, required: false })
+  @ApiBody({ type: UpdateProductDto, required: false })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id')
   async update(
     @Param('id') id: string,
-    @Body() product: ProductDto,
+    @Body() product: UpdateProductDto,
   ): Promise<void> {
     return this.productService.update(id, product);
   }

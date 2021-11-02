@@ -15,34 +15,52 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiBody,
-  ApiOkResponse,
-  ApiQuery,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBody, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Permission } from '@app/user/enums/permission.enum';
-import { Granted } from '@app/auth/granted.decorator';
-import { ApiOkPaginatedResponse } from '@app/shared/swagger/decorators';
+import { Granted } from '@app/auth/admin/guard/granted.decorator';
+import {
+  ApiAdminAuth,
+  ApiOkPaginatedResponse,
+  ApiPaginationQueries,
+  ApiSearchQueries,
+} from '@app/shared/swagger';
+import { UpdateCountryDto } from '@app/product/dto/country/update-country.dto';
 
-@ApiBearerAuth()
+@ApiAdminAuth()
 @ApiTags('Country')
 @Controller({ path: 'country', version: '1' })
 export class CountryController {
   constructor(private readonly countryService: CountryService) {}
 
   @Granted(Permission.READ_COUNTRY)
+  @ApiSearchQueries()
   @ApiOkPaginatedResponse(Country)
-  @ApiQuery({ name: 'page', required: false })
-  @ApiQuery({ name: 'limit', required: false })
+  @HttpCode(HttpStatus.OK)
+  @Get('search')
+  async search(
+    @Query('q') queryString: string,
+    @Query('page') page = 1,
+  ): Promise<PaginationDto<Country>> {
+    return this.countryService.search(queryString, page, 10);
+  }
+
+  @Granted(Permission.READ_COUNTRY)
+  @ApiOkPaginatedResponse(Country)
+  @ApiPaginationQueries()
   @Get()
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,
     @Query('limit', IsPositiveIntPipe) limit = 10,
   ): Promise<PaginationDto<Country>> {
     return this.countryService.getPage(page, limit);
+  }
+
+  @Granted(Permission.READ_COUNTRY)
+  @ApiOkResponse()
+  @ApiResponse({ type: Country })
+  @Get('all')
+  async findAll(): Promise<any[]> {
+    return await this.countryService.findAll();
   }
 
   @Granted(Permission.READ_COUNTRY)
@@ -63,22 +81,21 @@ export class CountryController {
   }
 
   @Granted(Permission.UPDATE_COUNTRY)
-  @ApiBody({ type: CountryDto, required: false })
+  @ApiBody({ type: UpdateCountryDto, required: false })
   @ApiResponse({ type: null })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id')
   async update(
     @Param('id') id: string,
-    @Body() country: CountryDto,
+    @Body() country: UpdateCountryDto,
   ): Promise<any> {
     return this.countryService.update(id, country);
   }
 
   @Granted(Permission.DELETE_COUNTRY)
   @ApiResponse({ type: null })
-  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
-  async delete(@Param('id') id: string): Promise<any> {
-    return this.countryService.deleteFromId(id);
+  async delete(@Param('id') id: string): Promise<any[]> {
+    return await this.countryService.deleteWithId(id);
   }
 }

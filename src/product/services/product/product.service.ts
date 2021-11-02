@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from '@app/product/entities/product.entity';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
 import { ProductDto } from '@app/product/dto/product/product.dto';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
@@ -17,10 +17,17 @@ import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-met
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { Picture } from '@app/file/entities/picture.entity';
+import { UpdateProductDto } from '@app/product/dto/product/update-product.dto';
+import { JSDOM } from 'jsdom';
+import * as metaphone from 'talisman/phonetics/metaphone';
+import { MysqlSearchEngineService } from '@app/shared/services/mysql-search-engine.service';
+import { SearchServiceInterface } from '@app/shared/interfaces/search-service.interface';
+import { RuntimeException } from '@nestjs/core/errors/exceptions/runtime.exception';
 
 export interface ProductServiceInterface
-  extends CrudServiceInterface<Product, ProductDto, ProductDto>,
-    PaginatorInterface<Product> {}
+  extends CrudServiceInterface<Product, ProductDto, UpdateProductDto>,
+    PaginatorInterface<Product>,
+    SearchServiceInterface<Product> {}
 
 @Injectable()
 export class ProductService implements ProductServiceInterface {
@@ -33,31 +40,61 @@ export class ProductService implements ProductServiceInterface {
     private readonly taxRuleGroupRepository: Repository<TaxRuleGroup>,
     @InjectRepository(Picture)
     private readonly pictureRepository: Repository<Picture>,
+    private readonly searchEngineService: MysqlSearchEngineService,
   ) {}
 
+  private formatDescription(description): {
+    stripped: string;
+    metaphoned: string;
+  } {
+    if (!description) return null;
+    const domDescription = new JSDOM(description);
+    const document = domDescription.window.document;
+    if (document.querySelector('script')) {
+      throw new BadRequestException(
+        'Script tags are not authorized inside descriptions',
+      );
+    }
+    const stripped = document.body.textContent;
+    const metaphoned = stripped.split(' ').map(metaphone).join(' ');
+
+    return {
+      metaphoned,
+      stripped,
+    };
+  }
+
   async create(entity: ProductDto): Promise<Product> {
+    const desc = this.formatDescription(entity.description);
+    const metaphoneTitle = entity.title?.split(' ').map(metaphone).join(' ');
+
     if (!entity.picturesId) {
       entity.picturesId = [];
     }
-    const category = await this.productCategoryRepository.findOne(
-      entity.categoryId,
-    );
-    if (!category) {
-      throw new BadRequestException(
-        `Category not found at id ${entity.categoryId}`,
+
+    let category;
+    try {
+      category = await this.productCategoryRepository.findOneOrFail({
+        where: { id: entity.categoryId },
+      });
+    } catch {
+      throw new NotFoundException(
+        `Category does not exist at id : ${entity.categoryId}`,
       );
     }
+    delete entity.categoryId;
 
-    // TODO ajouter les pictures et la thumbnail
-
-    const taxRuleGroup = await this.taxRuleGroupRepository.findOne(
-      entity.taxRuleGroupId,
-    );
-    if (!taxRuleGroup) {
-      throw new BadRequestException(
-        `TaxRuleGroup not found at id ${entity.taxRuleGroupId}`,
+    let taxRuleGroup;
+    try {
+      taxRuleGroup = await this.taxRuleGroupRepository.findOneOrFail({
+        where: { id: entity.taxRuleGroupId },
+      });
+    } catch {
+      throw new NotFoundException(
+        `Tax Rule Group does not exist at id : ${entity.taxRuleGroupId}`,
       );
     }
+    delete entity.taxRuleGroupId;
 
     let pictures;
     try {
@@ -68,17 +105,22 @@ export class ProductService implements ProductServiceInterface {
 
     let thumbnail;
     try {
-      thumbnail = await this.pictureRepository.findOne(entity.thumbnailId);
+      thumbnail = await this.pictureRepository.findOneOrFail({
+        where: {
+          id: entity.thumbnailId,
+        },
+      });
     } catch (error) {
       throw new BadRequestException(error);
     }
 
-    delete entity.categoryId;
-    delete entity.taxRuleGroupId;
     delete entity.picturesId;
     delete entity.thumbnailId;
     const target: Product = {
       ...entity,
+      metaphoneDescription: desc.metaphoned,
+      strippedDescription: desc.stripped,
+      metaphoneTitle,
       category,
       taxRuleGroup,
       pictures,
@@ -102,9 +144,14 @@ export class ProductService implements ProductServiceInterface {
   }
 
   async find(id: string | number): Promise<Product> {
-    const product = await this.productRepository.findOne(id,{loadEagerRelations: true});
-    if (!product) {
-      throw new NotFoundException();
+    let product;
+    try {
+      product = await this.productRepository.findOneOrFail({
+        where: { id: id },
+        loadEagerRelations: true,
+      });
+    } catch {
+      throw new NotFoundException(`Product does not exist at id : ${id} `);
     }
     return product;
   }
@@ -113,59 +160,85 @@ export class ProductService implements ProductServiceInterface {
     return this.productRepository.find();
   }
 
-  async update(id: string | number, entity: ProductDto): Promise<void> {
-    const category = await this.productCategoryRepository.findOne(
-      entity.categoryId,
-    );
-    if (!category) {
-      throw new BadRequestException(
-        `Category not found with id ${entity.categoryId}`,
-      );
-    }
-    const product = await this.productRepository.findOne(id);
-    if (!product) {
+  async update(id: string | number, entity: UpdateProductDto): Promise<void> {
+    const desc = this.formatDescription(entity.description);
+    const metaphoneTitle = entity.title?.split(' ').map(metaphone).join(' ');
+    let product: Product;
+    try {
+      product = await this.productRepository.findOneOrFail({
+        where: { id: id },
+      });
+    } catch {
       throw new BadRequestException(`Product not found with id ${id}`);
     }
-    delete entity.categoryId;
 
-    // TODO ajouter les pictures et la thumbnail
-
-    const taxRuleGroup = await this.taxRuleGroupRepository.findOne(
-      entity.taxRuleGroupId,
-    );
-    if (!taxRuleGroup) {
-      throw new BadRequestException(
-        `TaxRuleGroup not found at id ${entity.taxRuleGroupId}`,
-      );
+    let category;
+    if (entity.categoryId != undefined) {
+      try {
+        category = await this.productCategoryRepository.findOneOrFail({
+          where: { id: entity.categoryId },
+        });
+      } catch {
+        throw new NotFoundException(
+          `Category does not exist at id : ${entity.categoryId}`,
+        );
+      }
     }
-    delete entity.taxRuleGroupId;
+
+    let taxRuleGroup;
+    if (entity.taxRuleGroupId != undefined) {
+      try {
+        taxRuleGroup = await this.taxRuleGroupRepository.findOneOrFail({
+          where: { id: entity.taxRuleGroupId },
+        });
+      } catch {
+        throw new NotFoundException(
+          `Tax Rule Groupe doest not exist at id : ${entity.taxRuleGroupId}`,
+        );
+      }
+    }
 
     let pictures;
-    try {
-      pictures = await this.pictureRepository.findByIds(entity.picturesId);
-    } catch (error) {
-      throw new BadRequestException(error);
+    if (entity.picturesId != undefined) {
+      try {
+        pictures = await this.pictureRepository.findByIds(entity.picturesId);
+      } catch {
+        throw new BadRequestException(`Pictures ids bad request`);
+      }
     }
 
     let thumbnail;
-    try {
-      thumbnail = await this.pictureRepository.findOne(entity.thumbnailId);
-    } catch (error) {
-      throw new BadRequestException(error);
+    if (entity.thumbnailId != undefined) {
+      try {
+        thumbnail = await this.pictureRepository.findOneOrFail({
+          where: { id: entity.thumbnailId },
+        });
+      } catch {
+        throw new BadRequestException(`thumbnail bad request`);
+      }
     }
+
+    delete entity.categoryId;
+    delete entity.taxRuleGroupId;
     delete entity.picturesId;
     delete entity.thumbnailId;
 
     const target: Product = {
       ...product,
       ...entity,
+      strippedDescription: desc?.stripped ?? product.strippedDescription,
+      metaphoneDescription: desc?.metaphoned ?? product.metaphoneDescription,
+      metaphoneTitle: metaphoneTitle ?? product.metaphoneTitle,
+      stock: {
+        ...product.stock,
+        ...entity.stock,
+      },
       category,
       taxRuleGroup,
       pictures,
       thumbnail,
     };
-    console.log(target);
-    await this.productRepository.update(id, target);
+    await this.productRepository.save(target);
   }
 
   async getPage(
@@ -175,35 +248,65 @@ export class ProductService implements ProductServiceInterface {
   ): Promise<PaginationDto<Product>> {
     const count = await this.productRepository.count();
     const meta = new PaginationMetadataDto(index, limit, count);
-    if (meta.currentPage > meta.maxPages && meta.maxPages !== 0) {
+    if (meta.currentPage > meta.maxPages) {
       throw new NotFoundException('This page of products does not exist');
     }
     const query = this.productRepository.createQueryBuilder('p');
     if (opts) {
-      const { orderBy } = opts;
-      await query.orderBy(orderBy ?? 'id');
+      const { orderBy, order } = opts;
+      await query.orderBy(
+        orderBy ? `p.${orderBy}` : 'p.createdAt',
+        order ?? 'DESC',
+      );
     }
-
-    const data = await query
-      .leftJoinAndMapOne(
-        'p.category',
-        ProductCategory,
-        'c',
-        'p.product_category_id = c.id',
-      )
-      .leftJoinAndMapOne(
-        'p.thumbnail',
-        Picture,
-        'pic',
-        'p.picture_thumbnail_id = pic.id',
-      )
-      .skip(index * limit - limit)
-      .take(limit)
-      .getMany();
+    const data = await this.productRepository.find({
+      take: limit,
+      skip: index * limit - limit,
+    });
 
     return {
       data,
       meta,
     };
+  }
+
+  async search(
+    query: string,
+    index: number,
+    limit: number,
+  ): Promise<PaginationDto<Product>> {
+    try {
+      const SQLQuery = this.searchEngineService.createSearchQuery(
+        this.productRepository,
+        query,
+        [
+          { name: 'title' },
+          { name: 'metaphoneTitle', type: 'metaphone' },
+          { name: 'reference' },
+          { name: 'strippedDescription' },
+          { name: 'metaphoneDescription', type: 'metaphone' },
+        ],
+      );
+
+      const count = await SQLQuery.getCount();
+
+      const data = await SQLQuery.skip(index * limit - limit)
+        .take(limit)
+        .getMany();
+
+      const meta = new PaginationMetadataDto(index, limit, count);
+
+      return { data, meta };
+    } catch (err) {
+      if (err instanceof RuntimeException || err instanceof QueryFailedError) {
+        throw new BadRequestException(err.message);
+      }
+      throw err;
+    }
+  }
+
+  // get product by title
+  async findByTitle(name: string): Promise<any> {
+    return this.productRepository.findOne({ title: name });
   }
 }

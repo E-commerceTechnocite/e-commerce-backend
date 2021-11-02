@@ -7,6 +7,7 @@ import { Tax } from '@app/product/entities/tax.entity';
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { Country } from '@app/product/entities/country.entity';
 import { mock } from 'jest-mock-extended';
+import { GetCheckDeleteEntityIdService } from '@app/shared/services/get-check-delete-entity-id.service';
 
 describe('TaxRuleService', () => {
   let service: TaxRuleService;
@@ -15,11 +16,16 @@ describe('TaxRuleService', () => {
   const taxRepository = mock<Repository<Tax>>();
   const taxRuleGroupRepository = mock<Repository<TaxRuleGroup>>();
   const countryRepository = mock<Repository<Country>>();
+  const getCheckDeleteService = mock<GetCheckDeleteEntityIdService>();
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TaxRuleService,
+        {
+          provide: GetCheckDeleteEntityIdService,
+          useValue: getCheckDeleteService,
+        },
         { provide: getRepositoryToken(TaxRule), useValue: taxRuleRepository },
         {
           provide: getRepositoryToken(TaxRuleGroup),
@@ -27,6 +33,10 @@ describe('TaxRuleService', () => {
         },
         { provide: getRepositoryToken(Tax), useValue: taxRepository },
         { provide: getRepositoryToken(Country), useValue: countryRepository },
+        {
+          provide: GetCheckDeleteEntityIdService,
+          useValue: getCheckDeleteService,
+        },
       ],
     }).compile();
 

@@ -11,7 +11,7 @@ const getEnvFilePath = (): string => {
 @Global()
 @Module({
   imports: [
-    ConfigModule.forRoot({ envFilePath: getEnvFilePath() }),
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: getEnvFilePath() }),
     TypeOrmConfigurationModule,
     CacheConfigurationModule,
   ],

@@ -1,0 +1,18 @@
+{
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "src",
+  "compilerOptions": {
+    "assets": [
+      {
+        "include": "../public/**/*",
+        "outDir": "dist/public"
+      },
+      {
+        "include": "**/*.hbs",
+        "outDir": "dist/src"
+      }
+    ],
+    "watchAssets": true,
+    "tsConfigPath": "tsconfig.prod.json"
+  }
+}
