@@ -77,8 +77,11 @@ export class UserService
     return user;
   }
 
-  findAll(): Promise<User[]> {
-    return this.userRepository.find();
+  findAll(): Promise<any[]> {
+    return this.userRepository
+      .createQueryBuilder('user')
+      .select(['user.id', 'user.username'])
+      .getMany();
   }
 
   async create(entity: CreateUserDto): Promise<User> {

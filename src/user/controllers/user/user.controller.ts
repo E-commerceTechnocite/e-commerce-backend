@@ -1,7 +1,11 @@
 import { Granted } from '@app/auth/admin/guard/granted.decorator';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
-import { ApiAdminAuth, ApiOkPaginatedResponse } from '@app/shared/swagger';
+import {
+  ApiAdminAuth,
+  ApiOkPaginatedResponse,
+  ApiPaginationQueries,
+} from '@app/shared/swagger';
 import { CreateUserDto } from '@app/user/create-user.dto';
 import { User } from '@app/user/entities/user.entity';
 import { Permission } from '@app/user/enums/permission.enum';
@@ -36,14 +40,21 @@ export class UserController {
 
   @Granted(Permission.READ_USER)
   @ApiOkPaginatedResponse(User)
-  @ApiQuery({ name: 'page', required: false })
-  @ApiQuery({ name: 'limit', required: false })
+  @ApiPaginationQueries()
   @Get()
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,
     @Query('limit', IsPositiveIntPipe) limit = 10,
   ): Promise<PaginationDto<User>> {
     return this.userService.getPage(page, limit);
+  }
+
+  @Granted(Permission.READ_USER)
+  @ApiOkResponse()
+  @ApiResponse({ type: User })
+  @Get('all')
+  async findAll(): Promise<any[]> {
+    return this.userService.findAll();
   }
 
   @Granted(Permission.READ_USER)

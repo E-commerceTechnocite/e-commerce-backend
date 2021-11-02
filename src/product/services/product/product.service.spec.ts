@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProductService } from '@app/product/services/product/product.service';
 import { Product } from '@app/product/entities/product.entity';
-import { DeleteResult, Repository } from 'typeorm';
+import { DeleteResult, Repository, SelectQueryBuilder } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
-import { mock } from 'jest-mock-extended';
+import { mock, mockFn } from 'jest-mock-extended';
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { Picture } from '@app/file/entities/picture.entity';
 import { MysqlSearchEngineService } from '@app/shared/services/mysql-search-engine.service';
@@ -54,12 +54,35 @@ describe('ProductService', () => {
   describe('findAll', () => {
     it('should return a list of products', async () => {
       const products: Product[] = [product()];
-      productRepository.find.mockResolvedValueOnce(products);
+
+      const returnResponse = products.map((p) => ({
+        id: p.id,
+        detail: `${p.title} , ${p.price}`,
+      }));
+
+      const qb = mock<SelectQueryBuilder<Product>>({
+        select: mockFn().mockReturnThis(),
+        addSelect: mockFn().mockReturnThis(),
+        execute: mockFn().mockResolvedValueOnce(returnResponse),
+      });
+
+      productRepository.createQueryBuilder.mockReturnValueOnce(qb);
 
       const response = await service.findAll();
 
-      expect(response).toEqual(products);
-      expect(productRepository.find).toHaveBeenCalled();
+      expect(response).toEqual(returnResponse);
+      expect(productRepository.createQueryBuilder).toHaveBeenCalledWith(
+        'product',
+      );
+      expect(qb.select).toHaveBeenCalledWith('product.id');
+      expect(qb.select.mock.calls.length).toEqual(1);
+      expect(qb.addSelect).toHaveBeenLastCalledWith(
+        "CONCAT(product.title,' ',product.price)",
+        'detail',
+      );
+      expect(qb.addSelect.mock.calls.length).toEqual(1);
+      expect(qb.execute).toHaveBeenCalled();
+      expect(qb.execute.mock.calls.length).toEqual(1);
     });
   });
 
