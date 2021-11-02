@@ -9,6 +9,7 @@ import { Customer } from '@app/customer/entities/customer/customer.entity';
 import { OrderProductController } from './controllers/orderProductController';
 import { CartItem } from '@app/shopping-cart/entities/cart-item.entity';
 import { Product } from '@app/product/entities/product.entity';
+import { Stock } from '@app/product/entities/stock.entity';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { Product } from '@app/product/entities/product.entity';
       Customer,
       CartItem,
       Product,
+      Stock,
     ]),
   ],
   providers: [OrderProductService, OrderService],

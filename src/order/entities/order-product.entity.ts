@@ -9,7 +9,7 @@ export class OrderProduct extends EntitySchema {
   quantity?: number;
 
   // relation avec la table product
-  @ManyToOne(() => Product, (product) => product.orderProducts)
+  @ManyToOne(() => Product, (product) => product.orderProducts, { eager: true })
   product?: Product;
 
   //relation avec la table Order
