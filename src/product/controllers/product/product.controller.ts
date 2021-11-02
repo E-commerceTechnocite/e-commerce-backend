@@ -28,6 +28,7 @@ import {
   ApiAdminAuth,
   ApiOkPaginatedResponse,
   ApiPaginationQueries,
+  ApiSearchQueries,
 } from '@app/shared/swagger';
 import { UpdateProductDto } from '@app/product/dto/product/update-product.dto';
 
@@ -36,6 +37,18 @@ import { UpdateProductDto } from '@app/product/dto/product/update-product.dto';
 @Controller({ path: 'product', version: '1' })
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
+
+  @Granted(Permission.READ_PRODUCT)
+  @ApiSearchQueries()
+  @ApiOkPaginatedResponse(Product)
+  @HttpCode(HttpStatus.OK)
+  @Get('search')
+  async search(
+    @Query('q') queryString: string,
+    @Query('page') page = 1,
+  ): Promise<PaginationDto<Product>> {
+    return this.productService.search(queryString, page, 10);
+  }
 
   @Granted(Permission.READ_PRODUCT)
   @ApiOkResponse({ type: Product })

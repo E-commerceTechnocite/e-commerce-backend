@@ -11,12 +11,26 @@ import {
   Param,
   Patch,
   Post,
-  Put,
+  Query,
 } from '@nestjs/common';
+import { ApiOkPaginatedResponse, ApiSearchQueries } from '@app/shared/swagger';
+import { ApiTags } from '@nestjs/swagger';
 
-@Controller('customers')
+@ApiTags('Customers')
+@Controller({ path: 'customers', version: '1' })
 export class CustomerController {
   constructor(private customerService: CustomerService) {}
+
+  @ApiSearchQueries()
+  @ApiOkPaginatedResponse(Customer)
+  @Get('search')
+  search(
+    @Query('q') query: string,
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+  ) {
+    return this.customerService.search(query, page, limit);
+  }
 
   // create a customer
   @Post()

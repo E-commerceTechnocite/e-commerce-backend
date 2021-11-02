@@ -15,19 +15,14 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import {
-  ApiBody,
-  ApiOkResponse,
-  ApiQuery,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBody, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Permission } from '@app/user/enums/permission.enum';
 import { Granted } from '@app/auth/admin/guard/granted.decorator';
 import {
   ApiAdminAuth,
   ApiOkPaginatedResponse,
   ApiPaginationQueries,
+  ApiSearchQueries,
 } from '@app/shared/swagger';
 import { UpdateCountryDto } from '@app/product/dto/country/update-country.dto';
 
@@ -38,14 +33,31 @@ export class CountryController {
   constructor(private readonly countryService: CountryService) {}
 
   @Granted(Permission.READ_COUNTRY)
+  @ApiSearchQueries()
+  @ApiOkPaginatedResponse(Country)
+  @HttpCode(HttpStatus.OK)
+  @Get('search')
+  async search(
+    @Query('q') queryString: string,
+    @Query('page') page = 1,
+  ): Promise<PaginationDto<Country>> {
+    return this.countryService.search(queryString, page, 10);
+  }
+
+  @Granted(Permission.READ_COUNTRY)
   @ApiOkPaginatedResponse(Country)
   @ApiPaginationQueries()
   @Get()
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,
     @Query('limit', IsPositiveIntPipe) limit = 10,
+    @Query('orderBy') orderBy = null,
+    @Query('order') order: 'DESC' | 'ASC' = 'DESC',
   ): Promise<PaginationDto<Country>> {
-    return this.countryService.getPage(page, limit);
+    return this.countryService.getPage(page, limit, {
+      orderBy,
+      order,
+    });
   }
 
   @Granted(Permission.READ_COUNTRY)

@@ -13,13 +13,7 @@ import {
 import { ProductCategoryService } from '@app/product/services/product-category/product-category.service';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
 import { ProductCategoryDto } from '@app/product/dto/product-category/product-category.dto';
-import {
-  ApiBody,
-  ApiOkResponse,
-  ApiQuery,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBody, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import { Granted } from '@app/auth/admin/guard/granted.decorator';
@@ -28,6 +22,7 @@ import {
   ApiAdminAuth,
   ApiOkPaginatedResponse,
   ApiPaginationQueries,
+  ApiSearchQueries,
 } from '@app/shared/swagger';
 import { UpdateProductCategoryDto } from '@app/product/dto/product-category/update-product-category.dto';
 
@@ -38,6 +33,18 @@ export class ProductCategoryController {
   constructor(
     private readonly productCategoryService: ProductCategoryService,
   ) {}
+
+  @Granted(Permission.READ_PRODUCT)
+  @ApiSearchQueries()
+  @ApiOkPaginatedResponse(ProductCategory)
+  @HttpCode(HttpStatus.OK)
+  @Get('search')
+  async search(
+    @Query('q') queryString: string,
+    @Query('page') page = 1,
+  ): Promise<PaginationDto<ProductCategory>> {
+    return this.productCategoryService.search(queryString, page, 10);
+  }
 
   @Granted(Permission.READ_CATEGORY)
   @ApiOkPaginatedResponse(ProductCategory)

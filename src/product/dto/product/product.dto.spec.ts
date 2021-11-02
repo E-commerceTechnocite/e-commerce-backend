@@ -1,40 +1,22 @@
-import { ProductDto } from '@app/product/dto/product/product.dto';
 import {
   assertStubHasOneError,
   assertStubIsValid,
 } from '@app/test/util/validation';
+import { createProductDto } from '@app/test/stub';
 
 describe('Product Dto Validation', () => {
-  const getStub = (): ProductDto => {
-    const stub = new ProductDto();
-    stub.categoryId = '3f736e98-e50f-4920-aeff-c6b808350ea6';
-    stub.title = 'hello title';
-    stub.price = 39.99;
-    stub.stock = {
-      incoming: 10,
-      pending: 10,
-      physical: 10,
-    };
-    stub.description = 'hello description';
-    stub.reference = '123456789';
-    stub.thumbnailId = undefined;
-    stub.picturesId = [];
-    stub.taxRuleGroupId = undefined;
-    return stub;
-  };
-
   it('should validate', async () => {
-    await assertStubIsValid(getStub());
+    await assertStubIsValid(createProductDto());
   });
 
   describe('title', () => {
     it('should be more than 2 chars', async () => {
-      const stub = getStub();
+      const stub = createProductDto();
       stub.title = 'e';
       await assertStubHasOneError(stub);
     });
     it('should not be blank', async () => {
-      const stub = getStub();
+      const stub = createProductDto();
       stub.title = '';
       await assertStubHasOneError(stub);
     });
@@ -42,12 +24,12 @@ describe('Product Dto Validation', () => {
 
   describe('price', () => {
     it('should be a positive number', async () => {
-      const stub = getStub();
+      const stub = createProductDto();
       stub.price = -5;
       await assertStubHasOneError(stub);
     });
     it('should have maximum two decimal', async () => {
-      const stub = getStub();
+      const stub = createProductDto();
       stub.price = 10.222222;
       await assertStubHasOneError(stub);
     });
@@ -55,12 +37,12 @@ describe('Product Dto Validation', () => {
 
   describe('description', () => {
     it('should be at least 10 characters', async () => {
-      const stub = getStub();
+      const stub = createProductDto();
       stub.description = 'short';
       await assertStubHasOneError(stub);
     });
     it('should not be blank', async () => {
-      const stub = getStub();
+      const stub = createProductDto();
       stub.description = '';
       await assertStubHasOneError(stub);
     });
@@ -68,12 +50,12 @@ describe('Product Dto Validation', () => {
 
   describe('reference', () => {
     it('should be more than 2 chars', async () => {
-      const stub = getStub();
+      const stub = createProductDto();
       stub.reference = '1';
       await assertStubHasOneError(stub);
     });
     it('should not be blank', async () => {
-      const stub = getStub();
+      const stub = createProductDto();
       stub.reference = '';
       await assertStubHasOneError(stub);
     });
@@ -81,12 +63,12 @@ describe('Product Dto Validation', () => {
 
   describe('category id', () => {
     it('should be a UUID', async () => {
-      const stub = getStub();
+      const stub = createProductDto();
       stub.categoryId = 'not-a-uuid';
       await assertStubHasOneError(stub);
     });
     it('should not be blank', async () => {
-      const stub = getStub();
+      const stub = createProductDto();
       stub.categoryId = '';
       await assertStubHasOneError(stub);
     });
