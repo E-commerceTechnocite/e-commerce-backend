@@ -17,6 +17,7 @@ import { MysqlSearchEngineService } from '@app/shared/services/mysql-search-engi
 import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
 import { RuntimeException } from '@nestjs/core/errors/exceptions/runtime.exception';
 import { QueryFailedError } from 'typeorm';
+import { PaginationOptions } from '@app/shared/interfaces/paginator.interface';
 
 @Injectable()
 export class CustomerService
@@ -29,6 +30,28 @@ export class CustomerService
     private readonly customerRepository: Repository<Customer>,
     private readonly searchService: MysqlSearchEngineService,
   ) {}
+
+  async getPage(
+    index: number,
+    limit: number,
+    opts: PaginationOptions = null,
+  ): Promise<PaginationDto<Customer>> {
+    const count = await this.customerRepository.count();
+    const meta = new PaginationMetadataDto(index, limit, count);
+    if (meta.currentPage > meta.maxPages) {
+      throw new NotFoundException('This page of customers does not exist');
+    }
+    const data = await this.customerRepository.find({
+      take: limit,
+      skip: index * limit - limit,
+      order: { [opts?.orderBy ?? 'createdAt']: opts.order ?? 'DESC' },
+    });
+
+    return {
+      data,
+      meta,
+    };
+  }
 
   async find(id: string | number): Promise<Customer> {
     try {
