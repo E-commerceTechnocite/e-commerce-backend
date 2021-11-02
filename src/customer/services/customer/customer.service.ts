@@ -41,10 +41,20 @@ export class CustomerService
     if (meta.currentPage > meta.maxPages) {
       throw new NotFoundException('This page of customers does not exist');
     }
-    const data = await this.customerRepository.find({
-      take: limit,
-      skip: index * limit - limit,
-      order: { [opts?.orderBy ?? 'createdAt']: opts.order ?? 'DESC' },
+    const query = this.customerRepository.createQueryBuilder('c');
+    if (opts) {
+      const { orderBy } = opts;
+      await query.orderBy(orderBy ?? 'id');
+    }
+
+    let data = await query
+      .skip(index * limit - limit)
+      .take(limit)
+      .getMany();
+
+    data = data.map((item) => {
+      delete item.password;
+      return item;
     });
 
     return {
