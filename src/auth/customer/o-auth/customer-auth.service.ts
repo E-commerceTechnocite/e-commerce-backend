@@ -68,7 +68,7 @@ export class AuthService {
         { id, username, email },
         {
           expiresIn: '30d',
-          secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
+          secret: this.configService.get('CUSTOMER_JWT_REFRESH_TOKEN_SECRET'),
         },
       ),
     };
@@ -95,7 +95,7 @@ export class AuthService {
       throw new UnauthorizedException();
     }
     const decodedToken: TokenBody = this.jwt.verify(refreshToken, {
-      secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
+      secret: this.configService.get('CUSTOMER_JWT_REFRESH_TOKEN_SECRET'),
     });
     delete decodedToken.iat;
     delete decodedToken.exp;
@@ -122,7 +122,7 @@ export class AuthService {
     }
 
     const decodedToken: TokenBody = this.jwt.verify(refreshToken, {
-      secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
+      secret: this.configService.get('CUSTOMER_JWT_REFRESH_TOKEN_SECRET'),
     });
 
     const user = await this.customerRepo.findOne(decodedToken.id);

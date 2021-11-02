@@ -7,6 +7,7 @@ import { Customer } from '@app/customer/entities/customer/customer.entity';
 import { CustomerModule } from '@app/customer/customer.module';
 import { CustomerRefreshToken } from './entities/refresh-token.entity';
 import { AuthConfigurationModule } from '@app/auth/admin/configuration/auth-configuration.module';
+import { CustomerGuardModule } from '@app/auth/customer/guard/customer-guard.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { AuthConfigurationModule } from '@app/auth/admin/configuration/auth-conf
     CustomerModule,
     PassportModule,
     TypeOrmModule.forFeature([Customer, CustomerRefreshToken]),
+    CustomerGuardModule,
   ],
   providers: [AuthService],
   controllers: [AuthController],

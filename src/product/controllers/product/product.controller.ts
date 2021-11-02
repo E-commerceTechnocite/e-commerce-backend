@@ -57,7 +57,7 @@ export class ProductController {
     return this.productService.find(id);
   }
 
-  @Granted(Permission.READ_PRODUCT)
+  // @Granted(Permission.READ_PRODUCT)
   @ApiOkPaginatedResponse(Product)
   @ApiPaginationQueries()
   @Get()
