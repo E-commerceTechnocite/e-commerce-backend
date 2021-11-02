@@ -14,8 +14,10 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiOkPaginatedResponse, ApiSearchQueries } from '@app/shared/swagger';
+import { ApiTags } from '@nestjs/swagger';
 
-@Controller('customers')
+@ApiTags('Customers')
+@Controller({ path: 'customers', version: '1' })
 export class CustomerController {
   constructor(private customerService: CustomerService) {}
 
