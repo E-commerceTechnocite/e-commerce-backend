@@ -8,6 +8,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { Permission } from '@app/user/enums/permission.enum';
 import { PERMISSIONS_KEY } from './granted.decorator';
+import { ADMIN_AUTHENTICATED_KEY } from '@app/auth/admin/guard/admin-authenticated.decorator';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('admin') {
@@ -16,6 +17,14 @@ export class JwtAuthGuard extends AuthGuard('admin') {
   }
 
   handleRequest(err, user, info, context: ExecutionContext) {
+    console.log('ADMIN_GUARD');
+    const requiresAuth = this.reflector.getAllAndOverride<boolean>(
+      ADMIN_AUTHENTICATED_KEY,
+      [context.getHandler(), context.getClass()],
+    );
+    if (requiresAuth && !user) {
+      throw new UnauthorizedException('Unauthenticated');
+    }
     const requiredPermissions = this.reflector.getAllAndOverride<Permission[]>(
       PERMISSIONS_KEY,
       [context.getHandler(), context.getClass()],
