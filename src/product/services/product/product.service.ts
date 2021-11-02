@@ -251,17 +251,10 @@ export class ProductService implements ProductServiceInterface {
     if (meta.currentPage > meta.maxPages) {
       throw new NotFoundException('This page of products does not exist');
     }
-    const query = this.productRepository.createQueryBuilder('p');
-    if (opts) {
-      const { orderBy, order } = opts;
-      await query.orderBy(
-        orderBy ? `p.${orderBy}` : 'p.createdAt',
-        order ?? 'DESC',
-      );
-    }
     const data = await this.productRepository.find({
       take: limit,
       skip: index * limit - limit,
+      order: { [opts?.orderBy ?? 'createdAt']: opts.order ?? 'DESC' },
     });
 
     return {
