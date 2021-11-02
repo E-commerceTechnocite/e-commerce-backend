@@ -15,7 +15,15 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiBody, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { Permission } from '@app/user/enums/permission.enum';
 import { Granted } from '@app/auth/admin/guard/granted.decorator';
 import {
@@ -28,6 +36,7 @@ import { UpdateCountryDto } from '@app/product/dto/country/update-country.dto';
 
 @ApiAdminAuth()
 @ApiTags('Country')
+@ApiUnauthorizedResponse()
 @Controller({ path: 'country', version: '1' })
 export class CountryController {
   constructor(private readonly countryService: CountryService) {}
@@ -35,6 +44,8 @@ export class CountryController {
   @Granted(Permission.READ_COUNTRY)
   @ApiSearchQueries()
   @ApiOkPaginatedResponse(Country)
+  @ApiNotFoundResponse()
+  @ApiBadRequestResponse()
   @HttpCode(HttpStatus.OK)
   @Get('search')
   async search(
@@ -46,6 +57,7 @@ export class CountryController {
 
   @Granted(Permission.READ_COUNTRY)
   @ApiOkPaginatedResponse(Country)
+  @ApiNotFoundResponse()
   @ApiPaginationQueries()
   @Get()
   async find(
@@ -70,6 +82,7 @@ export class CountryController {
 
   @Granted(Permission.READ_COUNTRY)
   @ApiOkResponse()
+  @ApiNotFoundResponse()
   @ApiResponse({ type: Country })
   @Get(':id')
   async findById(@Param('id') id: string): Promise<Country> {
@@ -79,6 +92,7 @@ export class CountryController {
   @Granted(Permission.CREATE_COUNTRY)
   @ApiBody({ type: CountryDto, required: false })
   @ApiResponse({ type: null })
+  @ApiBadRequestResponse()
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(@Body() country: CountryDto): Promise<any> {
@@ -88,6 +102,7 @@ export class CountryController {
   @Granted(Permission.UPDATE_COUNTRY)
   @ApiBody({ type: UpdateCountryDto, required: false })
   @ApiResponse({ type: null })
+  @ApiBadRequestResponse()
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id')
   async update(
@@ -99,6 +114,7 @@ export class CountryController {
 
   @Granted(Permission.DELETE_COUNTRY)
   @ApiResponse({ type: null })
+  @ApiBadRequestResponse()
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<any[]> {
     return await this.countryService.deleteWithId(id);

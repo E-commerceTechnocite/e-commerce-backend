@@ -13,7 +13,17 @@ import {
 import { ProductCategoryService } from '@app/product/services/product-category/product-category.service';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
 import { ProductCategoryDto } from '@app/product/dto/product-category/product-category.dto';
-import { ApiBody, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import { Granted } from '@app/auth/admin/guard/granted.decorator';
@@ -25,18 +35,22 @@ import {
   ApiSearchQueries,
 } from '@app/shared/swagger';
 import { UpdateProductCategoryDto } from '@app/product/dto/product-category/update-product-category.dto';
+import { AdminAuthenticated } from '@app/auth/admin/guard/admin-authenticated.decorator';
 
 @ApiAdminAuth()
 @ApiTags('Product Categories')
+@ApiUnauthorizedResponse()
+@AdminAuthenticated()
 @Controller({ path: 'product-category', version: '1' })
 export class ProductCategoryController {
   constructor(
     private readonly productCategoryService: ProductCategoryService,
   ) {}
 
-  @Granted(Permission.READ_PRODUCT)
+  @Granted(Permission.READ_CATEGORY)
   @ApiSearchQueries()
   @ApiOkPaginatedResponse(ProductCategory)
+  @ApiNotFoundResponse()
   @HttpCode(HttpStatus.OK)
   @Get('search')
   async search(
@@ -48,6 +62,7 @@ export class ProductCategoryController {
 
   @Granted(Permission.READ_CATEGORY)
   @ApiOkPaginatedResponse(ProductCategory)
+  @ApiNotFoundResponse()
   @ApiPaginationQueries()
   @Get()
   async find(
@@ -67,6 +82,7 @@ export class ProductCategoryController {
 
   @Granted(Permission.READ_CATEGORY)
   @ApiOkResponse()
+  @ApiNotFoundResponse()
   @ApiResponse({ type: ProductCategory })
   @Get(':id')
   async findById(@Param('id') id: string): Promise<ProductCategory> {
@@ -75,7 +91,8 @@ export class ProductCategoryController {
 
   @Granted(Permission.CREATE_CATEGORY)
   @ApiBody({ type: ProductCategoryDto, required: false })
-  @ApiResponse({ type: null })
+  @ApiCreatedResponse()
+  @ApiBadRequestResponse()
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(@Body() category: ProductCategoryDto): Promise<any> {
@@ -84,7 +101,8 @@ export class ProductCategoryController {
 
   @Granted(Permission.UPDATE_CATEGORY)
   @ApiBody({ type: UpdateProductCategoryDto, required: false })
-  @ApiResponse({ type: null })
+  @ApiNoContentResponse()
+  @ApiNotFoundResponse()
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id')
   async update(
@@ -96,6 +114,9 @@ export class ProductCategoryController {
 
   @Granted(Permission.DELETE_CATEGORY)
   @ApiResponse({ type: null })
+  @ApiNoContentResponse()
+  @ApiNotFoundResponse()
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<any[]> {
     return this.productCategoryService.deleteWithId(id);

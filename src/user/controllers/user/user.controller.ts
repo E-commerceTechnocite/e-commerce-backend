@@ -27,8 +27,10 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { AdminAuthenticated } from '@app/auth/admin/guard/admin-authenticated.decorator';
 
 @ApiAdminAuth()
+@AdminAuthenticated()
 @ApiTags('Users')
 @Controller({ path: 'user', version: '1' })
 export class UserController {
