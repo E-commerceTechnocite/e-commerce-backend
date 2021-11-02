@@ -55,8 +55,8 @@ export class OrderProductService {
 
     let stock;
     order.orderProducts.forEach((item) => {
-      console.log(`order product: ${item.quantity}`);
-      console.log(`stock: ${item.product.stock.physical}`);
+      //console.log(`order product: ${item.quantity}`);
+      //console.log(`stock: ${item.product.stock.physical}`);
       if (item.quantity <= item.product.stock.physical) {
         console.log('execute order');
 
@@ -72,7 +72,7 @@ export class OrderProductService {
       }
     }); // end of for each
 
-    return 'order succeeded';
+    return 'order executed successfully...';
   }
 
   async createOrderProduct(data: OrderProductCreateDto): Promise<void> {
@@ -125,7 +125,7 @@ export class OrderProductService {
 
     await this.orderRepository.save(order);
 
-    // supprimer l'ordere dans la table cartItem
+    // supprimer l'ordre dans la table cartItem
 
     await cartItem.forEach((item) => {
       this.cartItemRepository.remove(item);
@@ -181,15 +181,15 @@ export class OrderProductService {
     return await this.orderRepository.save(orderCartItem);
   }
 
-  // update quantity in stock table and status in table order
+  // update quantity in stock table and status in order table
   async updateQuantityProduct(
     id,
     quantity: number,
     stockPhysique: number,
     orderId: string,
   ): Promise<void> {
-    console.log(stockPhysique);
-    console.log(quantity);
+    // console.log(stockPhysique);
+    //console.log(quantity);
 
     let stockUpdated = stockPhysique - quantity;
     const stock = await this.stockRepository
@@ -199,7 +199,7 @@ export class OrderProductService {
       .where('id = :id', { id: id })
       .execute();
 
-    // mettre le  status à 1 dans la table order
+    // mettre le status à 1 dans la table order
     const order = await this.orderRepository
       .createQueryBuilder('entity')
       .update(Order)
