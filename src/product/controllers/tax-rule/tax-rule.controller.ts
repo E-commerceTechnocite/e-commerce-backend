@@ -16,11 +16,14 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBody,
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
-  ApiQuery,
-  ApiResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { Granted } from '@app/auth/admin/guard/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
@@ -29,16 +32,19 @@ import {
   ApiAdminAuth,
   ApiOkPaginatedResponse,
   ApiPaginationQueries,
+  ErrorSchema,
 } from '@app/shared/swagger';
 
 @ApiAdminAuth()
 @ApiTags('TaxRule')
+@ApiUnauthorizedResponse({ type: ErrorSchema })
 @Controller({ path: 'tax-rule', version: '1' })
 export class TaxRuleController {
   constructor(private readonly taxRuleService: TaxRuleService) {}
 
   @Granted(Permission.READ_TAX_RULE)
   @ApiOkPaginatedResponse(TaxRule)
+  @ApiNotFoundResponse({ type: ErrorSchema })
   @ApiPaginationQueries()
   @Get()
   async find(
@@ -49,16 +55,15 @@ export class TaxRuleController {
   }
 
   @Granted(Permission.READ_TAX_RULE)
-  @ApiOkResponse()
-  @ApiResponse({ type: TaxRule })
+  @ApiOkResponse({ type: TaxRule, isArray: true })
   @Get('all')
   async findAll(): Promise<any[]> {
     return this.taxRuleService.findAll();
   }
 
   @Granted(Permission.READ_TAX_RULE)
-  @ApiOkResponse()
-  @ApiResponse({ type: TaxRule })
+  @ApiOkResponse({ type: TaxRule })
+  @ApiNotFoundResponse({ type: ErrorSchema })
   @Get(':id')
   async findById(@Param('id') id: string): Promise<TaxRule> {
     return this.taxRuleService.find(id);
@@ -66,7 +71,8 @@ export class TaxRuleController {
 
   @Granted(Permission.CREATE_TAX_RULE)
   @ApiBody({ type: TaxRuleDto, required: false })
-  @ApiResponse({ type: null })
+  @ApiCreatedResponse({ type: TaxRule })
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(@Body() taxRule: TaxRuleDto): Promise<any> {
@@ -75,7 +81,8 @@ export class TaxRuleController {
 
   @Granted(Permission.UPDATE_TAX_RULE)
   @ApiBody({ type: TaxRuleUpdateDto, required: false })
-  @ApiResponse({ type: null })
+  @ApiNoContentResponse()
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id')
   async update(
@@ -86,7 +93,8 @@ export class TaxRuleController {
   }
 
   @Granted(Permission.DELETE_TAX_RULE)
-  @ApiResponse({ type: null })
+  @ApiNoContentResponse()
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<any> {

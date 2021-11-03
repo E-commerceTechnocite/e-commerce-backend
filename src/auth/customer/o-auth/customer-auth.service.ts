@@ -13,17 +13,10 @@ import { REQUEST } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { AuthResponseDto } from '../dto/auth-response.dto';
+import { OAuthResponseDto } from '@app/auth/dto/o-auth-response.dto';
 import * as bcrypt from 'bcrypt';
 import { Request } from '@nestjs/common';
-interface TokenBody {
-  id: string;
-  username: string;
-  email: string;
-  //roleId: string;
-  iat?: number;
-  exp?: number;
-}
+import { CustomerTokenDataDto } from '@app/auth/customer/dto/customer-token-data.dto';
 
 @Injectable()
 export class AuthService {
@@ -39,7 +32,7 @@ export class AuthService {
     private readonly refreshTokenRepository: Repository<CustomerRefreshToken>,
   ) {}
 
-  async login(customer: CustomerLogDto): Promise<AuthResponseDto> {
+  async login(customer: CustomerLogDto): Promise<OAuthResponseDto> {
     let customerEntity;
     if (customer.username) {
       customerEntity = await this.customerRepo.findOne({
@@ -76,7 +69,7 @@ export class AuthService {
     console.log(refreshToken);
     await this.refreshTokenRepository.save(refreshToken);
 
-    const tokenData: TokenBody = { id, username, email };
+    const tokenData: CustomerTokenDataDto = { id, username, email };
 
     return {
       access_token: this.jwt.sign(tokenData),
@@ -85,7 +78,7 @@ export class AuthService {
     };
   }
 
-  async refreshToken(refreshToken: string): Promise<AuthResponseDto> {
+  async refreshToken(refreshToken: string): Promise<OAuthResponseDto> {
     const entity: CustomerRefreshToken =
       await this.refreshTokenRepository.findOne({
         value: refreshToken,
@@ -94,12 +87,12 @@ export class AuthService {
     if (!entity || entity.userAgent !== this.request.headers['user-agent']) {
       throw new UnauthorizedException();
     }
-    const decodedToken: TokenBody = this.jwt.verify(refreshToken, {
+    const decodedToken: CustomerTokenDataDto = this.jwt.verify(refreshToken, {
       secret: this.configService.get('CUSTOMER_JWT_REFRESH_TOKEN_SECRET'),
     });
     delete decodedToken.iat;
     delete decodedToken.exp;
-    const tokenData: TokenBody = {
+    const tokenData: CustomerTokenDataDto = {
       ...decodedToken,
     };
     //delete decodedToken.iat;
@@ -121,7 +114,7 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const decodedToken: TokenBody = this.jwt.verify(refreshToken, {
+    const decodedToken: CustomerTokenDataDto = this.jwt.verify(refreshToken, {
       secret: this.configService.get('CUSTOMER_JWT_REFRESH_TOKEN_SECRET'),
     });
 

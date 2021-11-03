@@ -27,6 +27,6 @@ export class Picture extends StoredFile {
   @ManyToMany(() => Product, (product) => product.pictures, { lazy: true })
   products?: Product[];
 
-  @OneToMany(() => Product, (product) => product.thumbnail, { lazy : true})
-  productThumbnail ?: Product;
+  @OneToMany(() => Product, (product) => product.thumbnail, { lazy: true })
+  productThumbnail?: Product;
 }

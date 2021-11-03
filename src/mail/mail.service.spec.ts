@@ -1,4 +1,3 @@
-import { ApplicationConfigurationModule } from '@app/configuration/application-configuration.module';
 import { MailerService } from '@nestjs-modules/mailer';
 import { Test, TestingModule } from '@nestjs/testing';
 import { mock } from 'jest-mock-extended';
@@ -6,7 +5,7 @@ import { MailService } from './mail.service';
 
 describe('MailService', () => {
   let service: MailService;
-  let mailerService = mock<MailerService>();
+  const mailerService = mock<MailerService>();
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({

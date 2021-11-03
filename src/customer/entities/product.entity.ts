@@ -1,5 +1,3 @@
-
-
 export class Product {
-    idProduct: string ;
+  idProduct: string;
 }
