@@ -1,4 +1,1 @@
-
-export enum PaymentType {
-    
-}
+export enum PaymentType {}

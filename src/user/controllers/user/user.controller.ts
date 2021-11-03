@@ -4,6 +4,7 @@ import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import {
   ApiAdminAuth,
   ApiOkPaginatedResponse,
+  ErrorSchema,
   ApiPaginationQueries,
 } from '@app/shared/swagger';
 import { CreateUserDto } from '@app/user/create-user.dto';
@@ -24,22 +25,29 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBody,
   ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
-  ApiQuery,
   ApiResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { AdminAuthenticated } from '@app/auth/admin/guard/admin-authenticated.decorator';
 
 @ApiAdminAuth()
+@AdminAuthenticated()
 @ApiTags('Users')
+@ApiUnauthorizedResponse({ type: ErrorSchema })
 @Controller({ path: 'user', version: '1' })
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Granted(Permission.READ_USER)
   @ApiOkPaginatedResponse(User)
+  @ApiNotFoundResponse({ type: ErrorSchema })
   @ApiPaginationQueries()
   @Get()
   async find(
@@ -50,15 +58,15 @@ export class UserController {
   }
 
   @Granted(Permission.READ_USER)
-  @ApiOkResponse()
-  @ApiResponse({ type: User })
+  @ApiOkResponse({ type: User, isArray: true })
   @Get('all')
   async findAll(): Promise<any[]> {
     return this.userService.findAll();
   }
 
   @Granted(Permission.READ_USER)
-  @ApiOkResponse()
+  @ApiOkResponse({ type: User })
+  @ApiNotFoundResponse({ type: ErrorSchema })
   @ApiResponse({ type: User })
   @Get(':id')
   async findById(@Param('id') id: string): Promise<User> {
@@ -76,6 +84,8 @@ export class UserController {
   }
 
   @Granted(Permission.UPDATE_USER)
+  @ApiNoContentResponse()
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @ApiBody({ type: UpdateUserDto, required: false })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id')
@@ -87,6 +97,8 @@ export class UserController {
   }
 
   @Granted(Permission.DELETE_USER)
+  @ApiNoContentResponse()
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<void> {
