@@ -85,6 +85,19 @@ export class UserService
   }
 
   async create(entity: CreateUserDto): Promise<User> {
+    const username = entity.username;
+    const email = entity.email;
+
+    const qb = this.userRepository
+      .createQueryBuilder('user')
+      .where('user.username = :username ', { username })
+      .orWhere('user.email = :email', { email })
+      .getCount();
+
+    if ((await qb) > 0) {
+      throw new BadRequestException('Username or Email already used');
+    }
+
     let role;
     try {
       role = await this.roleRepository.findOneOrFail({
@@ -102,6 +115,7 @@ export class UserService
       password: await hash(passwordGenerated, 10),
       role,
     };
+
     console.log(target);
     await this.mailService.sendUserConfirmation(target, passwordGenerated);
     await this.userRepository.save(target);
