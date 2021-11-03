@@ -7,8 +7,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '@app/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
-import { UpdateUserDto } from './update-user.dto';
-import { Role } from './entities/role.entity';
+import { UpdateUserDto } from '../../update-user.dto';
+import { Role } from '../../entities/role.entity';
 import {
   PaginationOptions,
   PaginatorInterface,
@@ -17,7 +17,7 @@ import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
 import { MailService } from '@app/mail/mail.service';
 import { hash } from 'bcrypt';
-import { CreateUserDto } from './create-user.dto';
+import { CreateUserDto } from '../../create-user.dto';
 import { RandomizerService } from '@app/shared/services/randomizer.service';
 
 @Injectable()

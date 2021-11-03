@@ -10,7 +10,7 @@ import { CreateUserDto } from '@app/user/create-user.dto';
 import { User } from '@app/user/entities/user.entity';
 import { Permission } from '@app/user/enums/permission.enum';
 import { UpdateUserDto } from '@app/user/update-user.dto';
-import { UserService } from '@app/user/user.service';
+import { UserService } from '@app/user/services/user/user.service';
 import {
   Body,
   Controller,
