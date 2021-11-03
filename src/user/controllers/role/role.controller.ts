@@ -5,6 +5,7 @@ import {
   ApiAdminAuth,
   ApiOkPaginatedResponse,
   ErrorSchema,
+  ApiPaginationQueries,
 } from '@app/shared/swagger';
 import { RoleDto } from '@app/user/dtos/role/role.dto';
 import { UpdateRoleDto } from '@app/user/dtos/role/update-role.dto';
@@ -30,7 +31,6 @@ import {
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
-  ApiQuery,
   ApiResponse,
   ApiTags,
   ApiUnauthorizedResponse,
@@ -53,14 +53,21 @@ export class RoleController {
   @Granted(Permission.READ_ROLE)
   @ApiOkPaginatedResponse(Role)
   @ApiNotFoundResponse({ type: ErrorSchema })
-  @ApiQuery({ name: 'page', required: false })
-  @ApiQuery({ name: 'limit', required: false })
+  @ApiPaginationQueries()
   @Get()
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,
     @Query('limit', IsPositiveIntPipe) limit = 10,
   ): Promise<PaginationDto<Role>> {
     return this.roleService.getPage(page, limit);
+  }
+
+  @Granted(Permission.READ_ROLE)
+  @ApiOkResponse()
+  @ApiResponse({ type: Role })
+  @Get('all')
+  async findAll(): Promise<any[]> {
+    return await this.roleService.findAll();
   }
 
   @Granted(Permission.READ_ROLE)

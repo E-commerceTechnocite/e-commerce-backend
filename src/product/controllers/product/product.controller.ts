@@ -58,6 +58,13 @@ export class ProductController {
 
   @Granted(Permission.READ_PRODUCT)
   @ApiOkResponse({ type: Product })
+  @Get('all')
+  async findAll(): Promise<any[]> {
+    return this.productService.findAll();
+  }
+
+  @Granted(Permission.READ_PRODUCT)
+  @ApiOkResponse({ type: Product })
   @ApiNotFoundResponse({ type: ErrorSchema })
   @Get(':id')
   async findById(@Param('id') id: string): Promise<Product> {

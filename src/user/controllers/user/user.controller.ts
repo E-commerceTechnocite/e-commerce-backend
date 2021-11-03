@@ -5,6 +5,7 @@ import {
   ApiAdminAuth,
   ApiOkPaginatedResponse,
   ErrorSchema,
+  ApiPaginationQueries,
 } from '@app/shared/swagger';
 import { CreateUserDto } from '@app/user/create-user.dto';
 import { User } from '@app/user/entities/user.entity';
@@ -30,7 +31,6 @@ import {
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
-  ApiQuery,
   ApiResponse,
   ApiTags,
   ApiUnauthorizedResponse,
@@ -48,14 +48,21 @@ export class UserController {
   @Granted(Permission.READ_USER)
   @ApiOkPaginatedResponse(User)
   @ApiNotFoundResponse({ type: ErrorSchema })
-  @ApiQuery({ name: 'page', required: false })
-  @ApiQuery({ name: 'limit', required: false })
+  @ApiPaginationQueries()
   @Get()
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,
     @Query('limit', IsPositiveIntPipe) limit = 10,
   ): Promise<PaginationDto<User>> {
     return this.userService.getPage(page, limit);
+  }
+
+  @Granted(Permission.READ_USER)
+  @ApiOkResponse()
+  @ApiResponse({ type: User })
+  @Get('all')
+  async findAll(): Promise<any[]> {
+    return this.userService.findAll();
   }
 
   @Granted(Permission.READ_USER)
