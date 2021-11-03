@@ -1,4 +1,1 @@
-
-export enum Status {
-    
-}
+export enum Status {}
