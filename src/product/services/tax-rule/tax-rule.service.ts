@@ -9,7 +9,6 @@ import { TaxRuleDto } from '@app/product/dto/tax-rule/tax-rule.dto';
 import { Country } from '@app/product/entities/country.entity';
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { TaxRule } from '@app/product/entities/tax-rule.entity';
-import { Tax } from '@app/product/entities/tax.entity';
 import {
   BadRequestException,
   Injectable,
@@ -28,9 +27,6 @@ export class TaxRuleService
   constructor(
     @InjectRepository(TaxRule)
     private readonly taxRuleRepository: Repository<TaxRule>,
-
-    @InjectRepository(Tax)
-    private readonly taxRepository: Repository<Tax>,
 
     @InjectRepository(TaxRuleGroup)
     private readonly taxRuleGroupRepository: Repository<TaxRuleGroup>,
@@ -55,7 +51,6 @@ export class TaxRuleService
       await query.orderBy(orderBy ?? 'id');
     }
     const data = await query
-      .leftJoinAndSelect('tr.tax', 'tax')
       .leftJoinAndSelect('tr.taxRuleGroup', 'trg')
       .leftJoinAndSelect('tr.country', 'c')
       .skip(index * limit - limit)
@@ -89,18 +84,6 @@ export class TaxRuleService
   }
 
   async create(entity: TaxRuleDto): Promise<TaxRule> {
-    let tax;
-    try {
-      tax = await this.taxRepository.findOneOrFail({
-        where: { id: entity.taxId },
-      });
-    } catch {
-      throw new NotFoundException(
-        `Tax does not exists at id : ${entity.taxId}`,
-      );
-    }
-    delete entity.taxId;
-
     let taxRuleGroup;
     try {
       taxRuleGroup = await this.taxRuleGroupRepository.findOneOrFail({
@@ -127,7 +110,6 @@ export class TaxRuleService
 
     const target: TaxRule = {
       ...entity,
-      tax,
       taxRuleGroup,
       country,
     };
@@ -155,24 +137,9 @@ export class TaxRuleService
       throw new NotFoundException(`Tax Rule does not exist at id : ${id}`);
     }
 
-    let tax;
-    if (tax != undefined) {
-      try {
-        tax = await this.taxRepository.findOneOrFail({
-          where: { id: entity.taxId },
-        });
-      } catch {
-        throw new NotFoundException(
-          `Tax does not exists at id : ${entity.taxId}`,
-        );
-      }
-      delete entity.taxId;
-    }
-
     const target: TaxRule = {
       ...taxRule,
       ...entity,
-      tax,
     };
 
     await this.taxRuleRepository.save(target);

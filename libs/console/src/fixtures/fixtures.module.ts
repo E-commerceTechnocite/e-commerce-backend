@@ -8,7 +8,6 @@ import { User } from '@app/user/entities/user.entity';
 import { UserFixturesService } from '@app/console/fixtures/user/user-fixtures.service';
 import { Role } from '@app/user/entities/role.entity';
 import { Country } from '@app/product/entities/country.entity';
-import { Tax } from '@app/product/entities/tax.entity';
 import { TaxRule } from '@app/product/entities/tax-rule.entity';
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { FileFixturesService } from '@app/console/fixtures/file/file-fixtures.service';
@@ -26,7 +25,6 @@ import { SharedModule } from '@app/shared/shared.module';
       User,
       Role,
       Country,
-      Tax,
       TaxRule,
       TaxRuleGroup,
       Picture,
