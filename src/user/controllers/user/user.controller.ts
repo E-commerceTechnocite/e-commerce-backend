@@ -58,8 +58,7 @@ export class UserController {
   }
 
   @Granted(Permission.READ_USER)
-  @ApiOkResponse()
-  @ApiResponse({ type: User })
+  @ApiOkResponse({ type: User, isArray: true })
   @Get('all')
   async findAll(): Promise<any[]> {
     return this.userService.findAll();

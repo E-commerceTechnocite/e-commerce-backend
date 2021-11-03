@@ -63,8 +63,7 @@ export class RoleController {
   }
 
   @Granted(Permission.READ_ROLE)
-  @ApiOkResponse()
-  @ApiResponse({ type: Role })
+  @ApiOkResponse({ type: Role, isArray: true })
   @Get('all')
   async findAll(): Promise<any[]> {
     return await this.roleService.findAll();
