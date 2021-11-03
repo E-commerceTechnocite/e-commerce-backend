@@ -74,8 +74,7 @@ export class ProductCategoryController {
   }
 
   @Granted(Permission.READ_CATEGORY)
-  @ApiOkResponse()
-  @ApiResponse({ type: ProductCategory })
+  @ApiOkResponse({ type: ProductCategory, isArray: true })
   @Get('all')
   async findAll(): Promise<any[]> {
     return this.productCategoryService.findAll();

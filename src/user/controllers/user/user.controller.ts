@@ -1,7 +1,11 @@
 import { Granted } from '@app/auth/admin/guard/granted.decorator';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
-import { ApiAdminAuth, ApiOkPaginatedResponse } from '@app/shared/swagger';
+import {
+  ApiAdminAuth,
+  ApiOkPaginatedResponse,
+  ErrorSchema,
+} from '@app/shared/swagger';
 import { CreateUserDto } from '@app/user/create-user.dto';
 import { User } from '@app/user/entities/user.entity';
 import { Permission } from '@app/user/enums/permission.enum';
@@ -20,24 +24,30 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBody,
   ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiQuery,
   ApiResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { AdminAuthenticated } from '@app/auth/admin/guard/admin-authenticated.decorator';
 
 @ApiAdminAuth()
 @AdminAuthenticated()
 @ApiTags('Users')
+@ApiUnauthorizedResponse({ type: ErrorSchema })
 @Controller({ path: 'user', version: '1' })
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Granted(Permission.READ_USER)
   @ApiOkPaginatedResponse(User)
+  @ApiNotFoundResponse({ type: ErrorSchema })
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
   @Get()
@@ -49,7 +59,8 @@ export class UserController {
   }
 
   @Granted(Permission.READ_USER)
-  @ApiOkResponse()
+  @ApiOkResponse({ type: User })
+  @ApiNotFoundResponse({ type: ErrorSchema })
   @ApiResponse({ type: User })
   @Get(':id')
   async findById(@Param('id') id: string): Promise<User> {
@@ -67,6 +78,8 @@ export class UserController {
   }
 
   @Granted(Permission.UPDATE_USER)
+  @ApiNoContentResponse()
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @ApiBody({ type: UpdateUserDto, required: false })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id')
@@ -78,6 +91,8 @@ export class UserController {
   }
 
   @Granted(Permission.DELETE_USER)
+  @ApiNoContentResponse()
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<void> {

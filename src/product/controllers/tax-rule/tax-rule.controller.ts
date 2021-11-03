@@ -22,7 +22,6 @@ import {
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
-  ApiResponse,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -56,8 +55,7 @@ export class TaxRuleController {
   }
 
   @Granted(Permission.READ_TAX_RULE)
-  @ApiOkResponse()
-  @ApiResponse({ type: TaxRule })
+  @ApiOkResponse({ type: TaxRule, isArray: true })
   @Get('all')
   async findAll(): Promise<any[]> {
     return this.taxRuleService.findAll();

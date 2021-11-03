@@ -56,8 +56,7 @@ export class TaxRuleGroupController {
   }
 
   @Granted(Permission.READ_TAX_RULE_GROUP)
-  @ApiOkResponse()
-  @ApiResponse({ type: TaxRuleGroup })
+  @ApiOkResponse({ type: TaxRuleGroup, isArray: true })
   @Get('all')
   async findAll(): Promise<any[]> {
     return this.taxRuleGroupService.findAll();
