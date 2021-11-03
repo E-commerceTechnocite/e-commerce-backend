@@ -33,13 +33,14 @@ import {
   ApiOkPaginatedResponse,
   ApiPaginationQueries,
   ApiSearchQueries,
+  ErrorSchema,
 } from '@app/shared/swagger';
 import { UpdateProductCategoryDto } from '@app/product/dto/product-category/update-product-category.dto';
 import { AdminAuthenticated } from '@app/auth/admin/guard/admin-authenticated.decorator';
 
 @ApiAdminAuth()
 @ApiTags('Product Categories')
-@ApiUnauthorizedResponse()
+@ApiUnauthorizedResponse({ type: ErrorSchema })
 @AdminAuthenticated()
 @Controller({ path: 'product-category', version: '1' })
 export class ProductCategoryController {
@@ -50,7 +51,7 @@ export class ProductCategoryController {
   @Granted(Permission.READ_CATEGORY)
   @ApiSearchQueries()
   @ApiOkPaginatedResponse(ProductCategory)
-  @ApiNotFoundResponse()
+  @ApiNotFoundResponse({ type: ErrorSchema })
   @HttpCode(HttpStatus.OK)
   @Get('search')
   async search(
@@ -62,7 +63,7 @@ export class ProductCategoryController {
 
   @Granted(Permission.READ_CATEGORY)
   @ApiOkPaginatedResponse(ProductCategory)
-  @ApiNotFoundResponse()
+  @ApiNotFoundResponse({ type: ErrorSchema })
   @ApiPaginationQueries()
   @Get()
   async find(
@@ -82,7 +83,7 @@ export class ProductCategoryController {
 
   @Granted(Permission.READ_CATEGORY)
   @ApiOkResponse()
-  @ApiNotFoundResponse()
+  @ApiNotFoundResponse({ type: ErrorSchema })
   @ApiResponse({ type: ProductCategory })
   @Get(':id')
   async findById(@Param('id') id: string): Promise<ProductCategory> {
@@ -91,8 +92,8 @@ export class ProductCategoryController {
 
   @Granted(Permission.CREATE_CATEGORY)
   @ApiBody({ type: ProductCategoryDto, required: false })
-  @ApiCreatedResponse()
-  @ApiBadRequestResponse()
+  @ApiCreatedResponse({ type: ProductCategory })
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(@Body() category: ProductCategoryDto): Promise<any> {
@@ -102,7 +103,7 @@ export class ProductCategoryController {
   @Granted(Permission.UPDATE_CATEGORY)
   @ApiBody({ type: UpdateProductCategoryDto, required: false })
   @ApiNoContentResponse()
-  @ApiNotFoundResponse()
+  @ApiNotFoundResponse({ type: ErrorSchema })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id')
   async update(
@@ -115,7 +116,7 @@ export class ProductCategoryController {
   @Granted(Permission.DELETE_CATEGORY)
   @ApiResponse({ type: null })
   @ApiNoContentResponse()
-  @ApiNotFoundResponse()
+  @ApiNotFoundResponse({ type: ErrorSchema })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<any[]> {

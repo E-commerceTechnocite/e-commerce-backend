@@ -18,6 +18,8 @@ import {
 import {
   ApiBadRequestResponse,
   ApiBody,
+  ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiResponse,
@@ -31,12 +33,13 @@ import {
   ApiOkPaginatedResponse,
   ApiPaginationQueries,
   ApiSearchQueries,
+  ErrorSchema,
 } from '@app/shared/swagger';
 import { UpdateCountryDto } from '@app/product/dto/country/update-country.dto';
 
 @ApiAdminAuth()
 @ApiTags('Country')
-@ApiUnauthorizedResponse()
+@ApiUnauthorizedResponse({ type: ErrorSchema })
 @Controller({ path: 'country', version: '1' })
 export class CountryController {
   constructor(private readonly countryService: CountryService) {}
@@ -44,8 +47,8 @@ export class CountryController {
   @Granted(Permission.READ_COUNTRY)
   @ApiSearchQueries()
   @ApiOkPaginatedResponse(Country)
-  @ApiNotFoundResponse()
-  @ApiBadRequestResponse()
+  @ApiNotFoundResponse({ type: ErrorSchema })
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @HttpCode(HttpStatus.OK)
   @Get('search')
   async search(
@@ -57,7 +60,7 @@ export class CountryController {
 
   @Granted(Permission.READ_COUNTRY)
   @ApiOkPaginatedResponse(Country)
-  @ApiNotFoundResponse()
+  @ApiNotFoundResponse({ type: ErrorSchema })
   @ApiPaginationQueries()
   @Get()
   async find(
@@ -82,7 +85,7 @@ export class CountryController {
 
   @Granted(Permission.READ_COUNTRY)
   @ApiOkResponse()
-  @ApiNotFoundResponse()
+  @ApiNotFoundResponse({ type: ErrorSchema })
   @ApiResponse({ type: Country })
   @Get(':id')
   async findById(@Param('id') id: string): Promise<Country> {
@@ -91,8 +94,8 @@ export class CountryController {
 
   @Granted(Permission.CREATE_COUNTRY)
   @ApiBody({ type: CountryDto, required: false })
-  @ApiResponse({ type: null })
-  @ApiBadRequestResponse()
+  @ApiCreatedResponse({ type: Country })
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(@Body() country: CountryDto): Promise<any> {
@@ -101,8 +104,8 @@ export class CountryController {
 
   @Granted(Permission.UPDATE_COUNTRY)
   @ApiBody({ type: UpdateCountryDto, required: false })
-  @ApiResponse({ type: null })
-  @ApiBadRequestResponse()
+  @ApiNoContentResponse()
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id')
   async update(
@@ -113,8 +116,8 @@ export class CountryController {
   }
 
   @Granted(Permission.DELETE_COUNTRY)
-  @ApiResponse({ type: null })
-  @ApiBadRequestResponse()
+  @ApiNoContentResponse()
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<any[]> {
     return await this.countryService.deleteWithId(id);
