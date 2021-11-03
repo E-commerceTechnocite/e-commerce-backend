@@ -68,6 +68,7 @@ export class OAuthController {
       description: 'Permissions',
     },
   })
+  @ApiUnauthorizedResponse({ type: ErrorSchema })
   @Get('permissions')
   async getPermissions() {
     return await this.oAuthService.getPermissions();
