@@ -9,22 +9,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '@app/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
-import { OAuthResponseDto } from '@app/auth/admin/dto/o-auth-response.dto';
+import { OAuthResponseDto } from '@app/auth/dto/o-auth-response.dto';
 import { UserLogDto } from '@app/user/user-log.dto';
 import { RefreshToken } from '../entities/refresh-token.entity';
 
 import { Request } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { REQUEST } from '@nestjs/core/router/request/request-constants';
-
-interface TokenBody {
-  id: string;
-  username: string;
-  email: string;
-  roleId: string;
-  iat?: number;
-  exp?: number;
-}
+import { AdminTokenDataDto } from '@app/auth/admin/dto/admin-token-data.dto';
 
 @Injectable()
 export class OAuthService {
@@ -73,7 +65,7 @@ export class OAuthService {
 
     await this.refreshTokenRepository.save(refreshToken);
 
-    const tokenData: TokenBody = { id, username, email, roleId };
+    const tokenData: AdminTokenDataDto = { id, username, email, roleId };
     return {
       access_token: this.jwt.sign(tokenData),
       refresh_token: refreshToken.value,
@@ -88,12 +80,12 @@ export class OAuthService {
     if (!entity || entity.userAgent !== this.request.headers['user-agent']) {
       throw new UnauthorizedException();
     }
-    const decodedToken: TokenBody = this.jwt.verify(refreshToken, {
+    const decodedToken: AdminTokenDataDto = this.jwt.verify(refreshToken, {
       secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
     });
     delete decodedToken.iat;
     delete decodedToken.exp;
-    const tokenData: TokenBody = {
+    const tokenData: AdminTokenDataDto = {
       ...decodedToken,
     };
 
@@ -112,7 +104,7 @@ export class OAuthService {
       throw new UnauthorizedException();
     }
 
-    const decodedToken: TokenBody = this.jwt.verify(refreshToken, {
+    const decodedToken: AdminTokenDataDto = this.jwt.verify(refreshToken, {
       secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
     });
 
