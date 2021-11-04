@@ -293,12 +293,15 @@ export class ProductService implements ProductServiceInterface {
       );
 
       const count = await SQLQuery.getCount();
-      const data = await SQLQuery.skip(index * limit - limit)
+      const data = await SQLQuery.offset(index * limit - limit)
         .limit(limit)
         .getMany();
 
       const meta = new PaginationMetadataDto(index, limit, count);
 
+      if (meta.currentPage > meta.maxPages) {
+        throw new NotFoundException('This page of products does not exist');
+      }
       return { data, meta };
     } catch (err) {
       if (err instanceof RuntimeException || err instanceof QueryFailedError) {
