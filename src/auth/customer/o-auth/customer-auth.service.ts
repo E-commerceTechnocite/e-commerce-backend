@@ -45,6 +45,10 @@ export class AuthService {
     } else {
       throw new BadRequestException('Please provide a username or email');
     }
+    console.log(
+      await bcrypt.compare(customer.password, customerEntity.password),
+    );
+
     if (
       !customerEntity ||
       !(await bcrypt.compare(customer.password, customerEntity.password))

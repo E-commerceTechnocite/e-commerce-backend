@@ -56,7 +56,8 @@ export class AuthController {
   @ApiOkResponse({ type: CustomerTokenDataDto })
   @ApiUnauthorizedResponse({ type: ErrorSchema })
   @ApiCustomerAuth()
-  async check(@Req() req: Request) {
+  @Post('check')
+  async check(@Req() req: Express.Request & Request) {
     return await this.authService.check(req);
   }
 }

@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -18,6 +19,13 @@ import {
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
 
+import { Customer } from '@app/customer/entities/customer/customer.entity';
+
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
+
+//import { Http2ServerRequest } from 'http2';
+
 @Injectable()
 export class CartItemService
   implements
@@ -31,9 +39,24 @@ export class CartItemService
     private readonly productRepo: Repository<Product>,
     @InjectRepository(ShoppingCart)
     private readonly shoppingCartRepo: Repository<ShoppingCart>,
+    @Inject(REQUEST)
+    private readonly request: Request,
+    @InjectRepository(Customer)
+    private readonly customerRepo: Repository<Customer>,
   ) {}
 
   async create(entity: CartItemCreateDto): Promise<CartItem> {
+    //  recupérer  l'id du customer plus validation
+    if (!this.request.user) {
+      throw new NotFoundException('User not found !');
+    }
+
+    const customerId: Customer = this.request.user['id'];
+    // a l' aide de customerId  je recupere le customer
+
+    let customer = await this.getCustomerById(customerId);
+
+    // recuperer le productId
     const product = await this.productRepo.findOne(entity.productId);
     if (!product) {
       throw new NotFoundException(
@@ -42,14 +65,17 @@ export class CartItemService
     }
 
     // TODO add to the current customer's shopping cart when implemented
-    const shoppingCart = await this.shoppingCartRepo.findOne(entity.cartId);
+    const shoppingCart = await this.shoppingCartRepo.findOne(
+      customer.shoppingCart,
+    );
+
     if (!shoppingCart) {
       throw new NotFoundException(
-        `Shopping Cart not found at id ${entity.cartId}`,
+        `Shopping Cart not found at id ${customer.shoppingCart}`,
       );
     }
 
-    delete entity.cartId;
+    //delete entity.cartId;
     delete entity.productId;
 
     const target: CartItem = {
@@ -57,6 +83,8 @@ export class CartItemService
       shoppingCart,
       ...entity,
     };
+    //console.log(shoppingCart.id);
+    console.log(customerId);
 
     return await this.cartItemRepo.save(target);
   }
@@ -119,5 +147,16 @@ export class CartItemService
       data,
       meta,
     };
+  }
+
+  // cette fonction permet de recupérer le customer par son id
+  async getCustomerById(customerId): Promise<Customer> {
+    try {
+      //const shoppingId = await this.shoppingCartRepo.findOneOrFail(customerId);
+      const customer = await this.customerRepo.findOneOrFail(customerId);
+      return customer;
+    } catch (err) {
+      throw new NotFoundException("Customer doesn't exist");
+    }
   }
 }
