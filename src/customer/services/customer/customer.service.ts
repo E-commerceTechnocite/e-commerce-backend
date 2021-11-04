@@ -131,7 +131,7 @@ export class CustomerService
   ): Promise<PaginationDto<Customer>> {
     try {
       const sqlQuery = this.searchService.createSearchQuery(
-        this.customerRepository,
+        this.customerRepository.createQueryBuilder('p'),
         query,
         [{ name: 'username' }, { name: 'lastName' }, { name: 'firstName' }],
       );

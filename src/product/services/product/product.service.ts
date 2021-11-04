@@ -274,7 +274,7 @@ export class ProductService implements ProductServiceInterface {
   ): Promise<PaginationDto<Product>> {
     try {
       const SQLQuery = this.searchEngineService.createSearchQuery(
-        this.productRepository,
+        this.productRepository.createQueryBuilder('p'),
         query,
         [
           { name: 'title' },
@@ -283,12 +283,18 @@ export class ProductService implements ProductServiceInterface {
           { name: 'strippedDescription' },
           { name: 'metaphoneDescription', type: 'metaphone' },
         ],
+        [
+          { 'p.category': 'c' },
+          { 'p.taxRuleGroup': 'trg' },
+          { 'p.stock': 'stock' },
+          { 'p.pictures': 'pictures' },
+          { 'p.thumbnail': 'thumbnail' },
+        ],
       );
 
       const count = await SQLQuery.getCount();
-
       const data = await SQLQuery.skip(index * limit - limit)
-        .take(limit)
+        .limit(limit)
         .getMany();
 
       const meta = new PaginationMetadataDto(index, limit, count);

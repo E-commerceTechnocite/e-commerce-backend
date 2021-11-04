@@ -159,7 +159,7 @@ export class ProductCategoryService implements ProductCategoryServiceInterface {
   ): Promise<PaginationDto<ProductCategory>> {
     try {
       const sqlQuery = this.searchEngine.createSearchQuery(
-        this.repository,
+        this.repository.createQueryBuilder('p'),
         query,
         [{ name: 'label' }],
       );
