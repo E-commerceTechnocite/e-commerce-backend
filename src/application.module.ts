@@ -18,10 +18,16 @@ import { OrderModule } from './order/order.module';
 @Module({
   imports: [
     ApplicationConfigurationModule,
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'),
-      serveRoot: '/public',
-    }),
+    ServeStaticModule.forRoot(
+      {
+        rootPath: join(__dirname, '..', 'public'),
+        serveRoot: '/public',
+      },
+      {
+        rootPath: join(__dirname, '..', 'admin'),
+        serveRoot: '/admin',
+      },
+    ),
     ProductModule,
     SharedModule,
     AdminAuthModule,
