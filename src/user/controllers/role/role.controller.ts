@@ -4,12 +4,13 @@ import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import {
   ApiAdminAuth,
   ApiOkPaginatedResponse,
+  ErrorSchema,
   ApiPaginationQueries,
 } from '@app/shared/swagger';
 import { RoleDto } from '@app/user/dtos/role/role.dto';
 import { UpdateRoleDto } from '@app/user/dtos/role/update-role.dto';
 import { Role } from '@app/user/entities/role.entity';
-import { Permission } from '@app/user/enums/permission.enum';
+import { Permission, PermissionUtil } from '@app/user/enums/permission.enum';
 import { RoleService } from '@app/user/services/role/role.service';
 import {
   Body,
@@ -24,21 +25,26 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBody,
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
-  ApiQuery,
   ApiResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
 @ApiAdminAuth()
 @ApiTags('Role')
+@ApiUnauthorizedResponse({ type: ErrorSchema })
 @Controller({ path: 'role', version: '1' })
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 
   @Granted(Permission.READ_ROLE)
-  @ApiResponse({ type: null })
+  @ApiOkResponse({ schema: { example: [...PermissionUtil.allPermissions()] } })
   @Get('/permissions')
   getPermissions(): string[] {
     return Object.values(Permission);
@@ -46,6 +52,7 @@ export class RoleController {
 
   @Granted(Permission.READ_ROLE)
   @ApiOkPaginatedResponse(Role)
+  @ApiNotFoundResponse({ type: ErrorSchema })
   @ApiPaginationQueries()
   @Get()
   async find(
@@ -56,8 +63,7 @@ export class RoleController {
   }
 
   @Granted(Permission.READ_ROLE)
-  @ApiOkResponse()
-  @ApiResponse({ type: Role })
+  @ApiOkResponse({ type: Role, isArray: true })
   @Get('all')
   async findAll(): Promise<any[]> {
     return await this.roleService.findAll();
@@ -65,6 +71,7 @@ export class RoleController {
 
   @Granted(Permission.READ_ROLE)
   @ApiOkResponse()
+  @ApiNotFoundResponse({ type: ErrorSchema })
   @ApiResponse({ type: Role })
   @Get(':id')
   async findById(@Param('id') id: string): Promise<Role> {
@@ -73,7 +80,8 @@ export class RoleController {
 
   @Granted(Permission.CREATE_ROLE)
   @ApiBody({ type: RoleDto, required: false })
-  @ApiResponse({ type: null })
+  @ApiCreatedResponse({ type: Role })
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(@Body() role: RoleDto): Promise<any> {
@@ -82,7 +90,8 @@ export class RoleController {
 
   @Granted(Permission.UPDATE_ROLE)
   @ApiBody({ type: UpdateRoleDto, required: false })
-  @ApiResponse({ type: null })
+  @ApiNoContentResponse()
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id')
   async update(
@@ -93,7 +102,8 @@ export class RoleController {
   }
 
   @Granted(Permission.DELETE_ROLE)
-  @ApiResponse({ type: null })
+  @ApiNoContentResponse()
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<any> {

@@ -7,8 +7,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '@app/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
-import { UpdateUserDto } from './update-user.dto';
-import { Role } from './entities/role.entity';
+import { UpdateUserDto } from '../../update-user.dto';
+import { Role } from '../../entities/role.entity';
 import {
   PaginationOptions,
   PaginatorInterface,
@@ -17,7 +17,7 @@ import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
 import { MailService } from '@app/mail/mail.service';
 import { hash } from 'bcrypt';
-import { CreateUserDto } from './create-user.dto';
+import { CreateUserDto } from '../../create-user.dto';
 import { RandomizerService } from '@app/shared/services/randomizer.service';
 
 @Injectable()
@@ -85,6 +85,19 @@ export class UserService
   }
 
   async create(entity: CreateUserDto): Promise<User> {
+    const username = entity.username;
+    const email = entity.email;
+
+    const qb = this.userRepository
+      .createQueryBuilder('user')
+      .where('user.username = :username ', { username })
+      .orWhere('user.email = :email', { email })
+      .getCount();
+
+    if ((await qb) > 0) {
+      throw new BadRequestException('Username or Email already used');
+    }
+
     let role;
     try {
       role = await this.roleRepository.findOneOrFail({
@@ -102,6 +115,7 @@ export class UserService
       password: await hash(passwordGenerated, 10),
       role,
     };
+
     console.log(target);
     await this.mailService.sendUserConfirmation(target, passwordGenerated);
     await this.userRepository.save(target);
