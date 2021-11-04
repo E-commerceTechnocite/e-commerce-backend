@@ -18,12 +18,14 @@ import {
   ApiOkPaginatedResponse,
   ApiPaginationQueries,
   ApiSearchQueries,
+  ErrorSchema,
 } from '@app/shared/swagger';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 
 @ApiTags('Customers')
+@ApiUnauthorizedResponse({ type: ErrorSchema })
 @Controller({ path: 'customers', version: '1' })
 export class CustomerController {
   constructor(

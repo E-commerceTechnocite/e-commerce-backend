@@ -1,11 +1,17 @@
+import { CustomerAuthenticated } from '@app/auth/customer/guard/customer-authenticated.decorator';
 import { Customer } from '@app/customer/entities/customer/customer.entity';
+import { ApiCustomerAuth } from '@app/shared/swagger';
 import { ShoppingCart } from '@app/shopping-cart/entities/shopping-cart.entity';
 import { ShoppingCartService } from '@app/shopping-cart/services/shopping-cart/shopping-cart.service';
 import { Controller, Get, Param, Post, Req } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 // TODO need customer implementation
 
+@ApiCustomerAuth()
+@ApiTags('Shopping-cart')
 @Controller('shopping-cart')
+@CustomerAuthenticated()
 export class ShoppingCartController {
   constructor(private readonly shoppingCartService: ShoppingCartService) {}
   // Get all items in CartItem

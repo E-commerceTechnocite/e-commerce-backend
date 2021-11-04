@@ -107,12 +107,14 @@ export class Product extends EntitySchema {
   @JoinColumn({ name: 'picture_thumbnail_id', referencedColumnName: 'id' })
   thumbnail?: Picture;
 
-  @OneToMany(() => CartItem, (cardItem) => cardItem.product, { lazy: true })
+  @OneToMany(() => CartItem, (cardItem) => cardItem.product)
+  @Exclude()
   cartItems?: CartItem[];
 
   // Relation avec l'entity OrderProduct
   @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.product, {
     lazy: true,
   })
+  @Exclude()
   orderProducts?: OrderProduct[];
 }

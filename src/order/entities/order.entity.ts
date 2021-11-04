@@ -16,6 +16,8 @@ export class Order extends EntitySchema {
   paymentType?: number = 0; //enum
 
   // relation avec la table orderProduct
+
+  @ApiProperty({ required: false })
   @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.order, {
     eager: true,
     cascade: true,
@@ -25,9 +27,13 @@ export class Order extends EntitySchema {
   orderProducts?: OrderProduct[];
 
   // relation avec la table customer
+
+  @ApiProperty({ required: false })
   @ManyToOne(() => Customer, (customer) => customer.orders)
   customer?: Customer;
   // relation address - order
+
+  @ApiProperty({ required: false })
   @ManyToOne(() => AddressCustomer, (address) => address.orders)
   // @JoinColumn({ name: 'addressId', referencedColumnName: 'id' })
   address?: AddressCustomer;

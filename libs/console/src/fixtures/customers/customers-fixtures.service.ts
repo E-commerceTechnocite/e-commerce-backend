@@ -34,6 +34,20 @@ export class CustomersFixturesService implements FixturesInterface {
       };
       await this.customerRepository.save(target);
     }
+
+    const bob: Customer = {
+      username: `bob`,
+      password: await hash('bob', 10),
+      firstName: 'bob',
+      lastName: 'bob',
+      email: `bob@bob.bob`,
+      phoneNumber: faker.phone.phoneNumber(),
+      gender: Gender.masculin,
+      birthDate: faker.date.past(),
+      newsletter: false,
+    };
+
+    await this.customerRepository.save(bob);
     this.logger.log('Customers added');
   }
   async clean() {

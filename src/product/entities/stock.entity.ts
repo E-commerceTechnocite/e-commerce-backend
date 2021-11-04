@@ -18,7 +18,6 @@ export class Stock extends EntitySchema {
   pending?: number;
 
   @OneToOne(() => Product, (product) => product.stock, {
-    eager: false,
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })

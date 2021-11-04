@@ -22,6 +22,7 @@ export class AuthStrategy extends PassportStrategy(Strategy, 'customer') {
   }
 
   async validate(payload): Promise<Customer> {
+    console.log(payload);
     return await this.customerRepo
       .createQueryBuilder('u')
       .where({ id: payload.id })

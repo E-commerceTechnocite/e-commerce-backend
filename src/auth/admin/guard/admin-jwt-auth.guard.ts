@@ -11,7 +11,7 @@ import { PERMISSIONS_KEY } from './granted.decorator';
 import { ADMIN_AUTHENTICATED_KEY } from '@app/auth/admin/guard/admin-authenticated.decorator';
 
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('admin') {
+export class AdminJwtAuthGuard extends AuthGuard('admin') {
   constructor(private readonly reflector: Reflector) {
     super();
   }

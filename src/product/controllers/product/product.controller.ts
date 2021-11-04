@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ProductService } from '@app/product/services/product/product.service';
 import { Product } from '@app/product/entities/product.entity';
@@ -35,9 +36,11 @@ import {
   ErrorSchema,
 } from '@app/shared/swagger';
 import { UpdateProductDto } from '@app/product/dto/product/update-product.dto';
+import { AdminJwtAuthGuard } from '@app/auth/admin/guard/admin-jwt-auth.guard';
 
 @ApiAdminAuth()
 @ApiTags('Products')
+@UseGuards(AdminJwtAuthGuard)
 @ApiUnauthorizedResponse({ type: ErrorSchema })
 @Controller({ path: 'product', version: '1' })
 export class ProductController {
