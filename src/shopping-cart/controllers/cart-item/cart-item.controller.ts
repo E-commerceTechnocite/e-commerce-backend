@@ -13,7 +13,9 @@ import { CartItemCreateDto } from '@app/shopping-cart/dto/cart-item/cart-item-cr
 import { CartItemUpdateDto } from '@app/shopping-cart/dto/cart-item/cart-item-update.dto';
 import { CartItem } from '@app/shopping-cart/entities/cart-item.entity';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Cart')
 @Controller({ path: 'cart-item', version: '1' })
 export class CartItemController {
   constructor(private readonly cartItemService: CartItemService) {}

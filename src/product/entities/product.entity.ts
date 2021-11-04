@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   JoinTable,
   ManyToMany,
@@ -16,20 +17,50 @@ import { EntitySchema } from '@app/shared/entities/entity-schema';
 import { CartItem } from '@app/shopping-cart/entities/cart-item.entity';
 import { OrderProduct } from '@app/order/entities/order-product.entity';
 import { Stock } from './stock.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity()
+@Index(
+  'product_fulltext_index',
+  ['title', 'reference', 'strippedDescription'],
+  {
+    fulltext: true,
+  },
+)
+@Index(
+  'product_metaphone_fulltext_index',
+  ['metaphoneTitle', 'metaphoneDescription'],
+  { fulltext: true },
+)
 export class Product extends EntitySchema {
   @ApiProperty({ required: true })
   @Column()
+  @Index({ fulltext: true })
   title?: string;
+
+  @Column()
+  @Index({ fulltext: true })
+  @Exclude()
+  metaphoneTitle?: string;
 
   @ApiProperty({ required: true })
   @Column()
+  @Index({ fulltext: true })
   reference?: string;
 
   @ApiProperty({ required: true })
   @Column({ type: 'text' })
   description?: string;
+
+  @Column({ type: 'text' })
+  @Index({ fulltext: true })
+  @Exclude()
+  strippedDescription?: string;
+
+  @Column({ type: 'text' })
+  @Index({ fulltext: true })
+  @Exclude()
+  metaphoneDescription?: string;
 
   @ApiProperty({ required: true })
   @Column({ type: 'float' })

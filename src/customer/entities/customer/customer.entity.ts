@@ -1,4 +1,11 @@
-import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
 import { Gender } from './customer.enum';
 import { ShoppingCart } from '@app/shopping-cart/entities/shopping-cart.entity';
 import { EntitySchema } from '@app/shared/entities/entity-schema';
@@ -8,21 +15,29 @@ import { CustomerRefreshToken } from '@app/auth/customer/entities/refresh-token.
 import { AddressCustomer } from '@app/customer/adress/entity/customer-address.entity';
 
 @Entity()
+@Index(['lastName', 'firstName', 'username'], { fulltext: true })
 export class Customer extends EntitySchema implements Express.User {
   @Column()
-  username?: string;
+  @Index({ fulltext: true })
+  username: string;
 
   @Column()
   password?: string;
 
   @Column()
-  email?: string;
+  email: string;
+
   @Column()
-  phoneNumber?: string;
+  phoneNumber: string;
+
   @Column()
-  firstName?: string;
+  @Index({ fulltext: true })
+  firstName: string;
+
   @Column()
-  lastName?: string;
+  @Index({ fulltext: true })
+  lastName: string;
+
   @Column()
   gender?: Gender;
 

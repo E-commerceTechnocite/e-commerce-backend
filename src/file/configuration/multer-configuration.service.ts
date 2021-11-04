@@ -67,12 +67,9 @@ export class MulterConfigurationService implements MulterOptionsFactory {
       '.webp',
       '.jpe',
     ];
-    console.log(mimetype === MimetypeEnum.IMAGE);
-    console.log(allowedImageTypes.includes(extension));
-    console.log(extension);
     if (
       mimetype === MimetypeEnum.IMAGE &&
-      !allowedImageTypes.includes(extension)
+      !allowedImageTypes.includes(extension.toLowerCase())
     ) {
       return callback(
         new BadRequestException(

@@ -1,12 +1,17 @@
 import { Granted } from '@app/auth/admin/guard/granted.decorator';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
-import { ApiAdminAuth, ApiOkPaginatedResponse } from '@app/shared/swagger';
+import {
+  ApiAdminAuth,
+  ApiOkPaginatedResponse,
+  ErrorSchema,
+  ApiPaginationQueries,
+} from '@app/shared/swagger';
 import { CreateUserDto } from '@app/user/create-user.dto';
 import { User } from '@app/user/entities/user.entity';
 import { Permission } from '@app/user/enums/permission.enum';
 import { UpdateUserDto } from '@app/user/update-user.dto';
-import { UserService } from '@app/user/user.service';
+import { UserService } from '@app/user/services/user/user.service';
 import {
   Body,
   Controller,
@@ -20,24 +25,30 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBody,
   ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
-  ApiQuery,
   ApiResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { AdminAuthenticated } from '@app/auth/admin/guard/admin-authenticated.decorator';
 
 @ApiAdminAuth()
+@AdminAuthenticated()
 @ApiTags('Users')
+@ApiUnauthorizedResponse({ type: ErrorSchema })
 @Controller({ path: 'user', version: '1' })
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Granted(Permission.READ_USER)
   @ApiOkPaginatedResponse(User)
-  @ApiQuery({ name: 'page', required: false })
-  @ApiQuery({ name: 'limit', required: false })
+  @ApiNotFoundResponse({ type: ErrorSchema })
+  @ApiPaginationQueries()
   @Get()
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,
@@ -47,7 +58,15 @@ export class UserController {
   }
 
   @Granted(Permission.READ_USER)
-  @ApiOkResponse()
+  @ApiOkResponse({ type: User, isArray: true })
+  @Get('all')
+  async findAll(): Promise<any[]> {
+    return this.userService.findAll();
+  }
+
+  @Granted(Permission.READ_USER)
+  @ApiOkResponse({ type: User })
+  @ApiNotFoundResponse({ type: ErrorSchema })
   @ApiResponse({ type: User })
   @Get(':id')
   async findById(@Param('id') id: string): Promise<User> {
@@ -65,6 +84,8 @@ export class UserController {
   }
 
   @Granted(Permission.UPDATE_USER)
+  @ApiNoContentResponse()
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @ApiBody({ type: UpdateUserDto, required: false })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id')
@@ -76,6 +97,8 @@ export class UserController {
   }
 
   @Granted(Permission.DELETE_USER)
+  @ApiNoContentResponse()
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<void> {

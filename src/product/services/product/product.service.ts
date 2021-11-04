@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from '@app/product/entities/product.entity';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
 import { ProductDto } from '@app/product/dto/product/product.dto';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
@@ -19,10 +19,16 @@ import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { Picture } from '@app/file/entities/picture.entity';
 
 import { UpdateProductDto } from '@app/product/dto/product/update-product.dto';
+import { JSDOM } from 'jsdom';
+import * as metaphone from 'talisman/phonetics/metaphone';
+import { MysqlSearchEngineService } from '@app/shared/services/mysql-search-engine.service';
+import { SearchServiceInterface } from '@app/shared/interfaces/search-service.interface';
+import { RuntimeException } from '@nestjs/core/errors/exceptions/runtime.exception';
 
 export interface ProductServiceInterface
   extends CrudServiceInterface<Product, ProductDto, UpdateProductDto>,
-    PaginatorInterface<Product> {}
+    PaginatorInterface<Product>,
+    SearchServiceInterface<Product> {}
 
 @Injectable()
 export class ProductService implements ProductServiceInterface {
@@ -35,9 +41,34 @@ export class ProductService implements ProductServiceInterface {
     private readonly taxRuleGroupRepository: Repository<TaxRuleGroup>,
     @InjectRepository(Picture)
     private readonly pictureRepository: Repository<Picture>,
+    private readonly searchEngineService: MysqlSearchEngineService,
   ) {}
 
+  private formatDescription(description): {
+    stripped: string;
+    metaphoned: string;
+  } {
+    if (!description) return null;
+    const domDescription = new JSDOM(description);
+    const document = domDescription.window.document;
+    if (document.querySelector('script')) {
+      throw new BadRequestException(
+        'Script tags are not authorized inside descriptions',
+      );
+    }
+    const stripped = document.body.textContent;
+    const metaphoned = stripped.split(' ').map(metaphone).join(' ');
+
+    return {
+      metaphoned,
+      stripped,
+    };
+  }
+
   async create(entity: ProductDto): Promise<Product> {
+    const desc = this.formatDescription(entity.description);
+    const metaphoneTitle = entity.title?.split(' ').map(metaphone).join(' ');
+
     if (!entity.picturesId) {
       entity.picturesId = [];
     }
@@ -88,6 +119,9 @@ export class ProductService implements ProductServiceInterface {
     delete entity.thumbnailId;
     const target: Product = {
       ...entity,
+      metaphoneDescription: desc.metaphoned,
+      strippedDescription: desc.stripped,
+      metaphoneTitle,
       category,
       taxRuleGroup,
       pictures,
@@ -123,12 +157,18 @@ export class ProductService implements ProductServiceInterface {
     return product;
   }
 
-  findAll(): Promise<Product[]> {
-    return this.productRepository.find();
+  async findAll(): Promise<any[]> {
+    return await this.productRepository
+      .createQueryBuilder('product')
+      .select('product.id')
+      .addSelect("CONCAT(product.title,' ',product.price)", 'detail')
+      .execute();
   }
 
   async update(id: string | number, entity: UpdateProductDto): Promise<void> {
-    let product;
+    const desc = this.formatDescription(entity.description);
+    const metaphoneTitle = entity.title?.split(' ').map(metaphone).join(' ');
+    let product: Product;
     try {
       product = await this.productRepository.findOneOrFail({
         where: { id: id },
@@ -191,6 +231,9 @@ export class ProductService implements ProductServiceInterface {
     const target: Product = {
       ...product,
       ...entity,
+      strippedDescription: desc?.stripped ?? product.strippedDescription,
+      metaphoneDescription: desc?.metaphoned ?? product.metaphoneDescription,
+      metaphoneTitle: metaphoneTitle ?? product.metaphoneTitle,
       stock: {
         ...product.stock,
         ...entity.stock,
@@ -200,7 +243,6 @@ export class ProductService implements ProductServiceInterface {
       pictures,
       thumbnail,
     };
-    console.log(target);
     await this.productRepository.save(target);
   }
 
@@ -214,17 +256,10 @@ export class ProductService implements ProductServiceInterface {
     if (meta.currentPage > meta.maxPages) {
       throw new NotFoundException('This page of products does not exist');
     }
-    const query = this.productRepository.createQueryBuilder('p');
-    if (opts) {
-      const { orderBy, order } = opts;
-      await query.orderBy(
-        orderBy ? `p.${orderBy}` : 'p.createdAt',
-        order ?? 'DESC',
-      );
-    }
     const data = await this.productRepository.find({
       take: limit,
       skip: index * limit - limit,
+      order: { [opts?.orderBy ?? 'createdAt']: opts.order ?? 'DESC' },
     });
 
     return {
@@ -232,13 +267,44 @@ export class ProductService implements ProductServiceInterface {
       meta,
     };
   }
-  // get product by title
-  async findByTitle(name: string): Promise<Product> {
-    /* let connection: Connection;
-    const product = await connection.getRepository(Product).find({
-      title: ILike('%name%'),
-    }); */
 
-    return this.productRepository.findOne(name);
+  async search(
+    query: string,
+    index: number,
+    limit: number,
+  ): Promise<PaginationDto<Product>> {
+    try {
+      const SQLQuery = this.searchEngineService.createSearchQuery(
+        this.productRepository,
+        query,
+        [
+          { name: 'title' },
+          { name: 'metaphoneTitle', type: 'metaphone' },
+          { name: 'reference' },
+          { name: 'strippedDescription' },
+          { name: 'metaphoneDescription', type: 'metaphone' },
+        ],
+      );
+
+      const count = await SQLQuery.getCount();
+
+      const data = await SQLQuery.skip(index * limit - limit)
+        .take(limit)
+        .getMany();
+
+      const meta = new PaginationMetadataDto(index, limit, count);
+
+      return { data, meta };
+    } catch (err) {
+      if (err instanceof RuntimeException || err instanceof QueryFailedError) {
+        throw new BadRequestException(err.message);
+      }
+      throw err;
+    }
+  }
+
+  // get product by title
+  async findByTitle(name: string): Promise<any> {
+    return this.productRepository.findOne({ title: name });
   }
 }

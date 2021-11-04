@@ -16,6 +16,9 @@ import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
 import { UpdateProductCategoryDto } from '@app/product/dto/product-category/update-product-category.dto';
 import { Product } from '@app/product/entities/product.entity';
+import { SearchServiceInterface } from '@app/shared/interfaces/search-service.interface';
+import { MysqlSearchEngineService } from '@app/shared/services/mysql-search-engine.service';
+import { RuntimeException } from '@nestjs/core/errors/exceptions/runtime.exception';
 
 export interface ProductCategoryServiceInterface
   extends CrudServiceInterface<
@@ -23,7 +26,8 @@ export interface ProductCategoryServiceInterface
       ProductCategoryDto,
       UpdateProductCategoryDto
     >,
-    PaginatorInterface<ProductCategory> {}
+    PaginatorInterface<ProductCategory>,
+    SearchServiceInterface<ProductCategory> {}
 
 @Injectable()
 export class ProductCategoryService implements ProductCategoryServiceInterface {
@@ -32,6 +36,7 @@ export class ProductCategoryService implements ProductCategoryServiceInterface {
     private readonly repository: Repository<ProductCategory>,
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
+    private readonly searchEngine: MysqlSearchEngineService,
   ) {}
 
   async getPage(
@@ -145,5 +150,32 @@ export class ProductCategoryService implements ProductCategoryServiceInterface {
     };
 
     await this.repository.save(target);
+  }
+
+  async search(
+    query: string,
+    index: number,
+    limit: number,
+  ): Promise<PaginationDto<ProductCategory>> {
+    try {
+      const sqlQuery = this.searchEngine.createSearchQuery(
+        this.repository,
+        query,
+        [{ name: 'label' }],
+      );
+
+      const count = await sqlQuery.getCount();
+      const meta = new PaginationMetadataDto(index, limit, count);
+      const data = await sqlQuery
+        .skip(index * limit - limit)
+        .take(limit)
+        .getMany();
+      return { data, meta };
+    } catch (err) {
+      if (err instanceof RuntimeException) {
+        throw new BadRequestException(err.message);
+      }
+      throw err;
+    }
   }
 }

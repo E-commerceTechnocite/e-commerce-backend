@@ -1,6 +1,4 @@
-
-
-export enum Gender{
-    masculin='M',
-    feminin='F'
+export enum Gender {
+  masculin = 'M',
+  feminin = 'F',
 }

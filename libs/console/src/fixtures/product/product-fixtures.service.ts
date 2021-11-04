@@ -6,10 +6,11 @@ import { ProductCategory } from '@app/product/entities/product-category.entity';
 import * as faker from 'faker';
 import { FixturesInterface } from '@app/console/fixtures/fixtures.interface';
 import { Country } from '@app/product/entities/country.entity';
-import { Tax } from '@app/product/entities/tax.entity';
 import { TaxRule } from '@app/product/entities/tax-rule.entity';
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { Stock } from '@app/product/entities/stock.entity';
+import { JSDOM } from 'jsdom';
+import * as metaphone from 'talisman/phonetics/metaphone';
 
 @Injectable()
 export class ProductFixturesService implements FixturesInterface {
@@ -21,8 +22,6 @@ export class ProductFixturesService implements FixturesInterface {
     private readonly logger: ConsoleLogger,
     @InjectRepository(Country)
     private readonly countryRepo: Repository<Country>,
-    @InjectRepository(Tax)
-    private readonly taxRepo: Repository<Tax>,
     @InjectRepository(TaxRule)
     private readonly taxRuleRepo: Repository<TaxRule>,
     @InjectRepository(TaxRuleGroup)
@@ -34,7 +33,6 @@ export class ProductFixturesService implements FixturesInterface {
   async load() {
     const categories: ProductCategory[] = [];
     const products: Product[] = [];
-
     // Ajout des catégories
     for (let i = 0; i < 20; i++) {
       categories.push({
@@ -66,15 +64,6 @@ export class ProductFixturesService implements FixturesInterface {
     }
     const savedCountries: Country[] = await this.countryRepo.save(countries);
 
-    // Ajout des Taxes
-    const taxes: Tax[] = [];
-    for (let i = 0; i < 20; i++) {
-      taxes.push({
-        rate: parseFloat(faker.commerce.price(1, 30, 2)),
-      });
-    }
-    const savedTaxes: Tax[] = await this.taxRepo.save(taxes);
-
     // Ajout des TaxRules
     const taxRules: TaxRule[] = [];
     for (let i = 0; i < 20; i++) {
@@ -84,7 +73,7 @@ export class ProductFixturesService implements FixturesInterface {
         description: faker.random.words(20),
         country:
           savedCountries[Math.floor(Math.random() * savedCountries.length)],
-        tax: savedTaxes[Math.floor(Math.random() * savedTaxes.length)],
+        tax: i,
         taxRuleGroup:
           savedTaxRuleGroups[
             Math.floor(Math.random() * savedTaxRuleGroups.length)
@@ -92,14 +81,37 @@ export class ProductFixturesService implements FixturesInterface {
       });
     }
     await this.taxRuleRepo.save(taxRules);
+    const randomWords = (around = 100) =>
+      faker.random.words(Math.ceil(Math.random() * around + 10));
 
     // Ajout des produits
     for (let i = 0; i < 50; i++) {
+      const description = `
+        <p>${randomWords()}</p>
+        <p>${randomWords()}</p>
+        <p>${randomWords()}</p>
+        <p>${randomWords()}</p>
+        <p>${randomWords()}</p>
+      `;
+      const strippedDescription = new JSDOM(description).window.document.body
+        .textContent;
+
+      const metaphoneDescription = strippedDescription
+        .split(' ')
+        .map(metaphone)
+        .join(' ');
+
+      const title = faker.commerce.product();
+      const metaphoneTitle = title.split(' ').map(metaphone).join(' ');
+
       products.push({
         reference: faker.random.alphaNumeric(10),
-        title: faker.commerce.product(),
+        title,
+        metaphoneTitle,
         price: parseFloat(faker.commerce.price(1, 100, 2)),
-        description: faker.random.words(50),
+        description,
+        metaphoneDescription,
+        strippedDescription,
         category:
           savedCategories[Math.floor(Math.random() * savedCategories.length)],
         taxRuleGroup:
@@ -122,7 +134,6 @@ export class ProductFixturesService implements FixturesInterface {
     await this.productRepo.delete({});
     await this.categoryRepo.delete({});
     await this.countryRepo.delete({});
-    await this.taxRepo.delete({});
     await this.taxRuleGroupRepo.delete({});
     this.logger.log('Categories and Products deleted');
   }

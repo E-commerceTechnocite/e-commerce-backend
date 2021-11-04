@@ -9,6 +9,6 @@ export class ShoppingCart extends EntitySchema {
   cartItems?: CartItem[];
 
   // TODO need customer implementation
-   @OneToOne(() => Customer, (customer) => customer.shoppingCart)
-   customer?: Customer;
+  @OneToOne(() => Customer, (customer) => customer.shoppingCart)
+  customer?: Customer;
 }

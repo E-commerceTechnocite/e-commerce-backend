@@ -5,21 +5,28 @@ import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import { ApiOkPaginatedResponse } from '@app/shared/swagger/decorators';
 import { ApiCustomerAuth } from '@app/shared/swagger/decorators/auth/api-customer-auth.decorator';
 import { Controller, Get, Param, Query } from '@nestjs/common';
-import { ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 
-@ApiTags('Products')
+@ApiTags('Products (Customer)')
 @ApiCustomerAuth()
 @Controller({ path: 'customer/product', version: '1' })
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @ApiOkResponse({ type: Product })
+  @ApiNotFoundResponse()
   @Get(':id')
   async findById(@Param('id') id: string): Promise<Product> {
     return this.productService.find(id);
   }
 
   @ApiOkPaginatedResponse(Product)
+  @ApiNotFoundResponse()
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
   @ApiQuery({ name: 'orderBy', required: false, type: 'string' })

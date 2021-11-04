@@ -12,26 +12,57 @@ import {
   Param,
   Patch,
   Post,
-  Put,
+  Query,
 } from '@nestjs/common';
+import {
+  ApiOkPaginatedResponse,
+  ApiPaginationQueries,
+  ApiSearchQueries,
+} from '@app/shared/swagger';
+import { ApiTags } from '@nestjs/swagger';
+import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
+import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 
-@Controller('customers')
+@ApiTags('Customers')
+@Controller({ path: 'customers', version: '1' })
 export class CustomerController {
   constructor(
     private customerService: CustomerService,
     private shoppingCarteService: ShoppingCartService,
   ) {}
 
-  // creer un customer , en meme temps il faut creer un record dans shopping cart
-  @Post()
-  createCustomer(@Body() customer: CustomerCreateDto): Promise<Customer> {
-    return this.customerService.createCustomer(customer);
+  @ApiSearchQueries()
+  @ApiOkPaginatedResponse(Customer)
+  @Get('search')
+  search(
+    @Query('q') query: string,
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+  ) {
+    return this.customerService.search(query, page, limit);
   }
 
   // find all customers
-  @Get()
+  @Get('all')
   findAll(): Promise<Customer[]> {
     return this.customerService.findAll();
+  }
+
+  @ApiOkPaginatedResponse(Customer)
+  @ApiPaginationQueries()
+  @Get()
+  async find(
+    @Query('page', IsPositiveIntPipe) page = 1,
+    @Query('limit', IsPositiveIntPipe) limit = 10,
+    @Query('orderBy') orderBy: string = null,
+    @Query('order') order: 'DESC' | 'ASC' = null,
+  ): Promise<PaginationDto<Customer>> {
+    return this.customerService.getPage(page, limit, { orderBy, order });
+  }
+  // create a customer
+  @Post()
+  createCustomer(@Body() customer: CustomerCreateDto): Promise<Customer> {
+    return this.customerService.createCustomer(customer);
   }
 
   // find a customer by id
