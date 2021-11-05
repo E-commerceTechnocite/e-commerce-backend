@@ -6,6 +6,7 @@ import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { mock } from 'jest-mock-extended';
 import { createProductDto, product, updateProductDto } from '@app/test/stub';
 import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
+import { Permission } from '@app/user/enums/permission.enum';
 
 describe('ProductController', () => {
   let controller: ProductController;
@@ -26,6 +27,9 @@ describe('ProductController', () => {
   });
 
   describe('find', () => {
+    it('should require read permission', () => {
+      expect(controller.find).toRequirePermissions(Permission.READ_PRODUCT);
+    });
     it('should return an pagination of products', async () => {
       // GIVEN
       const index = 1;
@@ -51,6 +55,9 @@ describe('ProductController', () => {
   });
 
   describe('findById', () => {
+    it('should require read permission', () => {
+      expect(controller.findById).toRequirePermissions(Permission.READ_PRODUCT);
+    });
     it('should return one product', async () => {
       // GIVEN
       const p = product();
@@ -66,6 +73,9 @@ describe('ProductController', () => {
   });
 
   describe('create', () => {
+    it('should require create permission', () => {
+      expect(controller.create).toRequirePermissions(Permission.CREATE_PRODUCT);
+    });
     it('should call the create method from the service', async () => {
       // GIVEN
       const p = createProductDto();
@@ -79,6 +89,9 @@ describe('ProductController', () => {
   });
 
   describe('update', () => {
+    it('should require update permission', () => {
+      expect(controller.update).toRequirePermissions(Permission.UPDATE_PRODUCT);
+    });
     it('should call the update method from the service', async () => {
       // GIVEN
       const id = '1234';
@@ -93,6 +106,9 @@ describe('ProductController', () => {
   });
 
   describe('delete', () => {
+    it('should require delete permission', () => {
+      expect(controller.delete).toRequirePermissions(Permission.DELETE_PRODUCT);
+    });
     it('should call the delete method from the service', async () => {
       // GIVEN
       const id = '1234';
