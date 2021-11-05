@@ -22,7 +22,7 @@ export class AuthStrategy extends PassportStrategy(Strategy, 'admin') {
   }
 
   async validate(payload): Promise<User> {
-    console.log(payload);
+    // console.log(payload);
     const user = await this.userRepo
       .createQueryBuilder('u')
       .where({ id: payload.id })
