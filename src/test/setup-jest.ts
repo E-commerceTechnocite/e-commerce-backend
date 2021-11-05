@@ -2,11 +2,14 @@ import { CanActivate } from '@nestjs/common';
 import CustomMatcherResult = jest.CustomMatcherResult;
 import { Permission } from '@app/user/enums/permission.enum';
 import { PERMISSIONS_KEY } from '@app/auth/admin/guard/granted.decorator';
+import { IAuthGuard } from '@nestjs/passport';
 
 expect.extend({
-  toHaveGuard(received, guard: CanActivate): CustomMatcherResult {
+  toHaveGuard(received, guard: CanActivate | IAuthGuard): CustomMatcherResult {
     const guards =
-      (Reflect.getMetadata('__guards__', received) as CanActivate[]) ?? [];
+      (Reflect.getMetadata('__guards__', received) as Array<
+        CanActivate | IAuthGuard
+      >) ?? [];
     if (guards.includes(guard)) {
       return {
         pass: true,
