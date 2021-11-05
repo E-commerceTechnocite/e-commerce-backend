@@ -4,6 +4,8 @@ import { FixturesInterface } from '@app/console/fixtures/fixtures.interface';
 import { UserFixturesService } from '@app/console/fixtures/user/user-fixtures.service';
 import { FileFixturesService } from '@app/console/fixtures/file/file-fixtures.service';
 import { CustomersFixturesService } from './customers/customers-fixtures.service';
+import { CartItemsFixturesService } from './cart-items/cart-items-fixtures.service';
+import { AddressFixturesService } from './address/address-fixtures.service';
 
 @Console({
   command: 'fixtures',
@@ -16,6 +18,8 @@ export class FixturesService implements FixturesInterface {
     private readonly userFixtures: UserFixturesService,
     private readonly fileFixtures: FileFixturesService,
     private readonly customersFixtures: CustomersFixturesService,
+    private readonly cartItemsFixtures: CartItemsFixturesService,
+    private readonly addressFixtures: AddressFixturesService,
   ) {}
 
   @Command({
@@ -28,6 +32,8 @@ export class FixturesService implements FixturesInterface {
     await this.userFixtures.load();
     await this.fileFixtures.load();
     await this.customersFixtures.load();
+    await this.cartItemsFixtures.load();
+    await this.addressFixtures.load();
   }
 
   @Command({
@@ -40,6 +46,8 @@ export class FixturesService implements FixturesInterface {
     await this.userFixtures.clean();
     await this.fileFixtures.clean();
     await this.customersFixtures.clean();
+    await this.cartItemsFixtures.clean();
+    await this.addressFixtures.clean();
   }
 
   @Command({
