@@ -7,6 +7,8 @@ import * as faker from 'faker';
 import { RandomizerService } from '@app/shared/services/randomizer.service';
 import { hash } from 'bcrypt';
 import { Gender } from '@app/customer/entities/customer/customer.enum';
+import { CustomerService } from '@app/customer/services/customer/customer.service';
+import { CustomerDto } from '@app/customer/dto/customer/customer.dto';
 
 @Injectable()
 export class CustomersFixturesService implements FixturesInterface {
@@ -15,13 +17,14 @@ export class CustomersFixturesService implements FixturesInterface {
     private readonly customerRepository: Repository<Customer>,
     private readonly randomizerService: RandomizerService,
     private readonly logger: ConsoleLogger,
+    private readonly customerService: CustomerService,
   ) {}
 
   async load() {
     for (let i = 0; i < 20; i++) {
       const firstName = faker.name.firstName();
       const lastName = faker.name.lastName();
-      const target: Customer = {
+      const target: CustomerDto = {
         username: faker.name.firstName() + `${Math.floor(Math.random() * 55)}`,
         password: await hash(this.randomizerService.generatePassword(10), 10),
         firstName: firstName,
@@ -32,7 +35,7 @@ export class CustomersFixturesService implements FixturesInterface {
         birthDate: faker.date.past(),
         newsletter: i % 2 == 0 ? true : false,
       };
-      await this.customerRepository.save(target);
+      await this.customerService.createCustomer(target);
     }
     this.logger.log('Customers added');
   }
