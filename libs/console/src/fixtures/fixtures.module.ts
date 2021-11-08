@@ -23,6 +23,10 @@ import { ShoppingCart } from '@app/shopping-cart/entities/shopping-cart.entity';
 import { CartItemsFixturesService } from './cart-items/cart-items-fixtures.service';
 import { AddressFixturesService } from './address/address-fixtures.service';
 import { AddressCustomer } from '@app/customer/adress/entity/customer-address.entity';
+import { Order } from '@app/order/entities/order.entity';
+import { OrdersFixturesService } from './order/orders-fixtures.service';
+import { OrderProductFixturesService } from './order-product/order-product-fixtures.service';
+import { OrderProduct } from '@app/order/entities/order-product.entity';
 
 @Module({
   imports: [
@@ -40,6 +44,8 @@ import { AddressCustomer } from '@app/customer/adress/entity/customer-address.en
       CartItem,
       ShoppingCart,
       AddressCustomer,
+      Order,
+      OrderProduct,
     ]),
     CustomerServiceModule,
     SharedModule,
@@ -53,6 +59,8 @@ import { AddressCustomer } from '@app/customer/adress/entity/customer-address.en
     ConsoleLogger,
     CartItemsFixturesService,
     AddressFixturesService,
+    OrdersFixturesService,
+    OrderProductFixturesService,
   ],
 })
 export class FixturesModule {}
