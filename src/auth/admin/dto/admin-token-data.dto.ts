@@ -10,6 +10,8 @@ export class AdminTokenDataDto {
   @ApiResponseProperty()
   roleId: string;
   @ApiResponseProperty()
+  roleName: string;
+  @ApiResponseProperty()
   iat?: number;
   @ApiResponseProperty()
   exp?: number;
