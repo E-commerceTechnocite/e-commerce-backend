@@ -13,6 +13,7 @@ import { CustomerModule } from './customer/customer.module';
 import { ShoppingCartModule } from './shopping-cart/shopping-cart.module';
 import { MailModule } from './mail/mail.module';
 import { CustomerAuthModule } from '@app/auth/customer/customer-auth.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { CustomerAuthModule } from '@app/auth/customer/customer-auth.module';
     CustomerModule,
     ShoppingCartModule,
     MailModule,
+    OrderModule,
   ],
 })
 export class ApplicationModule implements NestModule {

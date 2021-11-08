@@ -17,6 +17,7 @@ import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-met
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { Picture } from '@app/file/entities/picture.entity';
+
 import { UpdateProductDto } from '@app/product/dto/product/update-product.dto';
 import { JSDOM } from 'jsdom';
 import * as metaphone from 'talisman/phonetics/metaphone';
@@ -156,8 +157,12 @@ export class ProductService implements ProductServiceInterface {
     return product;
   }
 
-  findAll(): Promise<Product[]> {
-    return this.productRepository.find();
+  async findAll(): Promise<any[]> {
+    return await this.productRepository
+      .createQueryBuilder('product')
+      .select('product.id')
+      .addSelect("CONCAT(product.title,' ',product.price)", 'detail')
+      .execute();
   }
 
   async update(id: string | number, entity: UpdateProductDto): Promise<void> {
@@ -251,17 +256,10 @@ export class ProductService implements ProductServiceInterface {
     if (meta.currentPage > meta.maxPages) {
       throw new NotFoundException('This page of products does not exist');
     }
-    const query = this.productRepository.createQueryBuilder('p');
-    if (opts) {
-      const { orderBy, order } = opts;
-      await query.orderBy(
-        orderBy ? `p.${orderBy}` : 'p.createdAt',
-        order ?? 'DESC',
-      );
-    }
     const data = await this.productRepository.find({
       take: limit,
       skip: index * limit - limit,
+      order: { [opts?.orderBy ?? 'createdAt']: opts.order ?? 'DESC' },
     });
 
     return {
@@ -277,7 +275,7 @@ export class ProductService implements ProductServiceInterface {
   ): Promise<PaginationDto<Product>> {
     try {
       const SQLQuery = this.searchEngineService.createSearchQuery(
-        this.productRepository,
+        this.productRepository.createQueryBuilder('p'),
         query,
         [
           { name: 'title' },
@@ -286,16 +284,25 @@ export class ProductService implements ProductServiceInterface {
           { name: 'strippedDescription' },
           { name: 'metaphoneDescription', type: 'metaphone' },
         ],
+        [
+          { 'p.category': 'c' },
+          { 'p.taxRuleGroup': 'trg' },
+          { 'p.stock': 'stock' },
+          { 'p.pictures': 'pictures' },
+          { 'p.thumbnail': 'thumbnail' },
+        ],
       );
 
       const count = await SQLQuery.getCount();
-
-      const data = await SQLQuery.skip(index * limit - limit)
-        .take(limit)
+      const data = await SQLQuery.offset(index * limit - limit)
+        .limit(limit)
         .getMany();
 
       const meta = new PaginationMetadataDto(index, limit, count);
 
+      if (meta.currentPage > meta.maxPages) {
+        throw new NotFoundException('This page of products does not exist');
+      }
       return { data, meta };
     } catch (err) {
       if (err instanceof RuntimeException || err instanceof QueryFailedError) {

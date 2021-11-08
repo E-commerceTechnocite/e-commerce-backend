@@ -4,24 +4,29 @@ import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import { ApiOkPaginatedResponse } from '@app/shared/swagger/decorators';
 import { ApiCustomerAuth } from '@app/shared/swagger/decorators/auth/api-customer-auth.decorator';
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
-import { ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '@app/auth/customer/guard/customer-jwt-auth.guard';
+import { Controller, Get, Param, Query } from '@nestjs/common';
+import {
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 
-@ApiTags('Products')
-@UseGuards(JwtAuthGuard)
+@ApiTags('Products (Customer)')
 @ApiCustomerAuth()
 @Controller({ path: 'customer/product', version: '1' })
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @ApiOkResponse({ type: Product })
+  @ApiNotFoundResponse()
   @Get(':id')
   async findById(@Param('id') id: string): Promise<Product> {
     return this.productService.find(id);
   }
 
   @ApiOkPaginatedResponse(Product)
+  @ApiNotFoundResponse()
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
   @ApiQuery({ name: 'orderBy', required: false, type: 'string' })
@@ -35,9 +40,9 @@ export class ProductController {
   }
 
   // find product by title
-
+  // todo
   @ApiOkResponse({ type: Product })
-  @Get(':name')
+  @Get('/search/:name')
   async findByTitle(@Param('name') name: string): Promise<Product> {
     return this.productService.findByTitle(name);
   }

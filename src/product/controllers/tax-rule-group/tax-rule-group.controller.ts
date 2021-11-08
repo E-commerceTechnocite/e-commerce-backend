@@ -16,27 +16,37 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBody,
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
-  ApiQuery,
   ApiResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { Granted } from '@app/auth/admin/guard/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
-import { ApiAdminAuth, ApiOkPaginatedResponse } from '@app/shared/swagger';
+import {
+  ApiAdminAuth,
+  ApiOkPaginatedResponse,
+  ApiPaginationQueries,
+  ErrorSchema,
+} from '@app/shared/swagger';
 import { UpdateTaxRuleGroupDto } from '@app/product/dto/tax-rule-group/update-tax-rule-group.dto';
 
 @ApiAdminAuth()
 @ApiTags('TaxRuleGroup')
+@ApiUnauthorizedResponse({ type: ErrorSchema })
 @Controller({ path: 'tax-rule-group', version: '1' })
 export class TaxRuleGroupController {
   constructor(private readonly taxRuleGroupService: TaxRuleGroupService) {}
 
   @Granted(Permission.READ_TAX_RULE_GROUP)
   @ApiOkPaginatedResponse(TaxRuleGroup)
-  @ApiQuery({ name: 'page', required: false })
-  @ApiQuery({ name: 'limit', required: false })
+  @ApiNotFoundResponse({ type: ErrorSchema })
+  @ApiPaginationQueries()
   @Get()
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,
@@ -46,8 +56,7 @@ export class TaxRuleGroupController {
   }
 
   @Granted(Permission.READ_TAX_RULE_GROUP)
-  @ApiOkResponse()
-  @ApiResponse({ type: TaxRuleGroup })
+  @ApiOkResponse({ type: TaxRuleGroup, isArray: true })
   @Get('all')
   async findAll(): Promise<any[]> {
     return this.taxRuleGroupService.findAll();
@@ -55,6 +64,7 @@ export class TaxRuleGroupController {
 
   @Granted(Permission.READ_TAX_RULE_GROUP)
   @ApiOkResponse()
+  @ApiNotFoundResponse({ type: ErrorSchema })
   @ApiResponse({ type: TaxRuleGroup })
   @Get(':id')
   async findById(@Param('id') id: string): Promise<TaxRuleGroup> {
@@ -63,7 +73,8 @@ export class TaxRuleGroupController {
 
   @Granted(Permission.CREATE_TAX_RULE_GROUP)
   @ApiBody({ type: TaxRuleGroupDto, required: false })
-  @ApiResponse({ type: null })
+  @ApiCreatedResponse({ type: TaxRuleGroup })
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(@Body() taxRuleGroup: TaxRuleGroupDto): Promise<any> {
@@ -72,7 +83,8 @@ export class TaxRuleGroupController {
 
   @Granted(Permission.UPDATE_TAX_RULE_GROUP)
   @ApiBody({ type: UpdateTaxRuleGroupDto, required: false })
-  @ApiResponse({ type: null })
+  @ApiNoContentResponse()
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id')
   async update(
@@ -83,7 +95,8 @@ export class TaxRuleGroupController {
   }
 
   @Granted(Permission.DELETE_TAX_RULE_GROUP)
-  @ApiResponse({ type: null })
+  @ApiNoContentResponse()
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<any[]> {
     return await this.taxRuleGroupService.deleteWithId(id);

@@ -152,7 +152,7 @@ export class CountryService
   ): Promise<PaginationDto<Country>> {
     try {
       const sqlQuery = await this.searchService.createSearchQuery(
-        this.countryRepository,
+        this.countryRepository.createQueryBuilder('p'),
         query,
         [{ name: 'name' }, { name: 'code' }],
       );

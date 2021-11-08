@@ -1,5 +1,5 @@
 import { CustomerCreateDto } from '@app/customer/dto/customer/customer.create.dto';
-import { CustomerDto } from '@app/customer/dto/customer/customer.dto';
+
 import { CustomerUpdateDto } from '@app/customer/dto/customer/customer.update.dto';
 import { Customer } from '@app/customer/entities/customer/customer.entity';
 import {
@@ -17,6 +17,10 @@ import { MysqlSearchEngineService } from '@app/shared/services/mysql-search-engi
 import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
 import { RuntimeException } from '@nestjs/core/errors/exceptions/runtime.exception';
 import { QueryFailedError } from 'typeorm';
+import { PaginationOptions } from '@app/shared/interfaces/paginator.interface';
+import { ShoppingCartService } from '@app/shopping-cart/services/shopping-cart/shopping-cart.service';
+import { OrderService } from '@app/order/services/order.service';
+import { CustomerDto } from '@app/customer/dto/customer/customer.dto';
 
 @Injectable()
 export class CustomerService
@@ -28,25 +32,74 @@ export class CustomerService
     @InjectRepository(Customer)
     private readonly customerRepository: Repository<Customer>,
     private readonly searchService: MysqlSearchEngineService,
+    private shoppingCarteService: ShoppingCartService,
+    private orderService: OrderService,
   ) {}
+  find(id: string | number): Promise<Customer> {
+    throw new Error('Method not implemented.');
+  }
+  create(entity: Customer | CustomerCreateDto): Promise<Customer> {
+    throw new Error('Method not implemented.');
+  }
 
-  async find(id: string | number): Promise<Customer> {
+  async getPage(
+    index: number,
+    limit: number,
+    opts: PaginationOptions = null,
+  ): Promise<PaginationDto<Customer>> {
+    const count = await this.customerRepository.count();
+    const meta = new PaginationMetadataDto(index, limit, count);
+    if (meta.currentPage > meta.maxPages) {
+      throw new NotFoundException('This page of customers does not exist');
+    }
+    const query = this.customerRepository.createQueryBuilder('c');
+    if (opts) {
+      const { orderBy } = opts;
+      await query.orderBy(orderBy ?? 'id');
+    }
+
+    let data = await query
+      .skip(index * limit - limit)
+      .take(limit)
+      .getMany();
+
+    data = data.map((item) => {
+      delete item.password;
+      return item;
+    });
+
+    return {
+      data,
+      meta,
+    };
+  }
+
+  async getCustomerById(customerId): Promise<Customer> {
     try {
       const customer = await this.customerRepository.findOneOrFail({
-        where: { id: id },
+        where: { id: customerId },
       });
       delete customer.password;
       return customer;
     } catch (err) {
-      throw new NotFoundException(`Customer doesn't exist at id : ${id}`);
+      throw new NotFoundException(
+        `Customer doesn't exist at id : ${customerId}`,
+      );
     }
   }
 
-  async create(entity: Customer | CustomerCreateDto): Promise<Customer> {
+  // create a customer
+  async createCustomer(customer: CustomerCreateDto): Promise<Customer> {
+    const shoppingCart = await this.shoppingCarteService.createShoppingCart();
+
     const target: Customer = {
-      ...entity,
-      password: await hash(entity.password, 10),
+      ...customer,
+      shoppingCart: shoppingCart,
+      password: await hash(customer.password, 10),
     };
+    // creer un order pour ce customer
+
+    const order = await this.orderService.createOrder(target);
     return await this.customerRepository.save(target);
   }
 
@@ -87,7 +140,7 @@ export class CustomerService
   }
 
   // find all customers
-  findAll(): Promise<CustomerDto[]> {
+  findAll(): Promise<Customer[]> {
     return this.customerRepository.find();
   }
 
@@ -98,7 +151,7 @@ export class CustomerService
   ): Promise<PaginationDto<Customer>> {
     try {
       const sqlQuery = this.searchService.createSearchQuery(
-        this.customerRepository,
+        this.customerRepository.createQueryBuilder('p'),
         query,
         [{ name: 'username' }, { name: 'lastName' }, { name: 'firstName' }],
       );
@@ -141,23 +194,23 @@ export class CustomerService
   // }
 
   // update customer
-  // async updateCustomer(
-  //   customerId: string,
-  //   customer: CustomerUpdateDto,
-  // ): Promise<Customer> {
-  //   let updatedCustomer = await this.getCustomerById(customerId);
-  //   updatedCustomer = {
-  //     ...updatedCustomer,
-  //     ...customer,
-  //     password: await hash(customer.password, 10),
-  //   };
+  async updateCustomer(
+    customerId: string,
+    customer: CustomerUpdateDto,
+  ): Promise<Customer> {
+    let updatedCustomer = await this.getCustomerById(customerId);
+    updatedCustomer = {
+      ...updatedCustomer,
+      ...customer,
+      password: await hash(customer.password, 10),
+    };
 
-  //   return this.customerRepository.save(updatedCustomer);
-  // }
+    return this.customerRepository.save(updatedCustomer);
+  }
 
   // Delete customer
-  // async deleteCustomer(customerId): Promise<any> {
-  //   let deletedCustomer = await this.getCustomerById(customerId);
-  //   return this.customerRepository.delete(customerId);
-  // }
+  async deleteCustomer(customerId): Promise<any> {
+    let deletedCustomer = await this.getCustomerById(customerId);
+    return this.customerRepository.delete(customerId);
+  }
 }

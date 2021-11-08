@@ -3,6 +3,7 @@ import { CustomerDto } from '@app/customer/dto/customer/customer.dto';
 import { CustomerUpdateDto } from '@app/customer/dto/customer/customer.update.dto';
 import { Customer } from '@app/customer/entities/customer/customer.entity';
 import { CustomerService } from '@app/customer/services/customer/customer.service';
+import { ShoppingCartService } from '@app/shopping-cart/services/shopping-cart/shopping-cart.service';
 import {
   Body,
   Controller,
@@ -13,11 +14,22 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiOkPaginatedResponse, ApiSearchQueries } from '@app/shared/swagger';
+import {
+  ApiOkPaginatedResponse,
+  ApiPaginationQueries,
+  ApiSearchQueries,
+} from '@app/shared/swagger';
+import { ApiTags } from '@nestjs/swagger';
+import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
+import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 
-@Controller('customers')
+@ApiTags('Customers')
+@Controller({ path: 'customers', version: '1' })
 export class CustomerController {
-  constructor(private customerService: CustomerService) {}
+  constructor(
+    private customerService: CustomerService,
+    private shoppingCarteService: ShoppingCartService,
+  ) {}
 
   @ApiSearchQueries()
   @ApiOkPaginatedResponse(Customer)
@@ -30,24 +42,33 @@ export class CustomerController {
     return this.customerService.search(query, page, limit);
   }
 
-  // create a customer
-  @Post()
-  createCustomer(
-    @Body() customer: CustomerCreateDto,
-  ): Promise<CustomerCreateDto> {
-    return this.customerService.create(customer);
+  // find all customers
+  @Get('all')
+  findAll(): Promise<Customer[]> {
+    return this.customerService.findAll();
   }
 
-  // find all customers
+  @ApiOkPaginatedResponse(Customer)
+  @ApiPaginationQueries()
   @Get()
-  findAll(): Promise<CustomerDto[]> {
-    return this.customerService.findAll();
+  async find(
+    @Query('page', IsPositiveIntPipe) page = 1,
+    @Query('limit', IsPositiveIntPipe) limit = 10,
+    @Query('orderBy') orderBy: string = null,
+    @Query('order') order: 'DESC' | 'ASC' = null,
+  ): Promise<PaginationDto<Customer>> {
+    return this.customerService.getPage(page, limit, { orderBy, order });
+  }
+  // create a customer
+  @Post()
+  createCustomer(@Body() customer: CustomerCreateDto): Promise<Customer> {
+    return this.customerService.createCustomer(customer);
   }
 
   // find a customer by id
   @Get(':customerId')
-  findCustomerById(@Param('customerId') customerId): Promise<CustomerDto> {
-    return this.customerService.find(customerId);
+  findCustomerById(@Param('customerId') customerId): Promise<Customer> {
+    return this.customerService.getCustomerById(customerId);
   }
 
   //update a customer
@@ -55,12 +76,12 @@ export class CustomerController {
   updateCustomer(
     @Param('customerId') customerId: string,
     @Body() customer: CustomerUpdateDto,
-  ): Promise<void> {
-    return this.customerService.update(customerId, customer);
+  ): Promise<CustomerUpdateDto> {
+    return this.customerService.updateCustomer(customerId, customer);
   }
   // Delete a customer
   @Delete(':customerId')
-  deleteCustomer(@Param('customerId') customerId): Promise<void> {
-    return this.customerService.deleteFromId(customerId);
+  deleteCustomer(@Param('customerId') customerId): Promise<CustomerDto> {
+    return this.customerService.deleteCustomer(customerId);
   }
 }

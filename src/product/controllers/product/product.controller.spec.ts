@@ -4,20 +4,13 @@ import { ProductService } from '@app/product/services/product/product.service';
 import { Product } from '@app/product/entities/product.entity';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { mock } from 'jest-mock-extended';
+import { createProductDto, product, updateProductDto } from '@app/test/stub';
+import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
 
 describe('ProductController', () => {
   let controller: ProductController;
 
   const service = mock<ProductService>();
-
-  const productStub: Product = {
-    category: undefined,
-    price: 39.99,
-    reference: '1234',
-    title: 'title',
-    id: '1',
-    description: 'description',
-  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -34,31 +27,81 @@ describe('ProductController', () => {
 
   describe('find', () => {
     it('should return an pagination of products', async () => {
+      // GIVEN
+      const index = 1;
+      const limit = 10;
+      const count = 5;
+      const meta = new PaginationMetadataDto(index, limit, count);
       const pagination: PaginationDto<Product> = {
-        data: [productStub],
-        meta: {
-          currentPage: 1,
-          limit: 1,
-          maxPages: 1,
-          prevPage: null,
-          nextPage: null,
-          count: 1,
-        },
+        data: new Array(count).map((_) => product()),
+        meta: meta,
       };
-      await service.getPage(1, 10);
-      await service.getPage.mockResolvedValue(pagination);
-      expect(await controller.find()).toEqual(pagination);
-      expect(service.getPage).toHaveBeenCalledWith(1, 10);
+      service.getPage.calledWith(index, limit).mockResolvedValue(pagination);
+
+      //WHEN
+      const response = await controller.find(index, limit);
+
+      // THEN
+      expect(response).toEqual(pagination);
+      expect(service.getPage).toHaveBeenCalledWith(index, limit, {
+        order: null,
+        orderBy: null,
+      });
     });
   });
 
   describe('findById', () => {
     it('should return one product', async () => {
-      const product = productStub;
-      await service.find.mockResolvedValue(product);
-      await service.find('1');
-      expect(await controller.findById('1')).toEqual(product);
-      expect(service.find).toHaveBeenCalledWith('1');
+      // GIVEN
+      const p = product();
+      service.find.mockResolvedValue(p);
+
+      // WHEN
+      const response = await controller.findById(p.id);
+
+      // THEN
+      expect(response).toEqual(p);
+      expect(service.find).toHaveBeenCalledWith(p.id);
+    });
+  });
+
+  describe('create', () => {
+    it('should call the create method from the service', async () => {
+      // GIVEN
+      const p = createProductDto();
+
+      // WHEN
+      const response = await controller.create(p);
+
+      // THEN
+      expect(service.create).toHaveBeenCalledWith(p);
+    });
+  });
+
+  describe('update', () => {
+    it('should call the update method from the service', async () => {
+      // GIVEN
+      const id = '1234';
+      const p = updateProductDto();
+
+      // WHEN
+      const response = await controller.update(id, p);
+
+      // THEN
+      expect(service.update).toHaveBeenCalledWith(id, p);
+    });
+  });
+
+  describe('delete', () => {
+    it('should call the delete method from the service', async () => {
+      // GIVEN
+      const id = '1234';
+
+      // WHEN
+      const response = await controller.delete(id);
+
+      // THEN
+      expect(service.deleteFromId).toHaveBeenCalledWith(id);
     });
   });
 });

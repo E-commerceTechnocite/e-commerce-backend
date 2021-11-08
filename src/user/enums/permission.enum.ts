@@ -59,6 +59,23 @@ export class PermissionUtil {
     return permissions;
   }
 
+  private static allPermissionsByType(
+    type: 'r' | 'c' | 'u' | 'd',
+  ): Permission[] {
+    const permissions: Permission[] = [];
+    for (const [key] of Object.entries(Permission)) {
+      if (Permission[key].split(':')[0] === type) {
+        permissions.push(Permission[key]);
+      }
+    }
+    return permissions;
+  }
+
+  static allReadPermissions = () => PermissionUtil.allPermissionsByType('r');
+  static allCreatePermissions = () => PermissionUtil.allPermissionsByType('c');
+  static allUpdatePermissions = () => PermissionUtil.allPermissionsByType('u');
+  static allDeletePermissions = () => PermissionUtil.allPermissionsByType('d');
+
   static productPermissions(): Permission[] {
     return [
       Permission.READ_PRODUCT,

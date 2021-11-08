@@ -15,7 +15,17 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiBody, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { Permission } from '@app/user/enums/permission.enum';
 import { Granted } from '@app/auth/admin/guard/granted.decorator';
 import {
@@ -23,11 +33,13 @@ import {
   ApiOkPaginatedResponse,
   ApiPaginationQueries,
   ApiSearchQueries,
+  ErrorSchema,
 } from '@app/shared/swagger';
 import { UpdateCountryDto } from '@app/product/dto/country/update-country.dto';
 
 @ApiAdminAuth()
 @ApiTags('Country')
+@ApiUnauthorizedResponse({ type: ErrorSchema })
 @Controller({ path: 'country', version: '1' })
 export class CountryController {
   constructor(private readonly countryService: CountryService) {}
@@ -35,6 +47,8 @@ export class CountryController {
   @Granted(Permission.READ_COUNTRY)
   @ApiSearchQueries()
   @ApiOkPaginatedResponse(Country)
+  @ApiNotFoundResponse({ type: ErrorSchema })
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @HttpCode(HttpStatus.OK)
   @Get('search')
   async search(
@@ -46,18 +60,23 @@ export class CountryController {
 
   @Granted(Permission.READ_COUNTRY)
   @ApiOkPaginatedResponse(Country)
+  @ApiNotFoundResponse({ type: ErrorSchema })
   @ApiPaginationQueries()
   @Get()
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,
     @Query('limit', IsPositiveIntPipe) limit = 10,
+    @Query('orderBy') orderBy = null,
+    @Query('order') order: 'DESC' | 'ASC' = 'DESC',
   ): Promise<PaginationDto<Country>> {
-    return this.countryService.getPage(page, limit);
+    return this.countryService.getPage(page, limit, {
+      orderBy,
+      order,
+    });
   }
 
   @Granted(Permission.READ_COUNTRY)
-  @ApiOkResponse()
-  @ApiResponse({ type: Country })
+  @ApiOkResponse({ type: Country, isArray: true })
   @Get('all')
   async findAll(): Promise<any[]> {
     return await this.countryService.findAll();
@@ -65,6 +84,7 @@ export class CountryController {
 
   @Granted(Permission.READ_COUNTRY)
   @ApiOkResponse()
+  @ApiNotFoundResponse({ type: ErrorSchema })
   @ApiResponse({ type: Country })
   @Get(':id')
   async findById(@Param('id') id: string): Promise<Country> {
@@ -73,7 +93,8 @@ export class CountryController {
 
   @Granted(Permission.CREATE_COUNTRY)
   @ApiBody({ type: CountryDto, required: false })
-  @ApiResponse({ type: null })
+  @ApiCreatedResponse({ type: Country })
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(@Body() country: CountryDto): Promise<any> {
@@ -82,7 +103,8 @@ export class CountryController {
 
   @Granted(Permission.UPDATE_COUNTRY)
   @ApiBody({ type: UpdateCountryDto, required: false })
-  @ApiResponse({ type: null })
+  @ApiNoContentResponse()
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id')
   async update(
@@ -93,7 +115,8 @@ export class CountryController {
   }
 
   @Granted(Permission.DELETE_COUNTRY)
-  @ApiResponse({ type: null })
+  @ApiNoContentResponse()
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<any[]> {
     return await this.countryService.deleteWithId(id);

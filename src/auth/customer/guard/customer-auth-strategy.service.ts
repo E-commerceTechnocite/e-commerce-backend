@@ -17,15 +17,14 @@ export class AuthStrategy extends PassportStrategy(Strategy, 'customer') {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: config.get<string>('JWT_SECRET'),
+      secretOrKey: config.get<string>('CUSTOMER_JWT_SECRET'),
     });
   }
 
   async validate(payload): Promise<Customer> {
-    const customer = await this.customerRepo
+    return await this.customerRepo
       .createQueryBuilder('u')
       .where({ id: payload.id })
       .getOne();
-    return customer;
   }
 }

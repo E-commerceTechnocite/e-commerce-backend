@@ -5,9 +5,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ShoppingCart } from '@app/shopping-cart/entities/shopping-cart.entity';
 import { CartItem } from '@app/shopping-cart/entities/cart-item.entity';
 import { Product } from '@app/product/entities/product.entity';
+import { Customer } from '@app/customer/entities/customer/customer.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ShoppingCart, CartItem, Product])],
+  imports: [
+    TypeOrmModule.forFeature([ShoppingCart, CartItem, Product, Customer]),
+  ],
   providers: [ShoppingCartService, CartItemService],
   exports: [ShoppingCartService, CartItemService],
 })
