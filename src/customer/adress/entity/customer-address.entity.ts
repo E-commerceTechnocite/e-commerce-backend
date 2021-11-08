@@ -24,7 +24,7 @@ export class AddressCustomer extends EntitySchema {
   // relation Address- order
   @OneToMany(() => Order, (order) => order.address, { eager: true })
   @JoinColumn({ name: 'addressId', referencedColumnName: 'id' })
-  orders: Order[];
+  orders?: Order[];
 
   // relation Address- Customer
   @ManyToOne(() => Customer, (customer) => customer.addressCustomers)
