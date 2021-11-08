@@ -37,6 +37,19 @@ export class CustomersFixturesService implements FixturesInterface {
       };
       await this.customerService.createCustomer(target);
     }
+
+    const customerTest: CustomerDto = {
+      username: 'bob10',
+      password: 'bob123',
+      firstName: 'bob',
+      lastName: 'bob',
+      email: `bob@bob.com`,
+      phoneNumber: faker.phone.phoneNumber(),
+      gender: Gender.masculin,
+      birthDate: faker.date.past(),
+      newsletter: false,
+    };
+    await this.customerService.createCustomer(customerTest);
     this.logger.log('Customers added');
   }
   async clean() {
