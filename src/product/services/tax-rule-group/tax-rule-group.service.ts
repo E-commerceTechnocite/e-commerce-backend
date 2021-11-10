@@ -48,16 +48,12 @@ export class TaxRuleGroupService
       throw new NotFoundException('This page of TaxRuleGroup does not exist');
     }
 
-    const query = this.taxRuleGroupRepository.createQueryBuilder('trg');
-    if (opts) {
-      const { orderBy } = opts;
-      await query.orderBy(orderBy ?? 'id');
-    }
-    const data = await query
+    const data = await this.taxRuleGroupRepository.find({
+      skip: index * limit - limit,
+      take: limit,
+      order: { [opts?.orderBy ?? 'createdAt']: opts?.order ?? 'DESC' },
+    });
 
-      .skip(index * limit - limit)
-      .take(limit)
-      .getMany();
     return {
       data,
       meta,

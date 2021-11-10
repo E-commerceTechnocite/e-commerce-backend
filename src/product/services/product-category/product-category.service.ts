@@ -52,16 +52,12 @@ export class ProductCategoryService implements ProductCategoryServiceInterface {
       );
     }
 
-    const query = this.repository.createQueryBuilder('c');
-    if (opts) {
-      const { orderBy } = opts;
-      await query.orderBy(orderBy ?? 'id');
-    }
-    const data = await query
+    const data = await this.repository.find({
+      skip: index * limit - limit,
+      take: limit,
+      order: { [opts?.orderBy ?? 'createdAt']: opts?.order ?? 'DESC' },
+    });
 
-      .skip(index * limit - limit)
-      .take(limit)
-      .getMany();
     return {
       data,
       meta,

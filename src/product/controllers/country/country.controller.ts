@@ -53,9 +53,10 @@ export class CountryController {
   @Get('search')
   async search(
     @Query('q') queryString: string,
-    @Query('page') page = 1,
+    @Query('page', IsPositiveIntPipe) page = 1,
+    @Query('limit', IsPositiveIntPipe) limit = 10,
   ): Promise<PaginationDto<Country>> {
-    return this.countryService.search(queryString, page, 10);
+    return this.countryService.search(queryString, page, limit);
   }
 
   @Granted(Permission.READ_COUNTRY)
@@ -67,7 +68,7 @@ export class CountryController {
     @Query('page', IsPositiveIntPipe) page = 1,
     @Query('limit', IsPositiveIntPipe) limit = 10,
     @Query('orderBy') orderBy = null,
-    @Query('order') order: 'DESC' | 'ASC' = 'DESC',
+    @Query('order') order: 'DESC' | 'ASC' = null,
   ): Promise<PaginationDto<Country>> {
     return this.countryService.getPage(page, limit, {
       orderBy,

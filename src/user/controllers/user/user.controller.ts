@@ -53,8 +53,10 @@ export class UserController {
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,
     @Query('limit', IsPositiveIntPipe) limit = 10,
+    @Query('orderBy') orderBy: string = null,
+    @Query('order') order: 'DESC' | 'ASC' = null,
   ): Promise<PaginationDto<User>> {
-    return this.userService.getPage(page, limit);
+    return this.userService.getPage(page, limit, { orderBy, order });
   }
 
   @Granted(Permission.READ_USER)

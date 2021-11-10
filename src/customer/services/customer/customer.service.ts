@@ -20,7 +20,6 @@ import { QueryFailedError } from 'typeorm';
 import { PaginationOptions } from '@app/shared/interfaces/paginator.interface';
 import { ShoppingCartService } from '@app/shopping-cart/services/shopping-cart/shopping-cart.service';
 import { OrderService } from '@app/order/services/order.service';
-import { CustomerDto } from '@app/customer/dto/customer/customer.dto';
 
 @Injectable()
 export class CustomerService
@@ -52,16 +51,11 @@ export class CustomerService
     if (meta.currentPage > meta.maxPages) {
       throw new NotFoundException('This page of customers does not exist');
     }
-    const query = this.customerRepository.createQueryBuilder('c');
-    if (opts) {
-      const { orderBy } = opts;
-      await query.orderBy(orderBy ?? 'id');
-    }
-
-    let data = await query
-      .skip(index * limit - limit)
-      .take(limit)
-      .getMany();
+    let data = await this.customerRepository.find({
+      take: limit,
+      skip: index * limit - limit,
+      order: { [opts?.orderBy ?? 'createdAt']: opts?.order ?? 'DESC' },
+    });
 
     data = data.map((item) => {
       delete item.password;
@@ -141,7 +135,10 @@ export class CustomerService
 
   // find all customers
   findAll(): Promise<Customer[]> {
-    return this.customerRepository.find();
+    return this.customerRepository.find({
+      select: ['id', 'email'],
+      loadEagerRelations: false,
+    });
   }
 
   async search(
@@ -210,7 +207,7 @@ export class CustomerService
 
   // Delete customer
   async deleteCustomer(customerId): Promise<any> {
-    let deletedCustomer = await this.getCustomerById(customerId);
+    await this.getCustomerById(customerId);
     return this.customerRepository.delete(customerId);
   }
 }

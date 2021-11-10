@@ -50,8 +50,10 @@ export class TaxRuleController {
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,
     @Query('limit', IsPositiveIntPipe) limit = 10,
+    @Query('orderBy') orderBy: string = null,
+    @Query('order') order: 'DESC' | 'ASC' = null,
   ): Promise<PaginationDto<TaxRule>> {
-    return this.taxRuleService.getPage(page, limit);
+    return this.taxRuleService.getPage(page, limit, { order, orderBy });
   }
 
   @Granted(Permission.READ_TAX_RULE)
