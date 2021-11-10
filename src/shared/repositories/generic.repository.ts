@@ -2,6 +2,9 @@ import { Repository, SelectQueryBuilder } from 'typeorm';
 import { RuntimeException } from '@nestjs/core/errors/exceptions/runtime.exception';
 import { Field, Joins } from '@app/shared/services/mysql-search-engine.service';
 import * as metaphone from 'talisman/phonetics/metaphone';
+import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { PaginationOptions } from '@app/shared/interfaces/paginator.interface';
 
 export abstract class GenericRepository<T> extends Repository<T> {
   createSearchQuery(
@@ -60,5 +63,55 @@ export abstract class GenericRepository<T> extends Repository<T> {
     } catch {
       throw new RuntimeException('Incorrect query');
     }
+  }
+
+  async findAndPaginate(
+    index: number,
+    limit: number,
+    opts: PaginationOptions = {},
+  ) {
+    opts = {
+      loadEagerRelations: true,
+      ...opts,
+    };
+    if (opts?.order && opts?.order !== 'DESC' && opts?.order !== 'ASC') {
+      throw new BadRequestException(`Wrong 'order' parameter: '${opts.order}'`);
+    }
+    const count = await this.count();
+    const meta = new PaginationMetadataDto(index, limit, count);
+    if (meta.currentPage > meta.maxPages) {
+      throw new NotFoundException('This page does not exist');
+    }
+    let relations: string[] = [];
+    if (opts.loadEagerRelations) {
+      relations = this.metadata.eagerRelations.map((rel) => {
+        return rel.buildPropertyPath();
+      });
+    }
+
+    const q = await this.createQueryBuilder('entity')
+      .skip(index * limit - limit)
+      .take(limit);
+
+    let prop = opts?.orderBy ?? 'createdAt';
+    prop = relations.includes(prop.split('.')[0]) ? prop : `${q.alias}.${prop}`;
+
+    console.log(prop);
+    relations.forEach((rel) => {
+      q.leftJoinAndSelect(`${q.alias}.${rel}`, rel);
+    });
+    let data;
+    try {
+      data = await q.orderBy(`${prop}`, opts?.order ?? 'DESC').getMany();
+    } catch (err) {
+      throw new BadRequestException(
+        `Unknown 'orderBy' parameter: '${opts.orderBy}'`,
+      );
+    }
+
+    return {
+      data,
+      meta,
+    };
   }
 }

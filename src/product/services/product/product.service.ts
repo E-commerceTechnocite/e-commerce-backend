@@ -248,41 +248,11 @@ export class ProductService implements ProductServiceInterface {
   async getPage(
     index: number,
     limit: number,
-    opts: PaginationOptions = null,
+    opts: PaginationOptions = {},
   ): Promise<PaginationDto<Product>> {
-    const count = await this.productRepository.count();
-    const meta = new PaginationMetadataDto(index, limit, count);
-    if (meta.currentPage > meta.maxPages) {
-      throw new NotFoundException('This page of products does not exist');
-    }
-
-    // const ob = opts?.orderBy.split('.');
-    // let orderObject = null;
-    // for (let i = 0; i < ob.length; i++) {}
-    console.log(opts?.orderBy);
-    const data = await this.productRepository.find({
-      take: limit,
-      skip: index * limit - limit,
-      loadEagerRelations: true,
-      order: { [opts?.orderBy ?? 'createdAt']: opts?.order ?? 'DESC' },
-      // order: { 'stock.physical': 'DESC' },
+    return await this.productRepository.findAndPaginate(index, limit, {
+      ...opts,
     });
-
-    // const data = await this.productRepository
-    //   .createQueryBuilder('p')
-    //   .skip(index * limit - limit)
-    //   .take(limit)
-    //   .leftJoinAndSelect('p.stock', 'p.stock')
-    //   // .leftJoinAndSelect('p.', 'stock')
-    //   // .leftJoinAndSelect('p.stock', 'stock')
-    //   // .orderBy(`p.${opts?.orderBy ?? 'createdAt'}`, opts?.order ?? 'DESC')
-    //   .orderBy(`p.stock.physical`, opts?.order ?? 'DESC')
-    //   .getMany();
-
-    return {
-      data,
-      meta,
-    };
   }
 
   async search(
