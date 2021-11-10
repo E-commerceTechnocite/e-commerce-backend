@@ -1,4 +1,3 @@
-import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
 import {
@@ -14,7 +13,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { RoleRepository } from '@app/user/repositories/role/role.repository';
 
 @Injectable()
 export class RoleService
@@ -23,8 +22,8 @@ export class RoleService
     PaginatorInterface<Role>
 {
   constructor(
-    @InjectRepository(Role)
-    private readonly roleRepo: Repository<Role>,
+    @InjectRepository(RoleRepository)
+    private readonly roleRepo: RoleRepository,
   ) {}
 
   async getPage(
@@ -32,22 +31,7 @@ export class RoleService
     limit: number,
     opts?: PaginationOptions,
   ): Promise<PaginationDto<Role>> {
-    const count = await this.roleRepo.count();
-    const meta = new PaginationMetadataDto(index, limit, count);
-    if (meta.currentPage > meta.maxPages) {
-      throw new NotFoundException('This page of roles does not exist');
-    }
-
-    const data = await this.roleRepo.find({
-      take: limit,
-      skip: index * limit - limit,
-      order: { [opts?.orderBy ?? 'createdAt']: opts?.order ?? 'DESC' },
-    });
-
-    return {
-      data,
-      meta,
-    };
+    return this.roleRepo.findAndPaginate(index, limit, { ...opts });
   }
 
   async find(id: string | number): Promise<Role> {
