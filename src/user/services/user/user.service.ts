@@ -5,20 +5,19 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '@app/user/entities/user.entity';
-import { Repository } from 'typeorm';
 import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
 import { UpdateUserDto } from '../../update-user.dto';
-import { Role } from '../../entities/role.entity';
 import {
   PaginationOptions,
   PaginatorInterface,
 } from '@app/shared/interfaces/paginator.interface';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
-import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
 import { MailService } from '@app/mail/mail.service';
 import { hash } from 'bcrypt';
 import { CreateUserDto } from '../../create-user.dto';
 import { RandomizerService } from '@app/shared/services/randomizer.service';
+import { UserRepository } from '@app/user/repositories/user/user.repository';
+import { RoleRepository } from '@app/user/repositories/role/role.repository';
 
 @Injectable()
 export class UserService
@@ -27,8 +26,10 @@ export class UserService
     PaginatorInterface<User>
 {
   constructor(
-    @InjectRepository(User) private readonly userRepository: Repository<User>,
-    @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
+    @InjectRepository(UserRepository)
+    private readonly userRepository: UserRepository,
+    @InjectRepository(RoleRepository)
+    private readonly roleRepository: RoleRepository,
     private readonly randomizerService: RandomizerService,
     private readonly mailService: MailService,
   ) {}
@@ -38,27 +39,7 @@ export class UserService
     limit: number,
     opts?: PaginationOptions,
   ): Promise<PaginationDto<User>> {
-    const count = await this.userRepository.count();
-    const meta = new PaginationMetadataDto(index, limit, count);
-    if (meta.currentPage > meta.maxPages && meta.maxPages !== 0) {
-      throw new NotFoundException('This page of products does not exist');
-    }
-
-    let data = await this.userRepository.find({
-      take: limit,
-      skip: index * limit - limit,
-      order: { [opts?.orderBy ?? 'createdAt']: opts?.order ?? 'DESC' },
-    });
-
-    data = data.map((item) => {
-      delete item.password;
-      return item;
-    });
-
-    return {
-      data,
-      meta,
-    };
+    return this.userRepository.findAndPaginate(index, limit, { ...opts });
   }
 
   async find(id: string | number): Promise<User> {

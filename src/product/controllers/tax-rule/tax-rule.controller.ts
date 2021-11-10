@@ -45,6 +45,7 @@ export class TaxRuleController {
   @Granted(Permission.READ_TAX_RULE)
   @ApiOkPaginatedResponse(TaxRule)
   @ApiNotFoundResponse({ type: ErrorSchema })
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @ApiPaginationQueries()
   @Get()
   async find(

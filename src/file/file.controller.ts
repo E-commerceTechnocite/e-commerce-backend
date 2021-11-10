@@ -29,6 +29,7 @@ import {
   ApiFile,
   ApiFiles,
   ApiOkPaginatedResponse,
+  ApiPaginationQueries,
 } from '@app/shared/swagger';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
@@ -61,8 +62,7 @@ export class FileController {
 
   @Granted(Permission.READ_FILE)
   @ApiOkPaginatedResponse(Picture)
-  @ApiQuery({ name: 'page', required: false })
-  @ApiQuery({ name: 'limit', required: false })
+  @ApiPaginationQueries()
   @Get()
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,

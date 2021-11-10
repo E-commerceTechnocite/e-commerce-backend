@@ -1,24 +1,29 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProductCategoryService } from './product-category.service';
-import { Repository } from 'typeorm';
-import { ProductCategory } from '@app/product/entities/product-category.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Product } from '@app/product/entities/product.entity';
 import { mock } from 'jest-mock-extended';
 import { MysqlSearchEngineService } from '@app/shared/services/mysql-search-engine.service';
+import { ProductCategoryRepository } from '@app/product/repositories/product-category/product-category.repository';
+import { ProductRepository } from '@app/product/repositories/product/product.repository';
 
 describe('ProductCategoryService', () => {
   let service: ProductCategoryService;
-  const repository = mock<Repository<ProductCategory>>();
-  const productRepository = mock<Repository<Product>>();
+  const repository = mock<ProductCategoryRepository>();
+  const productRepository = mock<ProductRepository>();
   const searchEngineService = mock<MysqlSearchEngineService>();
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ProductCategoryService,
-        { provide: getRepositoryToken(ProductCategory), useValue: repository },
-        { provide: getRepositoryToken(Product), useValue: productRepository },
+        {
+          provide: getRepositoryToken(ProductCategoryRepository),
+          useValue: repository,
+        },
+        {
+          provide: getRepositoryToken(ProductRepository),
+          useValue: productRepository,
+        },
         { provide: MysqlSearchEngineService, useValue: searchEngineService },
       ],
     }).compile();

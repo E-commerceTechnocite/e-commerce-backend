@@ -62,6 +62,7 @@ export class CountryController {
   @Granted(Permission.READ_COUNTRY)
   @ApiOkPaginatedResponse(Country)
   @ApiNotFoundResponse({ type: ErrorSchema })
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @ApiPaginationQueries()
   @Get()
   async find(

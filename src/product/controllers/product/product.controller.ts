@@ -76,6 +76,7 @@ export class ProductController {
   @ApiOkPaginatedResponse(Product)
   @ApiPaginationQueries()
   @ApiNotFoundResponse({ type: ErrorSchema })
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @Get()
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,

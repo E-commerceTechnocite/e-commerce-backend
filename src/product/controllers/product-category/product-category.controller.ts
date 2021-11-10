@@ -65,6 +65,7 @@ export class ProductCategoryController {
   @Granted(Permission.READ_CATEGORY)
   @ApiOkPaginatedResponse(ProductCategory)
   @ApiNotFoundResponse({ type: ErrorSchema })
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @ApiPaginationQueries()
   @Get()
   async find(
