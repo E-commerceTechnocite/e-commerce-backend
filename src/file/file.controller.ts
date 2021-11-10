@@ -9,6 +9,7 @@ import {
   Query,
   UploadedFile,
   UploadedFiles,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
@@ -33,10 +34,12 @@ import {
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { PictureDto } from './dto/picture.dto';
+import { AdminJwtAuthGuard } from '@app/auth/admin/guard/jwt-auth.guard';
 
 @ApiExtraModels(Picture)
 @ApiAdminAuth()
 @ApiTags('File Upload')
+@UseGuards(AdminJwtAuthGuard)
 @Controller({ path: 'file', version: '1' })
 export class FileController {
   constructor(private readonly fileService: FileService) {}

@@ -1,4 +1,5 @@
 import { Granted } from '@app/auth/admin/guard/granted.decorator';
+import { AdminJwtAuthGuard } from '@app/auth/admin/guard/jwt-auth.guard';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import {
@@ -23,6 +24,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -39,6 +41,7 @@ import {
 @ApiAdminAuth()
 @ApiTags('Role')
 @ApiUnauthorizedResponse({ type: ErrorSchema })
+@UseGuards(AdminJwtAuthGuard)
 @Controller({ path: 'role', version: '1' })
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
