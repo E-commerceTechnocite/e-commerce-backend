@@ -10,6 +10,10 @@ export class OrderService {
     private readonly orderRepository: Repository<Order>,
   ) {}
 
+  async find(): Promise<Order[]> {
+    return await this.orderRepository.find();
+  }
+
   // permer de creer un enregistrement dans la table order  des qu'un enregistrement est inseré dans la table customer
   async createOrder(target): Promise<string> {
     /*  const order: Order = {
