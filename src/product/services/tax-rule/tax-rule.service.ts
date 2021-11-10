@@ -45,17 +45,12 @@ export class TaxRuleService
     if (meta.currentPage > meta.maxPages) {
       throw new NotFoundException('This page of tax rules does not exist');
     }
-    const query = this.taxRuleRepository.createQueryBuilder('tr');
-    if (opts) {
-      const { orderBy } = opts;
-      await query.orderBy(orderBy ?? 'id');
-    }
-    const data = await query
-      .leftJoinAndSelect('tr.taxRuleGroup', 'trg')
-      .leftJoinAndSelect('tr.country', 'c')
-      .skip(index * limit - limit)
-      .take(limit)
-      .getMany();
+
+    const data = await this.taxRuleRepository.find({
+      skip: index * limit - limit,
+      take: limit,
+      order: { [opts?.orderBy ?? 'createdAt']: opts?.order ?? 'DESC' },
+    });
 
     return {
       data,

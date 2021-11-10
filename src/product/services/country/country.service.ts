@@ -46,15 +46,12 @@ export class CountryService
       throw new NotFoundException('This page of countries does not exist');
     }
 
-    const query = this.countryRepository.createQueryBuilder('country');
-    if (opts) {
-      const { orderBy } = opts;
-      await query.orderBy(orderBy ?? 'id');
-    }
-    const data = await query
-      .skip(index * limit - limit)
-      .take(limit)
-      .getMany();
+    const data = await this.countryRepository.find({
+      skip: index * limit - limit,
+      take: limit,
+      order: { [opts?.orderBy ?? 'createdAt']: opts?.order ?? 'DESC' },
+    });
+
     return {
       data,
       meta,

@@ -38,15 +38,12 @@ export class RoleService
       throw new NotFoundException('This page of roles does not exist');
     }
 
-    const query = this.roleRepo.createQueryBuilder('role');
-    if (opts) {
-      const { orderBy } = opts;
-      await query.orderBy(orderBy ?? 'id');
-    }
-    const data = await query
-      .skip(index * limit - limit)
-      .take(limit)
-      .getMany();
+    const data = await this.roleRepo.find({
+      take: limit,
+      skip: index * limit - limit,
+      order: { [opts?.orderBy ?? 'createdAt']: opts?.order ?? 'DESC' },
+    });
+
     return {
       data,
       meta,

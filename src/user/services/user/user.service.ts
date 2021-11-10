@@ -43,17 +43,12 @@ export class UserService
     if (meta.currentPage > meta.maxPages && meta.maxPages !== 0) {
       throw new NotFoundException('This page of products does not exist');
     }
-    const query = this.userRepository.createQueryBuilder('u');
-    if (opts) {
-      const { orderBy } = opts;
-      await query.orderBy(orderBy ?? 'id');
-    }
 
-    let data = await query
-      .leftJoinAndMapOne('u.role', Role, 'r', 'u.id_role = r.id')
-      .skip(index * limit - limit)
-      .take(limit)
-      .getMany();
+    let data = await this.userRepository.find({
+      take: limit,
+      skip: index * limit - limit,
+      order: { [opts?.orderBy ?? 'createdAt']: opts?.order ?? 'DESC' },
+    });
 
     data = data.map((item) => {
       delete item.password;

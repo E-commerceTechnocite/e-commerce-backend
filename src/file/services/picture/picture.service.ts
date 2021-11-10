@@ -33,16 +33,11 @@ export class PictureService implements PaginatorInterface<Picture> {
     if (meta.currentPage > meta.maxPages && meta.maxPages !== 0) {
       throw new NotFoundException('This page of pictures does not exist');
     }
-    const query = this.pictureRepo.createQueryBuilder('p');
-    if (opts) {
-      const { orderBy } = opts;
-      await query.orderBy(orderBy ?? 'id');
-    }
-
-    const data = await query
-      .skip(index * limit - limit)
-      .take(limit)
-      .getMany();
+    const data = await this.pictureRepo.find({
+      take: limit,
+      skip: index * limit - limit,
+      order: { [opts?.orderBy ?? 'createdAt']: opts?.order ?? 'DESC' },
+    });
 
     return {
       data,

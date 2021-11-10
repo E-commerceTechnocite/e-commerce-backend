@@ -58,8 +58,10 @@ export class RoleController {
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,
     @Query('limit', IsPositiveIntPipe) limit = 10,
+    @Query('orderBy') orderBy: string = null,
+    @Query('order') order: 'DESC' | 'ASC' = null,
   ): Promise<PaginationDto<Role>> {
-    return this.roleService.getPage(page, limit);
+    return this.roleService.getPage(page, limit, { orderBy, order });
   }
 
   @Granted(Permission.READ_ROLE)

@@ -67,8 +67,10 @@ export class FileController {
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,
     @Query('limit', IsPositiveIntPipe) limit = 10,
+    @Query('orderBy') orderBy: string = null,
+    @Query('order') order: 'DESC' | 'ASC' = null,
   ): Promise<PaginationDto<Picture>> {
-    return this.fileService.getPage(page, limit);
+    return this.fileService.getPage(page, limit, { orderBy, order });
   }
 
   @Granted(Permission.UPDATE_FILE)

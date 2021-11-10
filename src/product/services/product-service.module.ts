@@ -4,29 +4,11 @@ import { ProductCategoryService } from '@app/product/services/product-category/p
 import { CountryService } from '@app/product/services/country/country.service';
 import { TaxRuleService } from '@app/product/services/tax-rule/tax-rule.service';
 import { TaxRuleGroupService } from '@app/product/services/tax-rule-group/tax-rule-group.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ProductCategory } from '@app/product/entities/product-category.entity';
-import { Product } from '@app/product/entities/product.entity';
-import { TaxRule } from '@app/product/entities/tax-rule.entity';
-import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
-import { Country } from '@app/product/entities/country.entity';
-import { Picture } from '@app/file/entities/picture.entity';
 import { SharedModule } from '@app/shared/shared.module';
-import { Stock } from '@app/product/entities/stock.entity';
+import { ProductRepositoryModule } from '@app/product/repositories/product-repository.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      ProductCategory,
-      Product,
-      TaxRule,
-      TaxRuleGroup,
-      Country,
-      Picture,
-      Stock,
-    ]),
-    SharedModule,
-  ],
+  imports: [ProductRepositoryModule, SharedModule],
   providers: [
     ProductService,
     ProductCategoryService,
