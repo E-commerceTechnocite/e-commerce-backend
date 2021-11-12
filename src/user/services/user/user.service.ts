@@ -114,15 +114,13 @@ export class UserService
       role,
     };
 
-    console.log(target);
-    // await this.mailService.sendUserConfirmation(target, passwordGenerated);
-    // await this.userRepository.save(target);
+    await this.mailService.sendUserConfirmation(target, passwordGenerated);
+    await this.userRepository.save(target);
     delete target.password;
     return target;
   }
 
   async update(id: string | number, entity: UpdateUserDto): Promise<void> {
-    console.log(entity);
     let role;
     if (entity.roleId != undefined) {
       role = await this.roleRepository
@@ -134,7 +132,6 @@ export class UserService
         });
     }
 
-    console.log(role);
     delete entity.roleId;
     let user;
     try {
