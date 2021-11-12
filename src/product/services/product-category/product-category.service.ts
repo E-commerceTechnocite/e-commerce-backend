@@ -44,7 +44,7 @@ export class ProductCategoryService implements ProductCategoryServiceInterface {
     limit: number,
     opts?: PaginationOptions,
   ): Promise<PaginationDto<ProductCategory>> {
-    return await this.productRepository.findAndPaginate(index, limit, {
+    return await this.repository.findAndPaginate(index, limit, {
       ...opts,
     });
   }
