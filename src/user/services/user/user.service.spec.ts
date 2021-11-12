@@ -6,6 +6,7 @@ import { MailService } from '@app/mail/mail.service';
 import { RandomizerService } from '@app/shared/services/randomizer.service';
 import { UserRepository } from '@app/user/repositories/user/user.repository';
 import { RoleRepository } from '@app/user/repositories/role/role.repository';
+import { REQUEST } from '@nestjs/core';
 
 describe('UserService', () => {
   let service: UserService;
@@ -14,6 +15,7 @@ describe('UserService', () => {
   const roleRepository = mock<RoleRepository>();
   const mailService = mock<MailService>();
   const randomizerService = mock<RandomizerService>();
+  const request = mock<Request & Express.Request>();
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -29,6 +31,7 @@ describe('UserService', () => {
         },
         { provide: MailService, useValue: mailService },
         { provide: RandomizerService, useValue: randomizerService },
+        { provide: REQUEST, useValue: request },
       ],
     }).compile();
 
