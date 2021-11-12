@@ -7,8 +7,8 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Permission } from '@app/user/enums/permission.enum';
-import { PERMISSIONS_KEY } from './granted.decorator';
-import { ADMIN_AUTHENTICATED_KEY } from '@app/auth/admin/guard/admin-authenticated.decorator';
+import { PERMISSIONS_KEY } from './decorators/granted.decorator';
+import { ADMIN_AUTHENTICATED_KEY } from '@app/auth/admin/guard/decorators/admin-authenticated.decorator';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('admin') {

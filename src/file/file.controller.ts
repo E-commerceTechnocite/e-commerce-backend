@@ -22,7 +22,7 @@ import {
 } from '@nestjs/swagger';
 import { Picture } from '@app/file/entities/picture.entity';
 import { MimetypeEnum } from '@app/file/mimetype.enum';
-import { Granted } from '@app/auth/admin/guard/granted.decorator';
+import { Granted } from '@app/auth/admin/guard/decorators/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
 import {
   ApiAdminAuth,

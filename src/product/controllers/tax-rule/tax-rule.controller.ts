@@ -25,7 +25,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { Granted } from '@app/auth/admin/guard/granted.decorator';
+import { Granted } from '@app/auth/admin/guard/decorators/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
 import { TaxRuleUpdateDto } from '@app/product/dto/tax-rule/tax-rule-update.dto';
 import {

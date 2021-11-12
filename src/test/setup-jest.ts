@@ -1,7 +1,7 @@
 import { CanActivate } from '@nestjs/common';
 import CustomMatcherResult = jest.CustomMatcherResult;
 import { Permission } from '@app/user/enums/permission.enum';
-import { PERMISSIONS_KEY } from '@app/auth/admin/guard/granted.decorator';
+import { PERMISSIONS_KEY } from '@app/auth/admin/guard/decorators/granted.decorator';
 
 expect.extend({
   toHaveGuard<T extends new (...args: any[]) => CanActivate>(
