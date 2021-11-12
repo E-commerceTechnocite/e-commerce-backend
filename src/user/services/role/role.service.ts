@@ -9,11 +9,15 @@ import { UpdateRoleDto } from '@app/user/dtos/role/update-role.dto';
 import { Role } from '@app/user/entities/role.entity';
 import {
   BadRequestException,
+  ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoleRepository } from '@app/user/repositories/role/role.repository';
+import { User } from '@app/user/entities/user.entity';
+import { REQUEST } from '@nestjs/core';
 
 @Injectable()
 export class RoleService
@@ -24,7 +28,22 @@ export class RoleService
   constructor(
     @InjectRepository(RoleRepository)
     private readonly roleRepo: RoleRepository,
+    @Inject(REQUEST)
+    private readonly request: Request & Express.Request,
   ) {}
+
+  private checkAuthenticatedUserPermissions(
+    role: RoleDto,
+    message = 'Current user is missing required permissions',
+  ): void {
+    const admin = this.request.user as User;
+    const permitted = role.permissions.every((permission) => {
+      return admin.role.permissions.includes(permission);
+    });
+    if (!permitted) {
+      throw new ForbiddenException(message);
+    }
+  }
 
   async getPage(
     index: number,
@@ -52,6 +71,8 @@ export class RoleService
   }
 
   async create(entity: RoleDto): Promise<Role> {
+    // // TODO dé-commenter quand les guards seront fix
+    // this.checkAuthenticatedUserPermissions(entity);
     const target: Role = {
       ...entity,
     };
@@ -61,12 +82,16 @@ export class RoleService
   }
 
   async update(id: string | number, entity: UpdateRoleDto): Promise<void> {
-    let role;
+    // // TODO dé-commenter quand les guards seront fix
+    // this.checkAuthenticatedUserPermissions(entity);
+    let role: Role;
     try {
       role = await this.roleRepo.findOneOrFail({ where: { id: id } });
     } catch {
       throw new NotFoundException(`Role does not exist at id : ${id}`);
     }
+    // // TODO dé-commenter quand les guards seront fix
+    // this.checkAuthenticatedUserPermissions(role);
 
     const target: Role = {
       ...role,
