@@ -99,7 +99,6 @@ export abstract class GenericRepository<T> extends Repository<T> {
     let prop = opts?.orderBy ?? 'createdAt';
     prop = relations.includes(prop.split('.')[0]) ? prop : `${q.alias}.${prop}`;
 
-    console.log(prop);
     relations.forEach((rel) => {
       q.leftJoinAndSelect(`${q.alias}.${rel}`, rel);
     });

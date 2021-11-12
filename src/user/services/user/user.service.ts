@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -18,6 +20,8 @@ import { CreateUserDto } from '../../create-user.dto';
 import { RandomizerService } from '@app/shared/services/randomizer.service';
 import { UserRepository } from '@app/user/repositories/user/user.repository';
 import { RoleRepository } from '@app/user/repositories/role/role.repository';
+import { REQUEST } from '@nestjs/core';
+import { Role } from '@app/user/entities/role.entity';
 
 @Injectable()
 export class UserService
@@ -32,7 +36,22 @@ export class UserService
     private readonly roleRepository: RoleRepository,
     private readonly randomizerService: RandomizerService,
     private readonly mailService: MailService,
+    @Inject(REQUEST)
+    private readonly request: Request & Express.Request,
   ) {}
+
+  private checkAuthenticatedUserPermissions(
+    role: Role,
+    message = 'Current user is missing required permissions',
+  ): void {
+    const admin = this.request.user as User;
+    const permitted = role.permissions.every((permission) => {
+      return admin.role.permissions.includes(permission);
+    });
+    if (!permitted) {
+      throw new ForbiddenException(message);
+    }
+  }
 
   async getPage(
     index: number,
@@ -74,7 +93,7 @@ export class UserService
       throw new BadRequestException('Username or Email already used');
     }
 
-    let role;
+    let role: Role;
     try {
       role = await this.roleRepository.findOneOrFail({
         where: { id: entity.roleId },
@@ -84,6 +103,9 @@ export class UserService
         `Role does not exist at id : ${entity.roleId}`,
       );
     }
+    // // TODO dé-commenter quand les guards seront fix
+    // this.checkAuthenticatedUserPermissions(role);
+
     delete entity.roleId;
     const passwordGenerated = this.randomizerService.generatePassword(25);
     const target: User = {
@@ -92,7 +114,6 @@ export class UserService
       role,
     };
 
-    console.log(target);
     await this.mailService.sendUserConfirmation(target, passwordGenerated);
     await this.userRepository.save(target);
     delete target.password;
@@ -100,7 +121,6 @@ export class UserService
   }
 
   async update(id: string | number, entity: UpdateUserDto): Promise<void> {
-    console.log(entity);
     let role;
     if (entity.roleId != undefined) {
       role = await this.roleRepository
@@ -111,7 +131,7 @@ export class UserService
           );
         });
     }
-    console.log(role);
+
     delete entity.roleId;
     let user;
     try {
@@ -119,6 +139,12 @@ export class UserService
     } catch {
       throw new NotFoundException(`User does not exist with id : ${id}`);
     }
+
+    // // TODO dé-commenter quand les guards seront fix
+    // this.checkAuthenticatedUserPermissions(user.role);
+    // if (role) {
+    //   this.checkAuthenticatedUserPermissions(role);
+    // }
 
     let newPassword = null;
     if (entity.regenPass) {

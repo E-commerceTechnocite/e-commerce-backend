@@ -21,7 +21,7 @@ export class StaticFilesConfigurationService
         serveRoot: '/public',
       },
       {
-        rootPath: dir('public'),
+        rootPath: dir('admin'),
         serveRoot: '/admin',
       },
     ];
