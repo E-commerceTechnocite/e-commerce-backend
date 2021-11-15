@@ -26,6 +26,4 @@ describe('ShoppingCartController', () => {
   });
 
   // test method findAll()
-
-  // test method findOneItem()
 });
