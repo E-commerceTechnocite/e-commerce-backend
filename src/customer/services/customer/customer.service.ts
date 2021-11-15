@@ -134,6 +134,7 @@ export class CustomerService
         { name: 'username' },
         { name: 'lastName' },
         { name: 'firstName' },
+        { name: 'email' },
       ]);
 
       const count = await sqlQuery.getCount();

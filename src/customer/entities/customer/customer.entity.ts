@@ -16,7 +16,7 @@ import { AddressCustomer } from '@app/customer/adress/entity/customer-address.en
 import { Exclude } from 'class-transformer';
 
 @Entity()
-@Index(['lastName', 'firstName', 'username'], { fulltext: true })
+@Index(['lastName', 'firstName', 'username', 'email'], { fulltext: true })
 export class Customer extends EntitySchema implements Express.User {
   @Column()
   @Index({ fulltext: true })
@@ -27,6 +27,7 @@ export class Customer extends EntitySchema implements Express.User {
   password?: string;
 
   @Column()
+  @Index({ fulltext: true })
   email: string;
 
   @Column()

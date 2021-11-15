@@ -34,8 +34,6 @@ export abstract class GenericRepository<T> extends Repository<T> {
         qb.leftJoinAndSelect(k, v);
       });
 
-      console.log(this.metadata.indices);
-
       const fulltexts = fields.filter((f) => f.type === 'default' || !f.type);
       const metaphones = fields.filter((f) => f.type === 'metaphone');
 
@@ -54,8 +52,8 @@ export abstract class GenericRepository<T> extends Repository<T> {
         );
       }
       qb.setParameters({
-        query,
-        metaphone: metaphoneQuery,
+        query: `'"${query}"'`,
+        metaphone: `'"${metaphoneQuery}"'`,
       });
 
       const order = fields.map(
