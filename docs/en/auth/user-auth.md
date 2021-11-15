@@ -4,9 +4,19 @@
 
 ## Authorization
 
+*related modules*
+- [`@app/user`](https://github.com/E-commerceTechnocite/e-commerce-backend/tree/main/src/user)
+- [`@app/auth/admin`](https://github.com/E-commerceTechnocite/e-commerce-backend/tree/main/src/auth/admin)
+
+### Roles and permissions
+
+Authorization is **claim-based**, which means that every user (`@app/user/entities/user.entity.ts`) has a **set of permissions** (`@app/user/enums/permission.enum.ts`).
+Those permissions are not directly set to the user, but to a role (`@app/user/entities/role.entity.ts`). The specified role can then be set to the user.
+
+---
 ### Decorators
 
-Decorators can be applied to controllers of controller actions
+Decorators can be applied to controller classes or specific controller actions
 
 - `AdminAuthenticated` <br>
 Checks if the user is authenticated
@@ -63,8 +73,3 @@ export class ActionScopedController {
   }
 }
 ```
-### Roles
-
-### Permissions
-
----
