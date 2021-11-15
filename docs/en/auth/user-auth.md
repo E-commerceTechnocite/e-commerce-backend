@@ -1,12 +1,11 @@
 # Admin auth
 
+*Related modules*
+- [`@app/user`](https://github.com/E-commerceTechnocite/e-commerce-backend/tree/main/src/user)
+- [`@app/auth/admin`](https://github.com/E-commerceTechnocite/e-commerce-backend/tree/main/src/auth/admin)
 ---
 
 ## Authorization
-
-*related modules*
-- [`@app/user`](https://github.com/E-commerceTechnocite/e-commerce-backend/tree/main/src/user)
-- [`@app/auth/admin`](https://github.com/E-commerceTechnocite/e-commerce-backend/tree/main/src/auth/admin)
 
 ### Roles and permissions
 
