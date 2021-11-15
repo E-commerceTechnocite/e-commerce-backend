@@ -14,6 +14,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -34,10 +35,12 @@ import {
   ApiPaginationQueries,
   ErrorSchema,
 } from '@app/shared/swagger';
+import { AdminJwtAuthGuard } from '@app/auth/admin/guard/jwt-auth.guard';
 
 @ApiAdminAuth()
 @ApiTags('TaxRule')
 @ApiUnauthorizedResponse({ type: ErrorSchema })
+@UseGuards(AdminJwtAuthGuard)
 @Controller({ path: 'tax-rule', version: '1' })
 export class TaxRuleController {
   constructor(private readonly taxRuleService: TaxRuleService) {}

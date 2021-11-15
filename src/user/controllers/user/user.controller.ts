@@ -23,6 +23,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -35,12 +36,15 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+
+import { AdminJwtAuthGuard } from '@app/auth/admin/guard/jwt-auth.guard';
 import { AdminAuthenticated } from '@app/auth/admin/guard/decorators/admin-authenticated.decorator';
 
 @ApiAdminAuth()
 @AdminAuthenticated()
 @ApiTags('Users')
 @ApiUnauthorizedResponse({ type: ErrorSchema })
+@UseGuards(AdminJwtAuthGuard)
 @Controller({ path: 'user', version: '1' })
 export class UserController {
   constructor(private readonly userService: UserService) {}

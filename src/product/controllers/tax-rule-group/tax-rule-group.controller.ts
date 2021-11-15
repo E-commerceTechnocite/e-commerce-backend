@@ -14,6 +14,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -35,10 +36,12 @@ import {
   ErrorSchema,
 } from '@app/shared/swagger';
 import { UpdateTaxRuleGroupDto } from '@app/product/dto/tax-rule-group/update-tax-rule-group.dto';
+import { AdminJwtAuthGuard } from '@app/auth/admin/guard/jwt-auth.guard';
 
 @ApiAdminAuth()
 @ApiTags('TaxRuleGroup')
 @ApiUnauthorizedResponse({ type: ErrorSchema })
+@UseGuards(AdminJwtAuthGuard)
 @Controller({ path: 'tax-rule-group', version: '1' })
 export class TaxRuleGroupController {
   constructor(private readonly taxRuleGroupService: TaxRuleGroupService) {}

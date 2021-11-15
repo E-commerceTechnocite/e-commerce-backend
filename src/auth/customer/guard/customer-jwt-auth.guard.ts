@@ -8,7 +8,7 @@ import { Reflector } from '@nestjs/core';
 import { CUSTOMER_AUTHENTICATED_KEY } from '@app/auth/customer/guard/decorators/customer-authenticated.decorator';
 
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('customer') {
+export class CustomerJwtAuthGuard extends AuthGuard('customer') {
   constructor(private readonly reflector: Reflector) {
     super();
   }
