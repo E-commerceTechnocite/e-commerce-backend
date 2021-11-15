@@ -71,8 +71,7 @@ export class RoleService
   }
 
   async create(entity: RoleDto): Promise<Role> {
-    // // TODO dé-commenter quand les guards seront fix
-    // this.checkAuthenticatedUserPermissions(entity);
+    this.checkAuthenticatedUserPermissions(entity);
     const target: Role = {
       ...entity,
     };
@@ -82,16 +81,15 @@ export class RoleService
   }
 
   async update(id: string | number, entity: UpdateRoleDto): Promise<void> {
-    // // TODO dé-commenter quand les guards seront fix
-    // this.checkAuthenticatedUserPermissions(entity);
+    this.checkAuthenticatedUserPermissions(entity);
     let role: Role;
     try {
       role = await this.roleRepo.findOneOrFail({ where: { id: id } });
     } catch {
       throw new NotFoundException(`Role does not exist at id : ${id}`);
     }
-    // // TODO dé-commenter quand les guards seront fix
-    // this.checkAuthenticatedUserPermissions(role);
+
+    this.checkAuthenticatedUserPermissions(role);
 
     const target: Role = {
       ...role,

@@ -38,7 +38,7 @@ import {
 } from '@app/shared/swagger';
 import { UpdateProductCategoryDto } from '@app/product/dto/product-category/update-product-category.dto';
 
-import { AdminJwtAuthGuard } from '@app/auth/admin/guard/jwt-auth.guard';
+import { AdminJwtAuthGuard } from '@app/auth/admin/guard/admin-jwt-auth.guard';
 import { AdminAuthenticated } from '@app/auth/admin/guard/decorators/admin-authenticated.decorator';
 
 @ApiAdminAuth()

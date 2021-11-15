@@ -37,7 +37,7 @@ import {
   ErrorSchema,
 } from '@app/shared/swagger';
 import { UpdateCountryDto } from '@app/product/dto/country/update-country.dto';
-import { AdminJwtAuthGuard } from '@app/auth/admin/guard/jwt-auth.guard';
+import { AdminJwtAuthGuard } from '@app/auth/admin/guard/admin-jwt-auth.guard';
 
 @ApiAdminAuth()
 @ApiTags('Country')

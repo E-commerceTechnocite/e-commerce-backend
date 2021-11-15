@@ -1,4 +1,4 @@
-import { AdminJwtAuthGuard } from '@app/auth/admin/guard/jwt-auth.guard';
+import { AdminJwtAuthGuard } from '@app/auth/admin/guard/admin-jwt-auth.guard';
 import { Product } from '@app/product/entities/product.entity';
 import { ApiAdminAuth, ErrorSchema } from '@app/shared/swagger';
 import { CartItem } from '@app/shopping-cart/entities/cart-item.entity';

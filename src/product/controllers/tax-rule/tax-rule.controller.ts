@@ -35,7 +35,7 @@ import {
   ApiPaginationQueries,
   ErrorSchema,
 } from '@app/shared/swagger';
-import { AdminJwtAuthGuard } from '@app/auth/admin/guard/jwt-auth.guard';
+import { AdminJwtAuthGuard } from '@app/auth/admin/guard/admin-jwt-auth.guard';
 
 @ApiAdminAuth()
 @ApiTags('TaxRule')

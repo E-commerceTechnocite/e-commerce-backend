@@ -1,4 +1,4 @@
-import { AdminJwtAuthGuard } from '@app/auth/admin/guard/jwt-auth.guard';
+import { AdminJwtAuthGuard } from '@app/auth/admin/guard/admin-jwt-auth.guard';
 import { ApiAdminAuth, ErrorSchema } from '@app/shared/swagger';
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';

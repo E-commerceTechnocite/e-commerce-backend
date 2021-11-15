@@ -2,7 +2,6 @@ import { Granted } from '@app/auth/admin/guard/decorators/granted.decorator';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import {
-  ApiAdminAuth,
   ApiOkPaginatedResponse,
   ErrorSchema,
   ApiPaginationQueries,
@@ -23,7 +22,6 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -37,14 +35,13 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
-import { AdminJwtAuthGuard } from '@app/auth/admin/guard/jwt-auth.guard';
 import { AdminAuthenticated } from '@app/auth/admin/guard/decorators/admin-authenticated.decorator';
+import { UseAdminGuard } from '@app/auth/admin/guard/decorators/use-admin-guard.decorator';
 
-@ApiAdminAuth()
 @AdminAuthenticated()
 @ApiTags('Users')
 @ApiUnauthorizedResponse({ type: ErrorSchema })
-@UseGuards(AdminJwtAuthGuard)
+@UseAdminGuard()
 @Controller({ path: 'user', version: '1' })
 export class UserController {
   constructor(private readonly userService: UserService) {}

@@ -103,8 +103,8 @@ export class UserService
         `Role does not exist at id : ${entity.roleId}`,
       );
     }
-    // // TODO dé-commenter quand les guards seront fix
-    // this.checkAuthenticatedUserPermissions(role);
+
+    this.checkAuthenticatedUserPermissions(role);
 
     delete entity.roleId;
     const passwordGenerated = this.randomizerService.generatePassword(25);
@@ -140,11 +140,10 @@ export class UserService
       throw new NotFoundException(`User does not exist with id : ${id}`);
     }
 
-    // // TODO dé-commenter quand les guards seront fix
-    // this.checkAuthenticatedUserPermissions(user.role);
-    // if (role) {
-    //   this.checkAuthenticatedUserPermissions(role);
-    // }
+    this.checkAuthenticatedUserPermissions(user.role);
+    if (role) {
+      this.checkAuthenticatedUserPermissions(role);
+    }
 
     let newPassword = null;
     if (entity.regenPass) {

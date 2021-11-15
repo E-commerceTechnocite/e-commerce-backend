@@ -36,7 +36,7 @@ import {
   ErrorSchema,
 } from '@app/shared/swagger';
 import { UpdateProductDto } from '@app/product/dto/product/update-product.dto';
-import { AdminJwtAuthGuard } from '@app/auth/admin/guard/jwt-auth.guard';
+import { AdminJwtAuthGuard } from '@app/auth/admin/guard/admin-jwt-auth.guard';
 
 @ApiAdminAuth()
 @ApiTags('Products')
