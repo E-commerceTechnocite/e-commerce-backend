@@ -115,7 +115,8 @@
     "roots": [
       "<rootDir>/src/",
       "<rootDir>/libs/"
-    ]
+    ],
+    "setupFilesAfterEnv": ["./src/test/setup-jest.ts"]
   },
   "volta": {
     "node": "14.17.6",

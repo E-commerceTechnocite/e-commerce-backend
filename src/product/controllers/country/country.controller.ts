@@ -28,7 +28,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { Permission } from '@app/user/enums/permission.enum';
-import { Granted } from '@app/auth/admin/guard/granted.decorator';
+import { Granted } from '@app/auth/admin/guard/decorators/granted.decorator';
 import {
   ApiAdminAuth,
   ApiOkPaginatedResponse,
@@ -65,6 +65,7 @@ export class CountryController {
   @Granted(Permission.READ_COUNTRY)
   @ApiOkPaginatedResponse(Country)
   @ApiNotFoundResponse({ type: ErrorSchema })
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @ApiPaginationQueries()
   @Get()
   async find(

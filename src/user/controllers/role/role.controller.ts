@@ -1,5 +1,5 @@
-import { Granted } from '@app/auth/admin/guard/granted.decorator';
 import { AdminJwtAuthGuard } from '@app/auth/admin/guard/jwt-auth.guard';
+import { Granted } from '@app/auth/admin/guard/decorators/granted.decorator';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import {

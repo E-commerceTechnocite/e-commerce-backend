@@ -23,13 +23,14 @@ import {
 } from '@nestjs/swagger';
 import { Picture } from '@app/file/entities/picture.entity';
 import { MimetypeEnum } from '@app/file/mimetype.enum';
-import { Granted } from '@app/auth/admin/guard/granted.decorator';
+import { Granted } from '@app/auth/admin/guard/decorators/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
 import {
   ApiAdminAuth,
   ApiFile,
   ApiFiles,
   ApiOkPaginatedResponse,
+  ApiPaginationQueries,
 } from '@app/shared/swagger';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
@@ -64,8 +65,7 @@ export class FileController {
 
   @Granted(Permission.READ_FILE)
   @ApiOkPaginatedResponse(Picture)
-  @ApiQuery({ name: 'page', required: false })
-  @ApiQuery({ name: 'limit', required: false })
+  @ApiPaginationQueries()
   @Get()
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,

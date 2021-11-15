@@ -5,6 +5,7 @@ import * as metaphone from 'talisman/phonetics/metaphone';
 import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { PaginationOptions } from '@app/shared/interfaces/paginator.interface';
+import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 
 export abstract class GenericRepository<T> extends Repository<T> {
   createSearchQuery(
@@ -32,6 +33,8 @@ export abstract class GenericRepository<T> extends Repository<T> {
         const [[k, v]] = Object.entries(relation);
         qb.leftJoinAndSelect(k, v);
       });
+
+      console.log(this.metadata.indices);
 
       const fulltexts = fields.filter((f) => f.type === 'default' || !f.type);
       const metaphones = fields.filter((f) => f.type === 'metaphone');
@@ -69,7 +72,7 @@ export abstract class GenericRepository<T> extends Repository<T> {
     index: number,
     limit: number,
     opts: PaginationOptions = {},
-  ) {
+  ): Promise<PaginationDto<T>> {
     opts = {
       loadEagerRelations: true,
       ...opts,
@@ -96,7 +99,6 @@ export abstract class GenericRepository<T> extends Repository<T> {
     let prop = opts?.orderBy ?? 'createdAt';
     prop = relations.includes(prop.split('.')[0]) ? prop : `${q.alias}.${prop}`;
 
-    console.log(prop);
     relations.forEach((rel) => {
       q.leftJoinAndSelect(`${q.alias}.${rel}`, rel);
     });

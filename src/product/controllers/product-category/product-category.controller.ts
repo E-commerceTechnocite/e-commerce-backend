@@ -27,7 +27,7 @@ import {
 } from '@nestjs/swagger';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
-import { Granted } from '@app/auth/admin/guard/granted.decorator';
+import { Granted } from '@app/auth/admin/guard/decorators/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
 import {
   ApiAdminAuth,
@@ -37,8 +37,9 @@ import {
   ErrorSchema,
 } from '@app/shared/swagger';
 import { UpdateProductCategoryDto } from '@app/product/dto/product-category/update-product-category.dto';
-import { AdminAuthenticated } from '@app/auth/admin/guard/admin-authenticated.decorator';
+
 import { AdminJwtAuthGuard } from '@app/auth/admin/guard/jwt-auth.guard';
+import { AdminAuthenticated } from '@app/auth/admin/guard/decorators/admin-authenticated.decorator';
 
 @ApiAdminAuth()
 @ApiTags('Product Categories')
@@ -68,6 +69,7 @@ export class ProductCategoryController {
   @Granted(Permission.READ_CATEGORY)
   @ApiOkPaginatedResponse(ProductCategory)
   @ApiNotFoundResponse({ type: ErrorSchema })
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @ApiPaginationQueries()
   @Get()
   async find(
