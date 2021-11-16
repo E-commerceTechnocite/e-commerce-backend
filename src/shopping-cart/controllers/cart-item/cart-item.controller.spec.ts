@@ -67,6 +67,7 @@ describe('CartItemController', () => {
       // THEN
       expect(response).toEqual(pagination);
       expect(cartItemService.getPage).toHaveBeenCalledWith(page, limit, {
+        order: null,
         orderBy: null,
       });
     });
