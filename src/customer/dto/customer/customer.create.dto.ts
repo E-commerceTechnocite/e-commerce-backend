@@ -1,6 +1,6 @@
 import { Gender } from '@app/customer/entities/customer/customer.enum';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsEmail, IsNotEmpty } from 'class-validator';
+import { IsEmail, IsNotEmpty } from 'class-validator';
 
 export class CustomerCreateDto {
   @ApiProperty({ required: false })

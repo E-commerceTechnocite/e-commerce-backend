@@ -1,9 +1,7 @@
 import { Customer } from '@app/customer/entities/customer/customer.entity';
 import { Product } from '@app/product/entities/product.entity';
-import { CartItemCreateFixturesDto } from '@app/shopping-cart/dto/cart-item/cart-item-create-fixtures.dto';
-import { CartItemCreateDto } from '@app/shopping-cart/dto/cart-item/cart-item-create.dto';
 import { CartItem } from '@app/shopping-cart/entities/cart-item.entity';
-import { ConsoleLogger, Injectable, NotFoundException } from '@nestjs/common';
+import { ConsoleLogger, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { FixturesInterface } from '../fixtures.interface';

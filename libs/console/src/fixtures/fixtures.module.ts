@@ -17,7 +17,6 @@ import { CustomersFixturesService } from './customers/customers-fixtures.service
 import { Customer } from '@app/customer/entities/customer/customer.entity';
 import { SharedModule } from '@app/shared/shared.module';
 import { CustomerServiceModule } from '@app/customer/services/customer-service.module';
-import { CartItemService } from '@app/shopping-cart/services/cart-item/cart-item.service';
 import { CartItem } from '@app/shopping-cart/entities/cart-item.entity';
 import { ShoppingCart } from '@app/shopping-cart/entities/shopping-cart.entity';
 import { CartItemsFixturesService } from './cart-items/cart-items-fixtures.service';

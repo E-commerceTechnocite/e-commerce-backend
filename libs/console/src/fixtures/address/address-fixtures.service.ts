@@ -1,11 +1,10 @@
 import { AddressCustomer } from '@app/customer/adress/entity/customer-address.entity';
 import { Customer } from '@app/customer/entities/customer/customer.entity';
 import { Country } from '@app/product/entities/country.entity';
-import { ConsoleLogger, Inject, Injectable } from '@nestjs/common';
+import { ConsoleLogger, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { FixturesInterface } from '../fixtures.interface';
 import * as faker from 'faker';
-import { AddressFixtureDto } from '@app/customer/adress/dto/address-fixture.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
