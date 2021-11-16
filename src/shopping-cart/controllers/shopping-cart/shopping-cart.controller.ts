@@ -1,5 +1,3 @@
-import { Customer } from '@app/customer/entities/customer/customer.entity';
-import { ShoppingCart } from '@app/shopping-cart/entities/shopping-cart.entity';
 import { ShoppingCartService } from '@app/shopping-cart/services/shopping-cart/shopping-cart.service';
 import { Controller, Get, Param, Post, Req } from '@nestjs/common';
 
@@ -19,9 +17,7 @@ export class ShoppingCartController {
   async findOneItem(@Param('itemId') itemId: String): Promise<string> {
     return 'return one item with this id';
   }
-
-  // cette fonction permet de recuperer l'id de user
-
+  // cette fonction n'est plus utilisée.
   /*  @Post()
   async getUserId(@Req() req: Express.Request & Request): Promise<string> {
     if (!req.user) {

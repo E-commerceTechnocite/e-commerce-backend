@@ -25,5 +25,33 @@ describe('ShoppingCartController', () => {
     expect(controller).toBeDefined();
   });
 
-  // test method findAll()
+  // test findOne Item method
+  describe('findOneItem', () => {
+    it('should return a string', async () => {
+      // GIVEN
+      const sc = shoppingCart();
+      const result = 'return one item with this id';
+
+      // WHEN
+      const response = await controller.findOneItem(sc.id);
+
+      // THEN
+      expect(response).toEqual(result);
+    });
+  });
+
+  // test findAllItems method
+  describe('findAllItems', () => {
+    it('should return a string', async () => {
+      // GIVEN
+      const sc = shoppingCart();
+      const result = 'all items';
+
+      // WHEN
+      const response = await controller.findAllItems();
+
+      // THEN
+      expect(response).toEqual(result);
+    });
+  });
 });
