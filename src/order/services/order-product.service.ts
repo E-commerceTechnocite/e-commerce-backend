@@ -40,6 +40,9 @@ export class OrderProductService {
     private readonly request: Request,
   ) {}
 
+  async find(): Promise<OrderProduct[]> {
+    return await this.orderRepositoryProduct.find();
+  }
   async executeOrderProduct(orderId: string): Promise<any> {
     //  recupérer  l'id du customer plus validation
     if (!this.request.user) {

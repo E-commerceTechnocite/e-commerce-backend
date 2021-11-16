@@ -8,22 +8,22 @@ import { Product } from '@app/product/entities/product.entity';
 import { QueryFailedError, Repository } from 'typeorm';
 import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
 import { ProductDto } from '@app/product/dto/product/product.dto';
-import { ProductCategory } from '@app/product/entities/product-category.entity';
 import {
   PaginationOptions,
   PaginatorInterface,
 } from '@app/shared/interfaces/paginator.interface';
 import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
-import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { Picture } from '@app/file/entities/picture.entity';
 
 import { UpdateProductDto } from '@app/product/dto/product/update-product.dto';
 import { JSDOM } from 'jsdom';
 import * as metaphone from 'talisman/phonetics/metaphone';
-import { MysqlSearchEngineService } from '@app/shared/services/mysql-search-engine.service';
 import { SearchServiceInterface } from '@app/shared/interfaces/search-service.interface';
 import { RuntimeException } from '@nestjs/core/errors/exceptions/runtime.exception';
+import { ProductRepository } from '@app/product/repositories/product/product.repository';
+import { ProductCategoryRepository } from '@app/product/repositories/product-category/product-category.repository';
+import { TaxRuleGroupRepository } from '@app/product/repositories/tax-rule-group/tax-rule-group.repository';
 
 export interface ProductServiceInterface
   extends CrudServiceInterface<Product, ProductDto, UpdateProductDto>,
@@ -33,15 +33,14 @@ export interface ProductServiceInterface
 @Injectable()
 export class ProductService implements ProductServiceInterface {
   constructor(
-    @InjectRepository(Product)
-    private readonly productRepository: Repository<Product>,
-    @InjectRepository(ProductCategory)
-    private readonly productCategoryRepository: Repository<ProductCategory>,
-    @InjectRepository(TaxRuleGroup)
-    private readonly taxRuleGroupRepository: Repository<TaxRuleGroup>,
+    @InjectRepository(ProductRepository)
+    private readonly productRepository: ProductRepository,
+    @InjectRepository(ProductCategoryRepository)
+    private readonly productCategoryRepository: ProductCategoryRepository,
+    @InjectRepository(TaxRuleGroupRepository)
+    private readonly taxRuleGroupRepository: TaxRuleGroupRepository,
     @InjectRepository(Picture)
     private readonly pictureRepository: Repository<Picture>,
-    private readonly searchEngineService: MysqlSearchEngineService,
   ) {}
 
   private formatDescription(description): {
@@ -249,23 +248,11 @@ export class ProductService implements ProductServiceInterface {
   async getPage(
     index: number,
     limit: number,
-    opts: PaginationOptions = null,
+    opts: PaginationOptions = {},
   ): Promise<PaginationDto<Product>> {
-    const count = await this.productRepository.count();
-    const meta = new PaginationMetadataDto(index, limit, count);
-    if (meta.currentPage > meta.maxPages) {
-      throw new NotFoundException('This page of products does not exist');
-    }
-    const data = await this.productRepository.find({
-      take: limit,
-      skip: index * limit - limit,
-      order: { [opts?.orderBy ?? 'createdAt']: opts.order ?? 'DESC' },
+    return await this.productRepository.findAndPaginate(index, limit, {
+      ...opts,
     });
-
-    return {
-      data,
-      meta,
-    };
   }
 
   async search(
@@ -274,8 +261,8 @@ export class ProductService implements ProductServiceInterface {
     limit: number,
   ): Promise<PaginationDto<Product>> {
     try {
-      const SQLQuery = this.searchEngineService.createSearchQuery(
-        this.productRepository,
+      const SQLQuery = this.productRepository.createSearchQuery(
+        'p',
         query,
         [
           { name: 'title' },
@@ -284,16 +271,25 @@ export class ProductService implements ProductServiceInterface {
           { name: 'strippedDescription' },
           { name: 'metaphoneDescription', type: 'metaphone' },
         ],
+        [
+          { 'p.category': 'c' },
+          { 'p.taxRuleGroup': 'trg' },
+          { 'p.stock': 'stock' },
+          { 'p.pictures': 'pictures' },
+          { 'p.thumbnail': 'thumbnail' },
+        ],
       );
 
       const count = await SQLQuery.getCount();
-
-      const data = await SQLQuery.skip(index * limit - limit)
-        .take(limit)
+      const data = await SQLQuery.offset(index * limit - limit)
+        .limit(limit)
         .getMany();
 
       const meta = new PaginationMetadataDto(index, limit, count);
 
+      if (meta.currentPage > meta.maxPages) {
+        throw new NotFoundException('This page of products does not exist');
+      }
       return { data, meta };
     } catch (err) {
       if (err instanceof RuntimeException || err instanceof QueryFailedError) {

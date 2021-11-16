@@ -1,8 +1,7 @@
-import { Granted } from '@app/auth/admin/guard/granted.decorator';
+import { Granted } from '@app/auth/admin/guard/decorators/granted.decorator';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import {
-  ApiAdminAuth,
   ApiOkPaginatedResponse,
   ErrorSchema,
   ApiPaginationQueries,
@@ -35,12 +34,14 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { AdminAuthenticated } from '@app/auth/admin/guard/admin-authenticated.decorator';
 
-@ApiAdminAuth()
+import { AdminAuthenticated } from '@app/auth/admin/guard/decorators/admin-authenticated.decorator';
+import { UseAdminGuard } from '@app/auth/admin/guard/decorators/use-admin-guard.decorator';
+
 @AdminAuthenticated()
 @ApiTags('Users')
 @ApiUnauthorizedResponse({ type: ErrorSchema })
+@UseAdminGuard()
 @Controller({ path: 'user', version: '1' })
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -53,8 +54,10 @@ export class UserController {
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,
     @Query('limit', IsPositiveIntPipe) limit = 10,
+    @Query('orderBy') orderBy: string = null,
+    @Query('order') order: 'DESC' | 'ASC' = null,
   ): Promise<PaginationDto<User>> {
-    return this.userService.getPage(page, limit);
+    return this.userService.getPage(page, limit, { orderBy, order });
   }
 
   @Granted(Permission.READ_USER)

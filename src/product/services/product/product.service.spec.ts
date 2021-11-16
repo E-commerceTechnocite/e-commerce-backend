@@ -3,44 +3,42 @@ import { ProductService } from '@app/product/services/product/product.service';
 import { Product } from '@app/product/entities/product.entity';
 import { DeleteResult, Repository, SelectQueryBuilder } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { ProductCategory } from '@app/product/entities/product-category.entity';
 import { mock, mockFn } from 'jest-mock-extended';
-import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { Picture } from '@app/file/entities/picture.entity';
-import { MysqlSearchEngineService } from '@app/shared/services/mysql-search-engine.service';
 import { createProductDto, product, updateProductDto } from '@app/test/stub';
 import * as metaphone from 'talisman/phonetics/metaphone';
 import { id } from '@app/test/util/id';
 import { JSDOM } from 'jsdom';
+import { ProductRepository } from '@app/product/repositories/product/product.repository';
+import { ProductCategoryRepository } from '@app/product/repositories/product-category/product-category.repository';
+import { TaxRuleGroupRepository } from '@app/product/repositories/tax-rule-group/tax-rule-group.repository';
 
 describe('ProductService', () => {
   let service: ProductService;
-  const productRepository = mock<Repository<Product>>();
-  const categoryRepository = mock<Repository<ProductCategory>>();
-  const taxRuleGroupRepository = mock<Repository<TaxRuleGroup>>();
+  const productRepository = mock<ProductRepository>();
+  const categoryRepository = mock<ProductCategoryRepository>();
+  const taxRuleGroupRepository = mock<TaxRuleGroupRepository>();
   const pictureRepository = mock<Repository<Picture>>();
-  const searchEngineService = mock<MysqlSearchEngineService>();
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ProductService,
-        { provide: getRepositoryToken(Product), useValue: productRepository },
         {
-          provide: getRepositoryToken(ProductCategory),
+          provide: getRepositoryToken(ProductRepository),
+          useValue: productRepository,
+        },
+        {
+          provide: getRepositoryToken(ProductCategoryRepository),
           useValue: categoryRepository,
         },
         {
-          provide: getRepositoryToken(TaxRuleGroup),
+          provide: getRepositoryToken(TaxRuleGroupRepository),
           useValue: taxRuleGroupRepository,
         },
         {
           provide: getRepositoryToken(Picture),
           useValue: pictureRepository,
-        },
-        {
-          provide: MysqlSearchEngineService,
-          useValue: searchEngineService,
         },
       ],
     }).compile();

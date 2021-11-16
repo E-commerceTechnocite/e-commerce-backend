@@ -1,4 +1,3 @@
-import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
 import {
@@ -14,10 +13,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { UpdateTaxRuleGroupDto } from '@app/product/dto/tax-rule-group/update-tax-rule-group.dto';
-import { Product } from '@app/product/entities/product.entity';
-import { TaxRule } from '@app/product/entities/tax-rule.entity';
+import { TaxRuleGroupRepository } from '@app/product/repositories/tax-rule-group/tax-rule-group.repository';
+import { ProductRepository } from '@app/product/repositories/product/product.repository';
+import { TaxRuleRepository } from '@app/product/repositories/tax-rule/tax-rule.repository';
 
 @Injectable()
 export class TaxRuleGroupService
@@ -26,13 +25,14 @@ export class TaxRuleGroupService
     PaginatorInterface<TaxRuleGroup>
 {
   constructor(
-    @InjectRepository(TaxRuleGroup)
-    private readonly taxRuleGroupRepository: Repository<TaxRuleGroup>,
-    @InjectRepository(Product)
-    private readonly productRepository: Repository<Product>,
-    @InjectRepository(TaxRule)
-    private readonly taxRuleRepository: Repository<TaxRule>,
+    @InjectRepository(TaxRuleGroupRepository)
+    private readonly taxRuleGroupRepository: TaxRuleGroupRepository,
+    @InjectRepository(ProductRepository)
+    private readonly productRepository: ProductRepository,
+    @InjectRepository(TaxRuleRepository)
+    private readonly taxRuleRepository: TaxRuleRepository,
   ) {}
+
   deleteFromId(id: string | number): Promise<void> {
     throw new Error('Method not implemented.');
   }
@@ -42,26 +42,9 @@ export class TaxRuleGroupService
     limit: number,
     opts?: PaginationOptions,
   ): Promise<PaginationDto<TaxRuleGroup>> {
-    const count = await this.taxRuleGroupRepository.count();
-    const meta = new PaginationMetadataDto(index, limit, count);
-    if (meta.currentPage > meta.maxPages) {
-      throw new NotFoundException('This page of TaxRuleGroup does not exist');
-    }
-
-    const query = this.taxRuleGroupRepository.createQueryBuilder('trg');
-    if (opts) {
-      const { orderBy } = opts;
-      await query.orderBy(orderBy ?? 'id');
-    }
-    const data = await query
-
-      .skip(index * limit - limit)
-      .take(limit)
-      .getMany();
-    return {
-      data,
-      meta,
-    };
+    return await this.taxRuleGroupRepository.findAndPaginate(index, limit, {
+      ...opts,
+    });
   }
 
   async find(id: string | number): Promise<TaxRuleGroup> {

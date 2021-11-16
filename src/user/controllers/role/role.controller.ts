@@ -1,8 +1,8 @@
-import { Granted } from '@app/auth/admin/guard/granted.decorator';
+import { Granted } from '@app/auth/admin/guard/decorators/granted.decorator';
+import { UseAdminGuard } from '@app/auth/admin/guard/decorators/use-admin-guard.decorator';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import {
-  ApiAdminAuth,
   ApiOkPaginatedResponse,
   ErrorSchema,
   ApiPaginationQueries,
@@ -36,9 +36,9 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
-@ApiAdminAuth()
 @ApiTags('Role')
 @ApiUnauthorizedResponse({ type: ErrorSchema })
+@UseAdminGuard()
 @Controller({ path: 'role', version: '1' })
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
@@ -58,8 +58,10 @@ export class RoleController {
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,
     @Query('limit', IsPositiveIntPipe) limit = 10,
+    @Query('orderBy') orderBy: string = null,
+    @Query('order') order: 'DESC' | 'ASC' = null,
   ): Promise<PaginationDto<Role>> {
-    return this.roleService.getPage(page, limit);
+    return this.roleService.getPage(page, limit, { orderBy, order });
   }
 
   @Granted(Permission.READ_ROLE)

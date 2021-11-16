@@ -12,7 +12,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { RefreshToken } from '@app/auth/admin/entities/refresh-token.entity';
 
 @Entity()
-export class User extends EntitySchema {
+export class User extends EntitySchema implements Express.User {
   @PrimaryGeneratedColumn('uuid')
   id?: string;
 

@@ -35,7 +35,7 @@ export class TaxRuleDto {
   behavior?: number;
 
   @ApiProperty({ required: false })
-  @Length(2, 10)
+  @Length(2, 255)
   @IsNotEmpty()
   description?: string;
 }

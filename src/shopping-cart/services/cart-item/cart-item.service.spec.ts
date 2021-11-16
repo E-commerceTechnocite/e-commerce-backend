@@ -4,17 +4,17 @@ import { mock } from 'jest-mock-extended';
 import { Repository } from 'typeorm';
 import { Product } from '@app/product/entities/product.entity';
 import { ShoppingCart } from '@app/shopping-cart/entities/shopping-cart.entity';
-import { CartItem } from '@app/shopping-cart/entities/cart-item.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Customer } from '@app/customer/entities/customer/customer.entity';
 import { REQUEST } from '@nestjs/core';
+import { CartItemRepository } from '@app/shopping-cart/repositories/cart-item/cart-item.repository';
 
 describe('CartItemService', () => {
   let service: CartItemService;
 
   const productRepo = mock<Repository<Product>>();
   const shoppingCartRepo = mock<Repository<ShoppingCart>>();
-  const cartItemRepo = mock<Repository<CartItem>>();
+  const cartItemRepo = mock<CartItemRepository>();
   const customerRepository = mock<Repository<Customer>>();
   const request = mock<Request & Express.Request>();
 
@@ -27,7 +27,10 @@ describe('CartItemService', () => {
           provide: getRepositoryToken(ShoppingCart),
           useValue: shoppingCartRepo,
         },
-        { provide: getRepositoryToken(CartItem), useValue: cartItemRepo },
+        {
+          provide: getRepositoryToken(CartItemRepository),
+          useValue: cartItemRepo,
+        },
 
         { provide: getRepositoryToken(Customer), useValue: customerRepository },
         { provide: REQUEST, useValue: request },

@@ -26,18 +26,15 @@ import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 @ApiTags('Customers')
 @Controller({ path: 'customers', version: '1' })
 export class CustomerController {
-  constructor(
-    private customerService: CustomerService,
-    private shoppingCarteService: ShoppingCartService,
-  ) {}
+  constructor(private customerService: CustomerService) {}
 
   @ApiSearchQueries()
   @ApiOkPaginatedResponse(Customer)
   @Get('search')
   search(
     @Query('q') query: string,
-    @Query('page') page = 1,
-    @Query('limit') limit = 10,
+    @Query('page', IsPositiveIntPipe) page = 1,
+    @Query('limit', IsPositiveIntPipe) limit = 10,
   ) {
     return this.customerService.search(query, page, limit);
   }

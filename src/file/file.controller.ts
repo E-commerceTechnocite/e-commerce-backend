@@ -9,6 +9,7 @@ import {
   Query,
   UploadedFile,
   UploadedFiles,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
@@ -22,21 +23,24 @@ import {
 } from '@nestjs/swagger';
 import { Picture } from '@app/file/entities/picture.entity';
 import { MimetypeEnum } from '@app/file/mimetype.enum';
-import { Granted } from '@app/auth/admin/guard/granted.decorator';
+import { Granted } from '@app/auth/admin/guard/decorators/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
 import {
   ApiAdminAuth,
   ApiFile,
   ApiFiles,
   ApiOkPaginatedResponse,
+  ApiPaginationQueries,
 } from '@app/shared/swagger';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { PictureDto } from './dto/picture.dto';
+import { AdminJwtAuthGuard } from '@app/auth/admin/guard/admin-jwt-auth.guard';
 
 @ApiExtraModels(Picture)
 @ApiAdminAuth()
 @ApiTags('File Upload')
+@UseGuards(AdminJwtAuthGuard)
 @Controller({ path: 'file', version: '1' })
 export class FileController {
   constructor(private readonly fileService: FileService) {}
@@ -61,14 +65,15 @@ export class FileController {
 
   @Granted(Permission.READ_FILE)
   @ApiOkPaginatedResponse(Picture)
-  @ApiQuery({ name: 'page', required: false })
-  @ApiQuery({ name: 'limit', required: false })
+  @ApiPaginationQueries()
   @Get()
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,
     @Query('limit', IsPositiveIntPipe) limit = 10,
+    @Query('orderBy') orderBy: string = null,
+    @Query('order') order: 'DESC' | 'ASC' = null,
   ): Promise<PaginationDto<Picture>> {
-    return this.fileService.getPage(page, limit);
+    return this.fileService.getPage(page, limit, { orderBy, order });
   }
 
   @Granted(Permission.UPDATE_FILE)

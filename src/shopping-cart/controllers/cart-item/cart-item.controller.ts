@@ -14,6 +14,10 @@ import { CartItemUpdateDto } from '@app/shopping-cart/dto/cart-item/cart-item-up
 import { CartItem } from '@app/shopping-cart/entities/cart-item.entity';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { ApiTags } from '@nestjs/swagger';
+import {
+  ApiOkPaginatedResponse,
+  ApiPaginationQueries,
+} from '@app/shared/swagger';
 
 @ApiTags('Cart')
 @Controller({ path: 'cart-item', version: '1' })
@@ -25,13 +29,16 @@ export class CartItemController {
     return await this.cartItemService.find(id);
   }
 
+  @ApiPaginationQueries()
+  @ApiOkPaginatedResponse(CartItem)
   @Get()
   async paginate(
     @Query('page') page = 1,
     @Query('limit') limit = 10,
     @Query('orderBy') orderBy = null,
+    @Query('order') order: 'DESC' | 'ASC' = null,
   ): Promise<PaginationDto<CartItem>> {
-    return await this.cartItemService.getPage(page, limit, { orderBy });
+    return await this.cartItemService.getPage(page, limit, { orderBy, order });
   }
   // old code
   /*  @Post()

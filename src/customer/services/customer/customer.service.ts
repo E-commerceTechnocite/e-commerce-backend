@@ -8,7 +8,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm/repository/Repository';
 import { hash } from 'bcrypt';
 import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
 import { SearchServiceInterface } from '@app/shared/interfaces/search-service.interface';
@@ -20,7 +19,7 @@ import { QueryFailedError } from 'typeorm';
 import { PaginationOptions } from '@app/shared/interfaces/paginator.interface';
 import { ShoppingCartService } from '@app/shopping-cart/services/shopping-cart/shopping-cart.service';
 import { OrderService } from '@app/order/services/order.service';
-import { CustomerDto } from '@app/customer/dto/customer/customer.dto';
+import { CustomerRepository } from '@app/customer/repositories/customer/customer.repository';
 
 @Injectable()
 export class CustomerService
@@ -29,8 +28,8 @@ export class CustomerService
     SearchServiceInterface<Customer>
 {
   constructor(
-    @InjectRepository(Customer)
-    private readonly customerRepository: Repository<Customer>,
+    @InjectRepository(CustomerRepository)
+    private readonly customerRepository: CustomerRepository,
     private readonly searchService: MysqlSearchEngineService,
     private shoppingCarteService: ShoppingCartService,
     private orderService: OrderService,
@@ -47,31 +46,9 @@ export class CustomerService
     limit: number,
     opts: PaginationOptions = null,
   ): Promise<PaginationDto<Customer>> {
-    const count = await this.customerRepository.count();
-    const meta = new PaginationMetadataDto(index, limit, count);
-    if (meta.currentPage > meta.maxPages) {
-      throw new NotFoundException('This page of customers does not exist');
-    }
-    const query = this.customerRepository.createQueryBuilder('c');
-    if (opts) {
-      const { orderBy } = opts;
-      await query.orderBy(orderBy ?? 'id');
-    }
-
-    let data = await query
-      .skip(index * limit - limit)
-      .take(limit)
-      .getMany();
-
-    data = data.map((item) => {
-      delete item.password;
-      return item;
+    return await this.customerRepository.findAndPaginate(index, limit, {
+      ...opts,
     });
-
-    return {
-      data,
-      meta,
-    };
   }
 
   async getCustomerById(customerId): Promise<Customer> {
@@ -141,7 +118,10 @@ export class CustomerService
 
   // find all customers
   findAll(): Promise<Customer[]> {
-    return this.customerRepository.find();
+    return this.customerRepository.find({
+      select: ['id', 'email'],
+      loadEagerRelations: false,
+    });
   }
 
   async search(
@@ -150,11 +130,12 @@ export class CustomerService
     limit: number,
   ): Promise<PaginationDto<Customer>> {
     try {
-      const sqlQuery = this.searchService.createSearchQuery(
-        this.customerRepository,
-        query,
-        [{ name: 'username' }, { name: 'lastName' }, { name: 'firstName' }],
-      );
+      const sqlQuery = this.customerRepository.createSearchQuery('p', query, [
+        { name: 'username' },
+        { name: 'lastName' },
+        { name: 'firstName' },
+        { name: 'email' },
+      ]);
 
       const count = await sqlQuery.getCount();
       const meta = new PaginationMetadataDto(index, limit, count);
@@ -210,7 +191,7 @@ export class CustomerService
 
   // Delete customer
   async deleteCustomer(customerId): Promise<any> {
-    let deletedCustomer = await this.getCustomerById(customerId);
+    await this.getCustomerById(customerId);
     return this.customerRepository.delete(customerId);
   }
 }
