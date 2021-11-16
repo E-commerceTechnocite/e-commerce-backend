@@ -5,7 +5,11 @@ import { EntityRepository } from 'typeorm';
 
 @EntityRepository(Order)
 export class OrderRepository extends GenericRepository<Order> {
-  async paginateOrders(): Promise<PaginationDto<any>> {
-    return Promise.resolve(null);
+  async getOrdersInfo(): Promise<any> {
+    return await this.manager.connection
+      .createQueryRunner()
+      .query(
+        'SELECT * FROM `order` INNER JOIN `order_product` ON order.id = order_product.orderId',
+      );
   }
 }
