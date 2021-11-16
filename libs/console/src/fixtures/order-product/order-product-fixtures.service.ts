@@ -26,7 +26,7 @@ export class OrderProductFixturesService implements FixturesInterface {
 
   async load() {
     const customers = await this.customerRepository.find();
-    const cartItems = await this.cartItemRepository.find();
+    //const cartItems = await this.cartItemRepository.find();
     const orderProducts = [];
 
     for (let i = 0; i < customers.length; i++) {

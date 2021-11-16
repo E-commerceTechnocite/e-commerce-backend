@@ -76,7 +76,7 @@ export class CustomerService
     };
     // creer un order pour ce customer
 
-    const order = await this.orderService.createOrder(target);
+    // const order = await this.orderService.createOrder(target);
     return await this.customerRepository.save(target);
   }
 

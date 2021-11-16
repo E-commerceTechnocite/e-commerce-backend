@@ -1,5 +1,4 @@
 import { CustomerAddressCreateDto } from '@app/customer/adress/dto/customer-address.create.dto';
-import { CustomerDto } from '@app/customer/dto/customer/customer.dto';
 
 export const createCustomerAddressDto = (): CustomerAddressCreateDto => {
   const stub = new CustomerAddressCreateDto();

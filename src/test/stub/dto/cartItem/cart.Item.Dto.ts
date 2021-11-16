@@ -1,4 +1,3 @@
-import { CartItemCreateDto } from '@app/shopping-cart/dto/cart-item/cart-item-create.dto';
 import { CartItem } from '@app/shopping-cart/entities/cart-item.entity';
 
 export const cartItemDto = (): CartItem => {

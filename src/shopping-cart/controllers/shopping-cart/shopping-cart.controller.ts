@@ -1,5 +1,5 @@
 import { ShoppingCartService } from '@app/shopping-cart/services/shopping-cart/shopping-cart.service';
-import { Controller, Get, Param, Post, Req } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 
 // TODO need customer implementation
 
@@ -14,8 +14,8 @@ export class ShoppingCartController {
 
   // Get one item in CartItem
   @Get(':itemId')
-  async findOneItem(@Param('itemId') itemId: String): Promise<string> {
-    return 'return one item with this id';
+  async findOneItem(@Param('itemId') itemId: string): Promise<string> {
+    return 'return one item with this id' + itemId;
   }
   // cette fonction n'est plus utilisée.
   /*  @Post()

@@ -1,6 +1,6 @@
 import { Gender } from '@app/customer/entities/customer/customer.enum';
 import { OrderProduct } from '@app/order/entities/order-product.entity';
-import { Product } from '@app/product/entities/product.entity';
+
 import { id } from '@app/test/util/id';
 
 export const orderProduct = (): OrderProduct => ({

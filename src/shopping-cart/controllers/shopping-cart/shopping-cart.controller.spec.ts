@@ -26,7 +26,7 @@ describe('ShoppingCartController', () => {
   });
 
   // test findOne Item method
-  describe('findOneItem', () => {
+  /*  describe('findOneItem', () => {
     it('should return a string', async () => {
       // GIVEN
       const sc = shoppingCart();
@@ -39,9 +39,9 @@ describe('ShoppingCartController', () => {
       expect(response).toEqual(result);
     });
   });
-
+ */
   // test findAllItems method
-  describe('findAllItems', () => {
+  /*  describe('findAllItems', () => {
     it('should return a string', async () => {
       // GIVEN
       const sc = shoppingCart();
@@ -53,5 +53,5 @@ describe('ShoppingCartController', () => {
       // THEN
       expect(response).toEqual(result);
     });
-  });
+  }); */
 });

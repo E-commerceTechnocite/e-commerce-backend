@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CustomerController } from './customer.controller';
 import { CustomerService } from '@app/customer/services/customer/customer.service';
 import { ShoppingCartService } from '@app/shopping-cart/services/shopping-cart/shopping-cart.service';
-import { Matcher, mock } from 'jest-mock-extended';
+import { mock } from 'jest-mock-extended';
 import { customer } from '@app/test/stub/entities/customer';
 import { createCustomerDto } from '@app/test/stub/dto/customer/create-customer.dto';
 import { updateCustomerDto } from '@app/test/stub/dto/customer/update-customer.dto';
@@ -38,14 +38,14 @@ describe('CustomerController', () => {
     it('should return all customers', async () => {
       // GIVEN
       const c = customer();
-      mockCustomerService.find.mockResolvedValue(c);
+      mockCustomerService.findAll.mockResolvedValueOnce([c]);
 
       // WHEN
       const response = await controller.findAll();
 
       // THEN
-      expect(response).resolves;
-      expect(mockCustomerService.find).toBeCalled;
+      expect(response).toEqual([c]);
+      expect(mockCustomerService.findAll).toBeCalled();
     });
   });
 

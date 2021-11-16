@@ -1,4 +1,3 @@
-import { Customer } from '@app/customer/entities/customer/customer.entity';
 import { Gender } from '@app/customer/entities/customer/customer.enum';
 import { ShoppingCart } from '@app/shopping-cart/entities/shopping-cart.entity';
 

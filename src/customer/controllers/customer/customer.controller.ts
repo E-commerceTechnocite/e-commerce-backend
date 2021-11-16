@@ -3,7 +3,7 @@ import { CustomerDto } from '@app/customer/dto/customer/customer.dto';
 import { CustomerUpdateDto } from '@app/customer/dto/customer/customer.update.dto';
 import { Customer } from '@app/customer/entities/customer/customer.entity';
 import { CustomerService } from '@app/customer/services/customer/customer.service';
-import { ShoppingCartService } from '@app/shopping-cart/services/shopping-cart/shopping-cart.service';
+
 import {
   Body,
   Controller,
