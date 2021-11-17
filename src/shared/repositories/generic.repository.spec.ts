@@ -24,8 +24,8 @@ describe('GenericRepository', () => {
       skip: mockFn().mockReturnThis(),
       take: mockFn().mockReturnThis(),
       orderBy: mockFn().mockReturnThis(),
+      alias: 'entity',
     });
-    Object.defineProperty(qb, 'alias', { get: () => 'entity' });
     repo.createQueryBuilder = jest.fn().mockReturnValue(qb);
     repo.count = jest.fn().mockResolvedValue(10);
     const entityMetadata = new EntityMetadata({
