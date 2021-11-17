@@ -13,7 +13,6 @@ import { Order } from '@app/order/entities/order.entity';
 import { getRepository } from 'typeorm';
 import { CustomerAddressUpdateDto } from '../dto/customer-address.update.dto';
 
-import { Exception } from 'handlebars';
 @Injectable()
 export class CustomerAddressService {
   constructor(
@@ -41,7 +40,7 @@ export class CustomerAddressService {
 
   async deleteAddressCustomer(Id: string): Promise<any> {
     const customerIdDB: string = this.request.user['id'];
-    let address = await this.getAddress(Id, customerIdDB);
+    const address = await this.getAddress(Id, customerIdDB);
     console.log(address);
     if (!address) {
       throw new NotFoundException('address not found');
@@ -83,13 +82,13 @@ export class CustomerAddressService {
     const customerId: Customer = this.request.user['id'];
 
     //console.log(customerId);
-    let customer = await this.getCustomerById(customerId);
+    const customer = await this.getCustomerById(customerId);
 
     // recuperer le country
-    let country = await this.getCountryById(addressCustomer.countryId);
+    const country = await this.getCountryById(addressCustomer.countryId);
 
     // Recuperer l'order
-    let orders = await this.getCustomerOrders(customerId);
+    const orders = await this.getCustomerOrders(customerId);
 
     const target: AddressCustomer = {
       ...addressCustomer,

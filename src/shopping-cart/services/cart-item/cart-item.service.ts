@@ -17,14 +17,10 @@ import {
   PaginatorInterface,
 } from '@app/shared/interfaces/paginator.interface';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
-import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
-
 import { Customer } from '@app/customer/entities/customer/customer.entity';
-
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-
-//import { Http2ServerRequest } from 'http2';
+import { CartItemRepository } from '@app/shopping-cart/repositories/cart-item/cart-item.repository';
 
 @Injectable()
 export class CartItemService
@@ -33,8 +29,8 @@ export class CartItemService
     PaginatorInterface<CartItem>
 {
   constructor(
-    @InjectRepository(CartItem)
-    private readonly cartItemRepo: Repository<CartItem>,
+    @InjectRepository(CartItemRepository)
+    private readonly cartItemRepo: CartItemRepository,
     @InjectRepository(Product)
     private readonly productRepo: Repository<Product>,
     @InjectRepository(ShoppingCart)
@@ -54,7 +50,7 @@ export class CartItemService
     const customerId: Customer = this.request.user['id'];
     // a l' aide de customerId  je recupere le customer
 
-    let customer = await this.getCustomerById(customerId);
+    const customer = await this.getCustomerById(customerId);
 
     // recuperer le productId
     const product = await this.productRepo.findOne(entity.productId);
@@ -132,29 +128,14 @@ export class CartItemService
     limit: number,
     opts?: PaginationOptions,
   ): Promise<PaginationDto<CartItem>> {
-    const count = await this.cartItemRepo.count();
-    const meta = new PaginationMetadataDto(index, limit, count);
-
-    const data = await this.cartItemRepo
-      .createQueryBuilder('i')
-
-      .orderBy(opts.orderBy ? `i.${opts.orderBy}` : 'i.createdAt')
-      .skip(index * limit - limit)
-      .take(limit)
-      .getMany();
-
-    return {
-      data,
-      meta,
-    };
+    return this.cartItemRepo.findAndPaginate(index, limit, { ...opts });
   }
 
   // cette fonction permet de recupérer le customer par son id
   async getCustomerById(customerId): Promise<Customer> {
     try {
       //const shoppingId = await this.shoppingCartRepo.findOneOrFail(customerId);
-      const customer = await this.customerRepo.findOneOrFail(customerId);
-      return customer;
+      return await this.customerRepo.findOneOrFail(customerId);
     } catch (err) {
       throw new NotFoundException("Customer doesn't exist");
     }

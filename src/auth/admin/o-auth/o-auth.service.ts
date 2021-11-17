@@ -31,7 +31,7 @@ export class OAuthService {
   ) {}
 
   async login(user: UserLogDto): Promise<OAuthResponseDto> {
-    let userEntity;
+    let userEntity: User;
     if (user.username) {
       userEntity = await this.userRepo.findOne({
         where: { username: user.username },
@@ -51,11 +51,12 @@ export class OAuthService {
     }
     const { id, username, email, role } = userEntity;
     const roleId = role.id;
+    const roleName = role.name;
     const refreshToken: RefreshToken = {
       user: userEntity,
       userAgent: this.request.headers['user-agent'],
       value: this.jwt.sign(
-        { id, username, email, roleId },
+        { id, username, email, roleId, roleName },
         {
           expiresIn: '30d',
           secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
@@ -65,7 +66,14 @@ export class OAuthService {
 
     await this.refreshTokenRepository.save(refreshToken);
 
-    const tokenData: AdminTokenDataDto = { id, username, email, roleId };
+    const tokenData: AdminTokenDataDto = {
+      id,
+      username,
+      email,
+      roleId,
+      roleName,
+    };
+    console.log(tokenData);
     return {
       access_token: this.jwt.sign(tokenData),
       refresh_token: refreshToken.value,

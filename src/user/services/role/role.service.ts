@@ -1,4 +1,3 @@
-import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
 import {
@@ -10,11 +9,15 @@ import { UpdateRoleDto } from '@app/user/dtos/role/update-role.dto';
 import { Role } from '@app/user/entities/role.entity';
 import {
   BadRequestException,
+  ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { RoleRepository } from '@app/user/repositories/role/role.repository';
+import { User } from '@app/user/entities/user.entity';
+import { REQUEST } from '@nestjs/core';
 
 @Injectable()
 export class RoleService
@@ -23,34 +26,31 @@ export class RoleService
     PaginatorInterface<Role>
 {
   constructor(
-    @InjectRepository(Role)
-    private readonly roleRepo: Repository<Role>,
+    @InjectRepository(RoleRepository)
+    private readonly roleRepo: RoleRepository,
+    @Inject(REQUEST)
+    private readonly request: Request & Express.Request,
   ) {}
+
+  private checkAuthenticatedUserPermissions(
+    role: RoleDto,
+    message = 'Current user is missing required permissions',
+  ): void {
+    const admin = this.request.user as User;
+    const permitted = role.permissions.every((permission) => {
+      return admin.role.permissions.includes(permission);
+    });
+    if (!permitted) {
+      throw new ForbiddenException(message);
+    }
+  }
 
   async getPage(
     index: number,
     limit: number,
     opts?: PaginationOptions,
   ): Promise<PaginationDto<Role>> {
-    const count = await this.roleRepo.count();
-    const meta = new PaginationMetadataDto(index, limit, count);
-    if (meta.currentPage > meta.maxPages) {
-      throw new NotFoundException('This page of roles does not exist');
-    }
-
-    const query = this.roleRepo.createQueryBuilder('role');
-    if (opts) {
-      const { orderBy } = opts;
-      await query.orderBy(orderBy ?? 'id');
-    }
-    const data = await query
-      .skip(index * limit - limit)
-      .take(limit)
-      .getMany();
-    return {
-      data,
-      meta,
-    };
+    return this.roleRepo.findAndPaginate(index, limit, { ...opts });
   }
 
   async find(id: string | number): Promise<Role> {
@@ -71,6 +71,7 @@ export class RoleService
   }
 
   async create(entity: RoleDto): Promise<Role> {
+    this.checkAuthenticatedUserPermissions(entity);
     const target: Role = {
       ...entity,
     };
@@ -80,12 +81,15 @@ export class RoleService
   }
 
   async update(id: string | number, entity: UpdateRoleDto): Promise<void> {
-    let role;
+    this.checkAuthenticatedUserPermissions(entity);
+    let role: Role;
     try {
       role = await this.roleRepo.findOneOrFail({ where: { id: id } });
     } catch {
       throw new NotFoundException(`Role does not exist at id : ${id}`);
     }
+
+    this.checkAuthenticatedUserPermissions(role);
 
     const target: Role = {
       ...role,

@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
-import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductCategoryDto } from '@app/product/dto/product-category/product-category.dto';
 import {
@@ -15,10 +14,11 @@ import {
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
 import { UpdateProductCategoryDto } from '@app/product/dto/product-category/update-product-category.dto';
-import { Product } from '@app/product/entities/product.entity';
 import { SearchServiceInterface } from '@app/shared/interfaces/search-service.interface';
 import { MysqlSearchEngineService } from '@app/shared/services/mysql-search-engine.service';
 import { RuntimeException } from '@nestjs/core/errors/exceptions/runtime.exception';
+import { ProductCategoryRepository } from '@app/product/repositories/product-category/product-category.repository';
+import { ProductRepository } from '@app/product/repositories/product/product.repository';
 
 export interface ProductCategoryServiceInterface
   extends CrudServiceInterface<
@@ -32,10 +32,10 @@ export interface ProductCategoryServiceInterface
 @Injectable()
 export class ProductCategoryService implements ProductCategoryServiceInterface {
   constructor(
-    @InjectRepository(ProductCategory)
-    private readonly repository: Repository<ProductCategory>,
-    @InjectRepository(Product)
-    private readonly productRepository: Repository<Product>,
+    @InjectRepository(ProductCategoryRepository)
+    private readonly repository: ProductCategoryRepository,
+    @InjectRepository(ProductRepository)
+    private readonly productRepository: ProductRepository,
     private readonly searchEngine: MysqlSearchEngineService,
   ) {}
 
@@ -44,28 +44,9 @@ export class ProductCategoryService implements ProductCategoryServiceInterface {
     limit: number,
     opts?: PaginationOptions,
   ): Promise<PaginationDto<ProductCategory>> {
-    const count = await this.repository.count();
-    const meta = new PaginationMetadataDto(index, limit, count);
-    if (meta.currentPage > meta.maxPages) {
-      throw new NotFoundException(
-        'This page of product-category does not exist',
-      );
-    }
-
-    const query = this.repository.createQueryBuilder('c');
-    if (opts) {
-      const { orderBy } = opts;
-      await query.orderBy(orderBy ?? 'id');
-    }
-    const data = await query
-
-      .skip(index * limit - limit)
-      .take(limit)
-      .getMany();
-    return {
-      data,
-      meta,
-    };
+    return await this.repository.findAndPaginate(index, limit, {
+      ...opts,
+    });
   }
 
   async create(entity: ProductCategoryDto): Promise<ProductCategory> {

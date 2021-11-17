@@ -1,38 +1,33 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TaxRuleService } from './tax-rule.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { TaxRule } from '@app/product/entities/tax-rule.entity';
-import { Repository } from 'typeorm';
-import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
-import { Country } from '@app/product/entities/country.entity';
 import { mock } from 'jest-mock-extended';
-import { GetCheckDeleteEntityIdService } from '@app/shared/services/get-check-delete-entity-id.service';
+import { TaxRuleRepository } from '@app/product/repositories/tax-rule/tax-rule.repository';
+import { TaxRuleGroupRepository } from '@app/product/repositories/tax-rule-group/tax-rule-group.repository';
+import { CountryRepository } from '@app/product/repositories/country/country.repository';
 
 describe('TaxRuleService', () => {
   let service: TaxRuleService;
 
-  const taxRuleRepository = mock<Repository<TaxRule>>();
-  const taxRuleGroupRepository = mock<Repository<TaxRuleGroup>>();
-  const countryRepository = mock<Repository<Country>>();
-  const getCheckDeleteService = mock<GetCheckDeleteEntityIdService>();
+  const taxRuleRepository = mock<TaxRuleRepository>();
+  const taxRuleGroupRepository = mock<TaxRuleGroupRepository>();
+  const countryRepository = mock<CountryRepository>();
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TaxRuleService,
         {
-          provide: GetCheckDeleteEntityIdService,
-          useValue: getCheckDeleteService,
+          provide: getRepositoryToken(TaxRuleRepository),
+          useValue: taxRuleRepository,
         },
-        { provide: getRepositoryToken(TaxRule), useValue: taxRuleRepository },
         {
-          provide: getRepositoryToken(TaxRuleGroup),
+          provide: getRepositoryToken(TaxRuleGroupRepository),
           useValue: taxRuleGroupRepository,
         },
-        { provide: getRepositoryToken(Country), useValue: countryRepository },
         {
-          provide: GetCheckDeleteEntityIdService,
-          useValue: getCheckDeleteService,
+          provide: getRepositoryToken(CountryRepository),
+          useValue: countryRepository,
         },
       ],
     }).compile();

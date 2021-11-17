@@ -27,7 +27,7 @@ describe('CountryController', () => {
         await controller.find(3);
         expect(countryService.getPage).toHaveBeenCalledWith(3, 10, {
           orderBy: null,
-          order: 'DESC',
+          order: null,
         });
       });
 
@@ -35,7 +35,7 @@ describe('CountryController', () => {
         await controller.find(3, 6);
         expect(countryService.getPage).toHaveBeenCalledWith(3, 6, {
           orderBy: null,
-          order: 'DESC',
+          order: null,
         });
       });
 
@@ -43,7 +43,7 @@ describe('CountryController', () => {
         await controller.find(3, 6, 'title');
         expect(countryService.getPage).toHaveBeenCalledWith(3, 6, {
           orderBy: 'title',
-          order: 'DESC',
+          order: null,
         });
       });
       it('should have a order query params', async () => {
@@ -59,7 +59,7 @@ describe('CountryController', () => {
       await controller.find();
       expect(countryService.getPage).toHaveBeenCalledWith(1, 10, {
         orderBy: null,
-        order: 'DESC',
+        order: null,
       });
     });
   });

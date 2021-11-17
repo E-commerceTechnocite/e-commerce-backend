@@ -1,20 +1,22 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PictureService } from './picture.service';
 import { mock } from 'jest-mock-extended';
-import { Repository } from 'typeorm';
-import { Picture } from '@app/file/entities/picture.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { PictureRepository } from '@app/file/repositories/picture/picture.repository';
 
 describe('PictureService', () => {
   let service: PictureService;
 
-  const pictureRepository = mock<Repository<Picture>>();
+  const pictureRepository = mock<PictureRepository>();
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PictureService,
-        { provide: getRepositoryToken(Picture), useValue: pictureRepository },
+        {
+          provide: getRepositoryToken(PictureRepository),
+          useValue: pictureRepository,
+        },
       ],
     }).compile();
 

@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ProductCategoryService } from '@app/product/services/product-category/product-category.service';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
@@ -26,7 +27,7 @@ import {
 } from '@nestjs/swagger';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
-import { Granted } from '@app/auth/admin/guard/granted.decorator';
+import { Granted } from '@app/auth/admin/guard/decorators/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
 import {
   ApiAdminAuth,
@@ -36,12 +37,15 @@ import {
   ErrorSchema,
 } from '@app/shared/swagger';
 import { UpdateProductCategoryDto } from '@app/product/dto/product-category/update-product-category.dto';
-import { AdminAuthenticated } from '@app/auth/admin/guard/admin-authenticated.decorator';
+
+import { AdminJwtAuthGuard } from '@app/auth/admin/guard/admin-jwt-auth.guard';
+import { AdminAuthenticated } from '@app/auth/admin/guard/decorators/admin-authenticated.decorator';
 
 @ApiAdminAuth()
 @ApiTags('Product Categories')
 @ApiUnauthorizedResponse({ type: ErrorSchema })
 @AdminAuthenticated()
+@UseGuards(AdminJwtAuthGuard)
 @Controller({ path: 'product-category', version: '1' })
 export class ProductCategoryController {
   constructor(
@@ -56,21 +60,25 @@ export class ProductCategoryController {
   @Get('search')
   async search(
     @Query('q') queryString: string,
-    @Query('page') page = 1,
+    @Query('page', IsPositiveIntPipe) page = 1,
+    @Query('limit', IsPositiveIntPipe) limit = 10,
   ): Promise<PaginationDto<ProductCategory>> {
-    return this.productCategoryService.search(queryString, page, 10);
+    return this.productCategoryService.search(queryString, page, limit);
   }
 
   @Granted(Permission.READ_CATEGORY)
   @ApiOkPaginatedResponse(ProductCategory)
   @ApiNotFoundResponse({ type: ErrorSchema })
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @ApiPaginationQueries()
   @Get()
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,
     @Query('limit', IsPositiveIntPipe) limit = 10,
+    @Query('orderBy') orderBy: string = null,
+    @Query('order') order: 'DESC' | 'ASC' = null,
   ): Promise<PaginationDto<ProductCategory>> {
-    return this.productCategoryService.getPage(page, limit);
+    return this.productCategoryService.getPage(page, limit, { orderBy, order });
   }
 
   @Granted(Permission.READ_CATEGORY)

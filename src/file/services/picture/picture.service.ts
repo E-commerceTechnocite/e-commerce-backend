@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Picture } from '@app/file/entities/picture.entity';
-import { Repository } from 'typeorm';
 import * as fs from 'fs';
 import { join } from 'path';
 import {
@@ -13,14 +12,14 @@ import {
   PaginatorInterface,
 } from '@app/shared/interfaces/paginator.interface';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
-import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
 import { PictureDto } from '@app/file/dto/picture.dto';
+import { PictureRepository } from '@app/file/repositories/picture/picture.repository';
 
 @Injectable()
 export class PictureService implements PaginatorInterface<Picture> {
   constructor(
-    @InjectRepository(Picture)
-    private readonly pictureRepo: Repository<Picture>,
+    @InjectRepository(PictureRepository)
+    private readonly pictureRepo: PictureRepository,
   ) {}
 
   async getPage(
@@ -28,26 +27,7 @@ export class PictureService implements PaginatorInterface<Picture> {
     limit: number,
     opts?: PaginationOptions,
   ): Promise<PaginationDto<Picture>> {
-    const count = await this.pictureRepo.count();
-    const meta = new PaginationMetadataDto(index, limit, count);
-    if (meta.currentPage > meta.maxPages && meta.maxPages !== 0) {
-      throw new NotFoundException('This page of pictures does not exist');
-    }
-    const query = this.pictureRepo.createQueryBuilder('p');
-    if (opts) {
-      const { orderBy } = opts;
-      await query.orderBy(orderBy ?? 'id');
-    }
-
-    const data = await query
-      .skip(index * limit - limit)
-      .take(limit)
-      .getMany();
-
-    return {
-      data,
-      meta,
-    };
+    return await this.pictureRepo.findAndPaginate(index, limit, { ...opts });
   }
 
   async add(...pictures: Express.Multer.File[]): Promise<Picture[]> {

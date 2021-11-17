@@ -1,4 +1,3 @@
-import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { CrudServiceInterface } from '@app/shared/interfaces/crud-service.interface';
 import {
@@ -6,8 +5,6 @@ import {
   PaginatorInterface,
 } from '@app/shared/interfaces/paginator.interface';
 import { TaxRuleDto } from '@app/product/dto/tax-rule/tax-rule.dto';
-import { Country } from '@app/product/entities/country.entity';
-import { TaxRuleGroup } from '@app/product/entities/tax-rule-group.entity';
 import { TaxRule } from '@app/product/entities/tax-rule.entity';
 import {
   BadRequestException,
@@ -15,8 +12,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { TaxRuleUpdateDto } from '@app/product/dto/tax-rule/tax-rule-update.dto';
+import { TaxRuleRepository } from '@app/product/repositories/tax-rule/tax-rule.repository';
+import { TaxRuleGroupRepository } from '@app/product/repositories/tax-rule-group/tax-rule-group.repository';
+import { CountryRepository } from '@app/product/repositories/country/country.repository';
 
 @Injectable()
 export class TaxRuleService
@@ -25,14 +24,14 @@ export class TaxRuleService
     PaginatorInterface<TaxRule>
 {
   constructor(
-    @InjectRepository(TaxRule)
-    private readonly taxRuleRepository: Repository<TaxRule>,
+    @InjectRepository(TaxRuleRepository)
+    private readonly taxRuleRepository: TaxRuleRepository,
 
-    @InjectRepository(TaxRuleGroup)
-    private readonly taxRuleGroupRepository: Repository<TaxRuleGroup>,
+    @InjectRepository(TaxRuleGroupRepository)
+    private readonly taxRuleGroupRepository: TaxRuleGroupRepository,
 
-    @InjectRepository(Country)
-    private readonly countryRepository: Repository<Country>,
+    @InjectRepository(CountryRepository)
+    private readonly countryRepository: CountryRepository,
   ) {}
 
   async getPage(
@@ -40,27 +39,9 @@ export class TaxRuleService
     limit: number,
     opts?: PaginationOptions,
   ): Promise<PaginationDto<TaxRule>> {
-    const count = await this.taxRuleRepository.count();
-    const meta = new PaginationMetadataDto(index, limit, count);
-    if (meta.currentPage > meta.maxPages) {
-      throw new NotFoundException('This page of tax rules does not exist');
-    }
-    const query = this.taxRuleRepository.createQueryBuilder('tr');
-    if (opts) {
-      const { orderBy } = opts;
-      await query.orderBy(orderBy ?? 'id');
-    }
-    const data = await query
-      .leftJoinAndSelect('tr.taxRuleGroup', 'trg')
-      .leftJoinAndSelect('tr.country', 'c')
-      .skip(index * limit - limit)
-      .take(limit)
-      .getMany();
-
-    return {
-      data,
-      meta,
-    };
+    return await this.taxRuleRepository.findAndPaginate(index, limit, {
+      ...opts,
+    });
   }
 
   async find(id: string | number): Promise<TaxRule> {

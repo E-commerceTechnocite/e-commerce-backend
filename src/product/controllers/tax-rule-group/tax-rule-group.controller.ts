@@ -14,6 +14,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -26,7 +27,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { Granted } from '@app/auth/admin/guard/granted.decorator';
+import { Granted } from '@app/auth/admin/guard/decorators/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
 import {
   ApiAdminAuth,
@@ -35,10 +36,12 @@ import {
   ErrorSchema,
 } from '@app/shared/swagger';
 import { UpdateTaxRuleGroupDto } from '@app/product/dto/tax-rule-group/update-tax-rule-group.dto';
+import { AdminJwtAuthGuard } from '@app/auth/admin/guard/admin-jwt-auth.guard';
 
 @ApiAdminAuth()
 @ApiTags('TaxRuleGroup')
 @ApiUnauthorizedResponse({ type: ErrorSchema })
+@UseGuards(AdminJwtAuthGuard)
 @Controller({ path: 'tax-rule-group', version: '1' })
 export class TaxRuleGroupController {
   constructor(private readonly taxRuleGroupService: TaxRuleGroupService) {}
@@ -46,13 +49,16 @@ export class TaxRuleGroupController {
   @Granted(Permission.READ_TAX_RULE_GROUP)
   @ApiOkPaginatedResponse(TaxRuleGroup)
   @ApiNotFoundResponse({ type: ErrorSchema })
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @ApiPaginationQueries()
   @Get()
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,
     @Query('limit', IsPositiveIntPipe) limit = 10,
+    @Query('orderBy') orderBy: string = null,
+    @Query('order') order: 'DESC' | 'ASC' = null,
   ): Promise<PaginationDto<TaxRuleGroup>> {
-    return this.taxRuleGroupService.getPage(page, limit);
+    return this.taxRuleGroupService.getPage(page, limit, { order, orderBy });
   }
 
   @Granted(Permission.READ_TAX_RULE_GROUP)

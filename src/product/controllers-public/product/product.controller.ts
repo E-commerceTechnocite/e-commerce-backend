@@ -35,8 +35,9 @@ export class ProductController {
     @Query('page', IsPositiveIntPipe) page = 1,
     @Query('limit', IsPositiveIntPipe) limit = 10,
     @Query('orderBy') orderBy: string = null,
+    @Query('order') order: 'DESC' | 'ASC' = null,
   ): Promise<PaginationDto<Product>> {
-    return this.productService.getPage(page, limit, { orderBy });
+    return this.productService.getPage(page, limit, { orderBy, order });
   }
 
   // find product by title

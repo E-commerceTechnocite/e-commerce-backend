@@ -14,6 +14,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -27,7 +28,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { Permission } from '@app/user/enums/permission.enum';
-import { Granted } from '@app/auth/admin/guard/granted.decorator';
+import { Granted } from '@app/auth/admin/guard/decorators/granted.decorator';
 import {
   ApiAdminAuth,
   ApiOkPaginatedResponse,
@@ -36,10 +37,12 @@ import {
   ErrorSchema,
 } from '@app/shared/swagger';
 import { UpdateCountryDto } from '@app/product/dto/country/update-country.dto';
+import { AdminJwtAuthGuard } from '@app/auth/admin/guard/admin-jwt-auth.guard';
 
 @ApiAdminAuth()
 @ApiTags('Country')
 @ApiUnauthorizedResponse({ type: ErrorSchema })
+@UseGuards(AdminJwtAuthGuard)
 @Controller({ path: 'country', version: '1' })
 export class CountryController {
   constructor(private readonly countryService: CountryService) {}
@@ -53,21 +56,23 @@ export class CountryController {
   @Get('search')
   async search(
     @Query('q') queryString: string,
-    @Query('page') page = 1,
+    @Query('page', IsPositiveIntPipe) page = 1,
+    @Query('limit', IsPositiveIntPipe) limit = 10,
   ): Promise<PaginationDto<Country>> {
-    return this.countryService.search(queryString, page, 10);
+    return this.countryService.search(queryString, page, limit);
   }
 
   @Granted(Permission.READ_COUNTRY)
   @ApiOkPaginatedResponse(Country)
   @ApiNotFoundResponse({ type: ErrorSchema })
+  @ApiBadRequestResponse({ type: ErrorSchema })
   @ApiPaginationQueries()
   @Get()
   async find(
     @Query('page', IsPositiveIntPipe) page = 1,
     @Query('limit', IsPositiveIntPipe) limit = 10,
     @Query('orderBy') orderBy = null,
-    @Query('order') order: 'DESC' | 'ASC' = 'DESC',
+    @Query('order') order: 'DESC' | 'ASC' = null,
   ): Promise<PaginationDto<Country>> {
     return this.countryService.getPage(page, limit, {
       orderBy,

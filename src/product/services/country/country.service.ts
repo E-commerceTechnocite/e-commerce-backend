@@ -13,12 +13,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { UpdateCountryDto } from '@app/product/dto/country/update-country.dto';
-import { TaxRule } from '@app/product/entities/tax-rule.entity';
 import { MysqlSearchEngineService } from '@app/shared/services/mysql-search-engine.service';
 import { SearchServiceInterface } from '@app/shared/interfaces/search-service.interface';
 import { RuntimeException } from '@nestjs/core/errors/exceptions/runtime.exception';
+import { CountryRepository } from '@app/product/repositories/country/country.repository';
+import { TaxRuleRepository } from '@app/product/repositories/tax-rule/tax-rule.repository';
 
 @Injectable()
 export class CountryService
@@ -28,10 +28,10 @@ export class CountryService
     SearchServiceInterface<Country>
 {
   constructor(
-    @InjectRepository(Country)
-    private readonly countryRepository: Repository<Country>,
-    @InjectRepository(TaxRule)
-    private readonly taxRuleRepository: Repository<TaxRule>,
+    @InjectRepository(CountryRepository)
+    private readonly countryRepository: CountryRepository,
+    @InjectRepository(TaxRuleRepository)
+    private readonly taxRuleRepository: TaxRuleRepository,
     private readonly searchService: MysqlSearchEngineService,
   ) {}
 
@@ -40,25 +40,9 @@ export class CountryService
     limit: number,
     opts?: PaginationOptions,
   ): Promise<PaginationDto<Country>> {
-    const count = await this.countryRepository.count();
-    const meta = new PaginationMetadataDto(index, limit, count);
-    if (meta.currentPage > meta.maxPages) {
-      throw new NotFoundException('This page of countries does not exist');
-    }
-
-    const query = this.countryRepository.createQueryBuilder('country');
-    if (opts) {
-      const { orderBy } = opts;
-      await query.orderBy(orderBy ?? 'id');
-    }
-    const data = await query
-      .skip(index * limit - limit)
-      .take(limit)
-      .getMany();
-    return {
-      data,
-      meta,
-    };
+    return await this.countryRepository.findAndPaginate(index, limit, {
+      ...opts,
+    });
   }
 
   async find(id: string | number): Promise<Country> {
