@@ -14,7 +14,6 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -30,19 +29,17 @@ import {
 import { Permission } from '@app/user/enums/permission.enum';
 import { Granted } from '@app/auth/admin/guard/decorators/granted.decorator';
 import {
-  ApiAdminAuth,
   ApiOkPaginatedResponse,
   ApiPaginationQueries,
   ApiSearchQueries,
   ErrorSchema,
 } from '@app/shared/swagger';
 import { UpdateCountryDto } from '@app/product/dto/country/update-country.dto';
-import { AdminJwtAuthGuard } from '@app/auth/admin/guard/admin-jwt-auth.guard';
+import { UseAdminGuard } from '@app/auth/admin/guard/decorators/use-admin-guard.decorator';
 
-@ApiAdminAuth()
 @ApiTags('Country')
 @ApiUnauthorizedResponse({ type: ErrorSchema })
-@UseGuards(AdminJwtAuthGuard)
+@UseAdminGuard()
 @Controller({ path: 'country', version: '1' })
 export class CountryController {
   constructor(private readonly countryService: CountryService) {}
