@@ -105,13 +105,10 @@ export abstract class GenericRepository<T> extends Repository<T> {
       data = await q.orderBy(`${prop}`, opts?.order ?? 'DESC').getMany();
     } catch (err) {
       throw new BadRequestException(
-        `Unknown 'orderBy' parameter: '${opts.orderBy}'`,
+        `Unknown 'orderBy' parameter: '${opts?.orderBy}'`,
       );
     }
 
-    return {
-      data,
-      meta,
-    };
+    return new PaginationDto({ data, meta });
   }
 }
