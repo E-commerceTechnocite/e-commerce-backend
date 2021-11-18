@@ -1,10 +1,5 @@
 import { Customer } from '@app/customer/entities/customer/customer.entity';
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, getRepository, Repository } from 'typeorm';
@@ -16,7 +11,7 @@ import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { CartItem } from '@app/shopping-cart/entities/cart-item.entity';
 import { Product } from '@app/product/entities/product.entity';
-import { AddressCustomer } from '@app/customer/adress/entity/customer-address.entity';
+
 import { OrderProductCreateDto } from '../dto/order-create.dto';
 import { Stock } from '@app/product/entities/stock.entity';
 import { OrderProductRepository } from '../repositories/order-product/order-product.repository';
@@ -50,14 +45,14 @@ export class OrderProductService {
       throw new NotFoundException('User not found !');
     }
     const customerId: Customer = this.request.user['id'];
-    let customer = await this.getCustomerById(customerId);
+    const customer = await this.getCustomerById(customerId);
     // récuperer l'order qui corespond à ce customer
 
     const order = await this.orderRepository.findOne({
       where: { id: orderId, customer },
     });
 
-    let stock;
+    //let stock;
     order.orderProducts.forEach((item) => {
       //console.log(`order product: ${item.quantity}`);
       //console.log(`stock: ${item.product.stock.physical}`);
@@ -88,13 +83,13 @@ export class OrderProductService {
     const customerId: Customer = this.request.user['id'];
 
     // a l' aide de customerId  je recupere le customer
-    let customer = await this.getCustomerById(customerId);
+    const customer = await this.getCustomerById(customerId);
 
     // recupérer shoppingCartId
-    let shoppingCartId = customer['shoppingCart'].id;
+    const shoppingCartId = customer['shoppingCart'].id;
     // recuperer cartItem
 
-    let cartItem = await this.getCartItem(shoppingCartId);
+    const cartItem = await this.getCartItem(shoppingCartId);
     //const product = await this.productRepo.findOne(entity.productId);
     if (!cartItem) {
       throw new NotFoundException(
@@ -102,7 +97,7 @@ export class OrderProductService {
       );
     }
 
-    let orderCartItem: Order = {
+    const orderCartItem: Order = {
       status: 0,
       paymentType: 0,
       customer,
@@ -195,7 +190,7 @@ export class OrderProductService {
     // console.log(stockPhysique);
     //console.log(quantity);
 
-    let stockUpdated = stockPhysique - quantity;
+    const stockUpdated = stockPhysique - quantity;
     const stock = await this.stockRepository
       .createQueryBuilder('quantity')
       .update(Stock)

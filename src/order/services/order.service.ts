@@ -16,7 +16,7 @@ export class OrderService {
   }
 
   // permer de creer un enregistrement dans la table order  des qu'un enregistrement est inseré dans la table customer
-  async createOrder(target): Promise<string> {
+  async createOrder(): Promise<string> {
     /*  const order: Order = {
       
 

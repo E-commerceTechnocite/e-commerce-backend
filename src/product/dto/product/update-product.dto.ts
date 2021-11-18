@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsFirebasePushId,
   IsNumber,
   IsOptional,
   IsPositive,

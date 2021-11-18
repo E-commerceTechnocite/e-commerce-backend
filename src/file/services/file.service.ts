@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { Picture } from '@app/file/entities/picture.entity';
 import { EntityManager } from 'typeorm';
 import { PictureService } from '@app/file/services/picture/picture.service';
