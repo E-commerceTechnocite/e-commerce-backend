@@ -12,6 +12,9 @@ import { role } from '@app/test/stub/entities/role';
 import { SelectQueryBuilder } from 'typeorm';
 import { Role } from '@app/user/entities/role.entity';
 import { ForbiddenException } from '@nestjs/common';
+import { user } from '@app/test/stub/entities/user';
+import { updateUserDto } from '@app/test/stub/dto/user/update-user-dto';
+import { uuid } from '@app/test/util/id';
 
 describe('UserService', () => {
   let service: UserService;
@@ -64,6 +67,76 @@ describe('UserService', () => {
 
       await expect(response).rejects.toThrow(ForbiddenException);
       expect(roleService.find).toHaveBeenCalledWith(r.id);
+    });
+  });
+
+  describe('update', () => {
+    it('should throw when updating superadmin', async () => {
+      const uDto = updateUserDto();
+      const u = await user();
+      uDto.roleId = undefined;
+      u.role.superAdmin = true;
+      userRepository.findOneOrFail.mockResolvedValueOnce(u);
+
+      const response = service.update(u.id, uDto);
+
+      await expect(response).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should throw when adding superadmin role to random people', async () => {
+      const uDto = updateUserDto();
+      const u = await user();
+      const r = role();
+      r.superAdmin = true;
+      roleService.find.mockResolvedValueOnce(r);
+      userRepository.findOneOrFail.mockResolvedValueOnce(u);
+
+      const response = service.update(u.id, uDto);
+
+      await expect(response).rejects.toThrow(ForbiddenException);
+    });
+  });
+
+  describe('delete', () => {
+    it('should throw when trying to delete a superadmin', async () => {
+      const u = await user();
+      u.role.superAdmin = true;
+
+      const response = service.delete(u);
+
+      await expect(response).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should have a defined role', async () => {
+      const u = await user();
+      delete u.role;
+
+      const response = service.delete(u);
+
+      await expect(response).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should have a defined role.superAdmin property', async () => {
+      const u = await user();
+      delete u.role.superAdmin;
+
+      const response = service.delete(u);
+
+      await expect(response).rejects.toThrow(ForbiddenException);
+    });
+  });
+
+  describe('deleteFromId', () => {
+    it('should throw when trying to delete a superadmin', async () => {
+      const u = await user();
+      const id = uuid();
+      u.id = id;
+      u.role.superAdmin = true;
+      userRepository.findOneOrFail.mockResolvedValueOnce(u);
+
+      const response = service.deleteFromId(id);
+
+      await expect(response).rejects.toThrow(ForbiddenException);
     });
   });
 });

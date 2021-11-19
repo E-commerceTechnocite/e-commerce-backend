@@ -40,9 +40,8 @@ export class UserService
   ) {}
 
   private checkSuperAdmin(user: User) {
-    if (user.role.superAdmin) {
-      throw new ForbiddenException('Cannot modify superadmin role or user');
-    }
+    if (user.role?.superAdmin === false) return;
+    throw new ForbiddenException('User is a superadmin or role is not set');
   }
 
   private checkAuthenticatedUserPermissions(
