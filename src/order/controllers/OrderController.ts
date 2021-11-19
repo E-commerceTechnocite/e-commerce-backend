@@ -22,4 +22,9 @@ export class OrderController {
   async getOrdersInfo(): Promise<any> {
     return await this.orderService.getOrdersInfos();
   }
+
+  // @Get('queryBuilder')
+  // async getOrdersQueryBuilder(): Promise<any> {
+  //   return await this.orderService.getOrdersQueryBuilder();
+  // }
 }

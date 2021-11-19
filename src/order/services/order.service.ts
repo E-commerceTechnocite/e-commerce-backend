@@ -31,4 +31,8 @@ export class OrderService {
   async getOrdersInfos(): Promise<any> {
     return await this.orderRepository.getOrdersInfo();
   }
+
+  // async getOrdersQueryBuilder(): Promise<any> {
+  //   return await this.orderRepository.getOrdersQueryBuilder();
+  // }
 }
