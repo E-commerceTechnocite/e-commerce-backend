@@ -28,6 +28,7 @@ export class ReleaseConsoleService {
   async createSuperAdminAndRoles({ email }) {
     const superAdminRole: Role = {
       name: 'superadmin',
+      superAdmin: true,
       permissions: PermissionUtil.allPermissions(),
     };
 
@@ -45,7 +46,7 @@ export class ReleaseConsoleService {
       }
     }
 
-    const password = this.randomizer.generatePassword(14);
+    const password = this.randomizer.randomString(14);
     const superAdmin: User = {
       email: email,
       username: 'superadmin',

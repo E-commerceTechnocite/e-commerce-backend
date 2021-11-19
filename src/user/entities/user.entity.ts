@@ -10,6 +10,7 @@ import { Role } from '@app/user/entities/role.entity';
 import { EntitySchema } from '@app/shared/entities/entity-schema';
 import { ApiProperty } from '@nestjs/swagger';
 import { RefreshToken } from '@app/auth/admin/entities/refresh-token.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 export class User extends EntitySchema implements Express.User {
@@ -26,6 +27,7 @@ export class User extends EntitySchema implements Express.User {
 
   @ApiProperty()
   @Column()
+  @Exclude()
   password?: string;
 
   @ManyToOne(() => Role, (role) => role.users, { eager: true })
