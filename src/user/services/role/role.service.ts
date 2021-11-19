@@ -33,9 +33,8 @@ export class RoleService
   ) {}
 
   private checkSuperAdmin(role: Role) {
-    if (role.superAdmin) {
-      throw new ForbiddenException('Cannot modify superadmin role or user');
-    }
+    if (role.superAdmin === false) return;
+    throw new ForbiddenException('Cannot modify superadmin role or user');
   }
 
   private checkAuthenticatedUserPermissions(
@@ -91,6 +90,7 @@ export class RoleService
     this.checkAuthenticatedUserPermissions(entity);
     const role = await this.find(id);
     this.checkSuperAdmin(role);
+    this.checkSuperAdmin(entity);
 
     this.checkAuthenticatedUserPermissions(role);
 
