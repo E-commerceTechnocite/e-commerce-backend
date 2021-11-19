@@ -46,7 +46,7 @@ export class ReleaseConsoleService {
       }
     }
 
-    const password = this.randomizer.generatePassword(14);
+    const password = this.randomizer.randomString(14);
     const superAdmin: User = {
       email: email,
       username: 'superadmin',

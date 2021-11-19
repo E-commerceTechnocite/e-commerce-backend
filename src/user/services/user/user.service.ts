@@ -106,7 +106,7 @@ export class UserService
     this.checkAuthenticatedUserPermissions(role);
 
     delete entity.roleId;
-    const passwordGenerated = this.randomizerService.generatePassword(25);
+    const passwordGenerated = this.randomizerService.randomString(25);
     const target: User = {
       ...entity,
       password: await hash(passwordGenerated, 10),
@@ -140,7 +140,7 @@ export class UserService
 
     let newPassword = null;
     if (entity.regenPass) {
-      newPassword = this.randomizerService.generatePassword(25);
+      newPassword = this.randomizerService.randomString(25);
     }
 
     const target: User = {
