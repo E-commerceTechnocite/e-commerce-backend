@@ -28,6 +28,7 @@ export class ReleaseConsoleService {
   async createSuperAdminAndRoles({ email }) {
     const superAdminRole: Role = {
       name: 'superadmin',
+      superAdmin: true,
       permissions: PermissionUtil.allPermissions(),
     };
 

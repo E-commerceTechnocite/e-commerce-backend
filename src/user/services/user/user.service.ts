@@ -19,9 +19,9 @@ import { hash } from 'bcrypt';
 import { CreateUserDto } from '../../create-user.dto';
 import { RandomizerService } from '@app/shared/services/randomizer.service';
 import { UserRepository } from '@app/user/repositories/user/user.repository';
-import { RoleRepository } from '@app/user/repositories/role/role.repository';
 import { REQUEST } from '@nestjs/core';
 import { Role } from '@app/user/entities/role.entity';
+import { RoleService } from '@app/user/services/role/role.service';
 
 @Injectable()
 export class UserService
@@ -32,13 +32,18 @@ export class UserService
   constructor(
     @InjectRepository(UserRepository)
     private readonly userRepository: UserRepository,
-    @InjectRepository(RoleRepository)
-    private readonly roleRepository: RoleRepository,
+    private readonly roleService: RoleService,
     private readonly randomizerService: RandomizerService,
     private readonly mailService: MailService,
     @Inject(REQUEST)
     private readonly request: Request & Express.Request,
   ) {}
+
+  private checkSuperAdmin(user: User) {
+    if (user.role.superAdmin) {
+      throw new ForbiddenException('Cannot modify superadmin role or user');
+    }
+  }
 
   private checkAuthenticatedUserPermissions(
     role: Role,
@@ -68,7 +73,6 @@ export class UserService
     } catch {
       throw new NotFoundException(`User does not exist at id : ${id}`);
     }
-    delete user.password;
     return user;
   }
 
@@ -93,15 +97,10 @@ export class UserService
       throw new BadRequestException('Username or Email already used');
     }
 
-    let role: Role;
-    try {
-      role = await this.roleRepository.findOneOrFail({
-        where: { id: entity.roleId },
-      });
-    } catch {
-      throw new NotFoundException(
-        `Role does not exist at id : ${entity.roleId}`,
-      );
+    const role = await this.roleService.find(entity.roleId);
+
+    if (role.superAdmin) {
+      throw new ForbiddenException(`Cannot assign a superadmin role`);
     }
 
     this.checkAuthenticatedUserPermissions(role);
@@ -123,22 +122,16 @@ export class UserService
   async update(id: string | number, entity: UpdateUserDto): Promise<void> {
     let role;
     if (entity.roleId != undefined) {
-      role = await this.roleRepository
-        .findOneOrFail(entity.roleId)
-        .catch(() => {
-          throw new BadRequestException(
-            `Role not found at id ${entity.roleId}`,
-          );
-        });
+      role = await this.roleService.find(entity.roleId);
+
+      if (role.superAdmin) {
+        throw new ForbiddenException(`Cannot assign a superadmin role`);
+      }
     }
 
     delete entity.roleId;
-    let user;
-    try {
-      user = await this.userRepository.findOneOrFail({ where: { id: id } });
-    } catch {
-      throw new NotFoundException(`User does not exist with id : ${id}`);
-    }
+    const user = await this.find(id);
+    this.checkSuperAdmin(user);
 
     this.checkAuthenticatedUserPermissions(user.role);
     if (role) {
@@ -162,6 +155,7 @@ export class UserService
   }
 
   async deleteFromId(id: string | number): Promise<void> {
+    this.checkSuperAdmin(await this.find(id));
     const result = await this.userRepository.delete(id);
     if (result.affected < 1) {
       throw new BadRequestException(`User not found or already deleted`);
@@ -169,6 +163,7 @@ export class UserService
   }
 
   async delete(entity: User): Promise<void> {
+    this.checkSuperAdmin(entity);
     const result = await this.userRepository.delete(entity);
     if (result.affected < 1) {
       throw new BadRequestException(`User not found or already deleted`);
