@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { RuntimeException } from '@nestjs/core/errors/exceptions/runtime.exception';
 
 export interface RandomStringOptionsInterface {
-  lowerCase: boolean;
-  upperCase: boolean;
-  numbers: boolean;
-  specialCharacters: boolean;
+  lowerCase?: boolean;
+  upperCase?: boolean;
+  numbers?: boolean;
+  specialCharacters?: boolean;
 }
 
 @Injectable()
@@ -15,7 +15,7 @@ export class RandomizerService {
   private static readonly NUMBERS = '0123456789';
   private static readonly SPECIAL_CHARACTERS = '!@$%^&*()_-~[]{}:|<>?,;.';
 
-  private static readonly defaultRandomStringOptions: RandomStringOptionsInterface =
+  private static readonly DEFAULT_RANDOM_STRING_OPTIONS: RandomStringOptionsInterface =
     {
       specialCharacters: true,
       numbers: true,
@@ -23,12 +23,19 @@ export class RandomizerService {
       lowerCase: true,
     };
 
-  randomString(
-    length: number,
-    opts: RandomStringOptionsInterface = RandomizerService.defaultRandomStringOptions,
-  ): string {
-    const { LOWER_CASE, UPPER_CASE, NUMBERS, SPECIAL_CHARACTERS } =
-      RandomizerService;
+  randomString(length: number, opts?: RandomStringOptionsInterface): string {
+    const {
+      LOWER_CASE,
+      UPPER_CASE,
+      NUMBERS,
+      SPECIAL_CHARACTERS,
+      DEFAULT_RANDOM_STRING_OPTIONS,
+    } = RandomizerService;
+
+    opts = {
+      ...DEFAULT_RANDOM_STRING_OPTIONS,
+      ...opts,
+    };
 
     let charString = opts.numbers ? NUMBERS : '';
     charString += opts.specialCharacters ? SPECIAL_CHARACTERS : '';

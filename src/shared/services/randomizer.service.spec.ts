@@ -29,7 +29,6 @@ describe('RandomizerService', () => {
     const randomString = service.randomString(20, {
       specialCharacters: false,
       upperCase: false,
-      lowerCase: true,
       numbers: false,
     });
 
