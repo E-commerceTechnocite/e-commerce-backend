@@ -2,12 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order } from '../entities/order.entity';
+import { OrderRepository } from '../repositories/order/order.repository';
 
 @Injectable()
 export class OrderService {
   constructor(
-    @InjectRepository(Order)
-    private readonly orderRepository: Repository<Order>,
+    @InjectRepository(OrderRepository)
+    private readonly orderRepository: OrderRepository,
   ) {}
 
   async find(): Promise<Order[]> {
@@ -26,4 +27,12 @@ export class OrderService {
     //return this.orderRepository.save(target);
     return 'order service';
   }
+
+  async getOrdersInfos(): Promise<any> {
+    return await this.orderRepository.getOrdersInfo();
+  }
+
+  // async getOrdersQueryBuilder(): Promise<any> {
+  //   return await this.orderRepository.getOrdersQueryBuilder();
+  // }
 }

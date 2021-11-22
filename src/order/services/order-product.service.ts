@@ -2,7 +2,7 @@ import { Customer } from '@app/customer/entities/customer/customer.entity';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
-import { getRepository, Repository } from 'typeorm';
+import { Connection, getRepository, Repository } from 'typeorm';
 
 import { OrderProduct } from '../entities/order-product.entity';
 import { Order } from '../entities/order.entity';
@@ -14,6 +14,7 @@ import { Product } from '@app/product/entities/product.entity';
 
 import { OrderProductCreateDto } from '../dto/order-create.dto';
 import { Stock } from '@app/product/entities/stock.entity';
+import { OrderProductRepository } from '../repositories/order-product/order-product.repository';
 
 @Injectable()
 export class OrderProductService {
@@ -29,8 +30,8 @@ export class OrderProductService {
     private readonly cartItemRepository: Repository<CartItem>,
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
-    @InjectRepository(OrderProduct)
-    private readonly orderRepositoryProduct: Repository<OrderProduct>,
+    @InjectRepository(OrderProductRepository)
+    private readonly orderRepositoryProduct: OrderProductRepository,
     @Inject(REQUEST)
     private readonly request: Request,
   ) {}
@@ -204,5 +205,9 @@ export class OrderProductService {
       .set({ status: 1 })
       .where('id = :id', { id: orderId })
       .execute();
+  }
+
+  async getInfo(): Promise<any> {
+    return this.orderRepositoryProduct.getOrderProductInfo();
   }
 }
