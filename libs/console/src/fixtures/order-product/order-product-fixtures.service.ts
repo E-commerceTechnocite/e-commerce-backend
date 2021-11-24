@@ -38,6 +38,9 @@ export class OrderProductFixturesService implements FixturesInterface {
         order: customers[i].orders[0],
         quantity: cartItem.quantity,
         product: cartItem.product,
+        title: cartItem.product.title,
+        reference: cartItem.product.reference,
+        price: cartItem.product.price,
       });
     }
     await this.orderProductRepository.save(orderProducts);

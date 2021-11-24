@@ -24,7 +24,7 @@ export class OrderService {
      
     };   */
     // let order = new Order();
-    //return this.orderRepository.save(target);
+    // return this.orderRepository.save(target);
     return 'order service';
   }
 
@@ -32,7 +32,7 @@ export class OrderService {
     return await this.orderRepository.getOrdersInfo();
   }
 
-  // async getOrdersQueryBuilder(): Promise<any> {
-  //   return await this.orderRepository.getOrdersQueryBuilder();
-  // }
+  async getOrdersQueryBuilder(): Promise<Order[]> {
+    return await this.orderRepository.getOrdersQueryBuilder();
+  }
 }

@@ -11,28 +11,29 @@ import { OrderProductRepository } from '../order-product/order-product.repositor
 @EntityRepository(Order)
 export class OrderRepository extends GenericRepository<Order> {
   async getOrdersInfo(): Promise<any> {
-    return await this.manager.connection
-      .createQueryRunner()
-      .query(
-        'SELECT order.id, customer.firstName, customer.lastName, order.createdAt, order.status, order_product.quantity, product.title, product.price  FROM `order`' +
-          ' INNER JOIN `order_product` ON order.id = order_product.orderId' +
-          ' INNER JOIN `product` ON product.id = order_product.productId' +
-          ' INNER JOIN `customer` ON customer.id = order.customerId',
-      );
+    return await this.manager.connection.createQueryRunner().query(
+      'SELECT order.id,order.createdAt, order.status,' + //order
+        ' customer.firstName, customer.lastName,' + //customer
+        ' order_product.quantity, order_product.title,order_product.reference, order_product.price' + //order_product
+        '  FROM `order`' +
+        ' INNER JOIN `order_product` ON order.id = order_product.orderId' +
+        ' INNER JOIN `customer` ON customer.id = order.customerId',
+    );
   }
 
-  // async getOrdersQueryBuilder(): Promise<any> {
-  //   return await this.createQueryBuilder('o')
-  //     .select('o.id', 'id')
-  //     .addSelect('o.status', 'status')
-  //     .addSelect('o.createdAt', 'createdAt')
-  //     .addSelect('customer.firstName', 'firstName')
-  //     .addSelect('order_product.quantity', 'quantity')
-  //     .addSelect('product.title', 'title')
-  //     .addSelect('product.price', 'price')
-  //     .innerJoin(Customer, 'customer')
-  //     .innerJoin(OrderProduct, 'order_product')
-  //     .innerJoin(Product, 'product')
-  //     .getRawMany();
-  // }
+  async getOrdersQueryBuilder(): Promise<Order[]> {
+    return await this.createQueryBuilder('o')
+      .select('o.id', 'id')
+      .addSelect('o.status', 'status')
+      .addSelect('o.createdAt', 'createdAt')
+      .addSelect('customer.firstName', 'firstName')
+      .addSelect('customer.lastName', 'lastName')
+      .innerJoin(Customer, 'customer', 'o.customerId = customer.id')
+      .addSelect('order_product.quantity', 'quantity')
+      .addSelect('order_product.title', 'title')
+      .addSelect('order_product.reference', 'reference')
+      .addSelect('order_product.price', 'price')
+      .innerJoin(OrderProduct, 'order_product', 'o.id = order_product.orderId')
+      .getRawMany();
+  }
 }

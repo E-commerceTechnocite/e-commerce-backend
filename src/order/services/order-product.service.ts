@@ -114,6 +114,9 @@ export class OrderProductService {
         quantity: item.quantity,
         product: item.product,
         order,
+        title: item.product.title,
+        reference: item.product.reference,
+        price: item.product.price,
       };
       orderProducts.push(orderProduct);
     });

@@ -18,9 +18,6 @@ export class Order extends EntitySchema {
   // relation avec la table orderProduct
   @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.order, {
     eager: true,
-    cascade: true,
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
   })
   orderProducts?: OrderProduct[];
 
