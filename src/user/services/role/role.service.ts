@@ -33,7 +33,7 @@ export class RoleService
   ) {}
 
   private checkSuperAdmin(role: Role) {
-    if (role.superAdmin === false) return;
+    if (!role.superAdmin) return;
     throw new ForbiddenException('Cannot modify superadmin role or user');
   }
 
@@ -79,7 +79,9 @@ export class RoleService
     this.checkAuthenticatedUserPermissions(entity);
     const target: Role = {
       ...entity,
+      superAdmin: false,
     };
+    console.log(target);
     this.checkSuperAdmin(target);
     return await this.roleRepo.save(target).catch(() => {
       throw new BadRequestException();
@@ -90,7 +92,6 @@ export class RoleService
     this.checkAuthenticatedUserPermissions(entity);
     const role = await this.find(id);
     this.checkSuperAdmin(role);
-    this.checkSuperAdmin(entity);
 
     this.checkAuthenticatedUserPermissions(role);
 
@@ -98,6 +99,7 @@ export class RoleService
       ...role,
       name: entity.name,
       permissions: entity.permissions,
+      superAdmin: false,
     };
     this.checkSuperAdmin(target);
 
