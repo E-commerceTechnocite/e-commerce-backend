@@ -36,7 +36,7 @@ export class CountryService
     @InjectRepository(TaxRuleRepository)
     private readonly taxRuleRepository: TaxRuleRepository,
     private readonly searchService: MysqlSearchEngineService,
-    @InjectRepository(AddressCustomer)
+    @InjectRepository(AddressCustomerRepository)
     private readonly addressCustomerRepository: AddressCustomerRepository,
   ) {}
 

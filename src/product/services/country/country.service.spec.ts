@@ -8,12 +8,14 @@ import { MysqlSearchEngineService } from '@app/shared/services/mysql-search-engi
 import { country } from '@app/test/stub';
 import { TaxRuleRepository } from '@app/product/repositories/tax-rule/tax-rule.repository';
 import { CountryRepository } from '@app/product/repositories/country/country.repository';
+import { AddressCustomerRepository } from '@app/customer/adress/repositories/address.repository';
 
 describe('CountryService', () => {
   let service: CountryService;
   const countryRepository = mock<CountryRepository>();
   const taxRuleRepository = mock<TaxRuleRepository>();
   const searchEngineService = mock<MysqlSearchEngineService>();
+  const addressCustomerRepository = mock<AddressCustomerRepository>();
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -28,6 +30,10 @@ describe('CountryService', () => {
           useValue: taxRuleRepository,
         },
         { provide: MysqlSearchEngineService, useValue: searchEngineService },
+        {
+          provide: getRepositoryToken(AddressCustomerRepository),
+          useValue: addressCustomerRepository,
+        },
       ],
     }).compile();
 

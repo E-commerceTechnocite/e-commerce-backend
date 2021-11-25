@@ -13,6 +13,7 @@ import { TaxRuleRepository } from '@app/product/repositories/tax-rule/tax-rule.r
 import { ProductCategoryRepository } from '@app/product/repositories/product-category/product-category.repository';
 import { TaxRuleGroupRepository } from '@app/product/repositories/tax-rule-group/tax-rule-group.repository';
 import { AddressCustomer } from '@app/customer/adress/entity/customer-address.entity';
+import { AddressCustomerRepository } from '@app/customer/adress/repositories/address.repository';
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import { AddressCustomer } from '@app/customer/adress/entity/customer-address.en
       ProductCategoryRepository,
       TaxRuleRepository,
       TaxRuleGroupRepository,
-      AddressCustomer,
+      AddressCustomerRepository,
     ]),
   ],
   exports: [TypeOrmModule],
