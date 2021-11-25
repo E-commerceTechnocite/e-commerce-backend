@@ -19,6 +19,9 @@ import { SearchServiceInterface } from '@app/shared/interfaces/search-service.in
 import { RuntimeException } from '@nestjs/core/errors/exceptions/runtime.exception';
 import { CountryRepository } from '@app/product/repositories/country/country.repository';
 import { TaxRuleRepository } from '@app/product/repositories/tax-rule/tax-rule.repository';
+import { AddressCustomer } from '@app/customer/adress/entity/customer-address.entity';
+import { Repository } from 'typeorm';
+import { AddressCustomerRepository } from '@app/customer/adress/repositories/address.repository';
 
 @Injectable()
 export class CountryService
@@ -33,6 +36,8 @@ export class CountryService
     @InjectRepository(TaxRuleRepository)
     private readonly taxRuleRepository: TaxRuleRepository,
     private readonly searchService: MysqlSearchEngineService,
+    @InjectRepository(AddressCustomer)
+    private readonly addressCustomerRepository: AddressCustomerRepository,
   ) {}
 
   async getPage(
@@ -92,34 +97,44 @@ export class CountryService
   }
 
   async deleteFromId(id: string | number): Promise<void> {
-    const result = await this.countryRepository.delete(id);
-    if (result.affected < 1) {
-      throw new BadRequestException('Country not found or already deleted');
-    }
+    // const result = await this.countryRepository.delete(id);
+    // if (result.affected < 1) {
+    //   throw new BadRequestException('Country not found or already deleted');
+    // }
   }
 
   async deleteWithId(id: string | number): Promise<any[]> {
-    let target;
-    try {
-      target = await this.countryRepository.findOneOrFail({
-        where: { id: id },
-      });
-    } catch {
+    const country_relation = await this.addressCustomerRepository.findOne({
+      where: { country: { id: id } },
+    });
+
+    if (country_relation) {
       throw new BadRequestException(
-        `Country not found or already deleted at id : ${id}`,
+        'Country cannot be deleted because it is bound to at least one address',
       );
+    } else {
+      let target;
+      try {
+        target = await this.countryRepository.findOneOrFail({
+          where: { id: id },
+        });
+      } catch {
+        throw new BadRequestException(
+          `Country not found or already deleted at id : ${id}`,
+        );
+      }
+      const taxRules = {
+        entityType: 'TaxRule',
+        taxRules: await this.taxRuleRepository
+          .createQueryBuilder('tax_rule')
+          .where('tax_rule.countryId=:id', { id: id })
+          .getMany(),
+      };
+
+      await this.countryRepository.delete(id);
+
+      return [taxRules];
     }
-    const taxRules = {
-      entityType: 'TaxRule',
-      taxRules: await this.taxRuleRepository
-        .createQueryBuilder('tax_rule')
-        .where('tax_rule.countryId=:id', { id: id })
-        .getMany(),
-    };
-
-    await this.countryRepository.delete(id);
-
-    return [taxRules];
   }
 
   async delete(entity: Country): Promise<void> {
