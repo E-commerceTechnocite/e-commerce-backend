@@ -26,14 +26,14 @@ export class CustomersFixturesService implements FixturesInterface {
       const lastName = faker.name.lastName();
       const target: CustomerDto = {
         username: faker.name.firstName() + `${Math.floor(Math.random() * 55)}`,
-        password: await hash(this.randomizerService.generatePassword(10), 10),
+        password: await hash(this.randomizerService.randomString(10), 10),
         firstName: firstName,
         lastName: lastName,
         email: `${firstName}.${lastName}@customers.com`,
         phoneNumber: faker.phone.phoneNumber(),
         gender: i % 2 == 0 ? Gender.masculin : Gender.feminin,
         birthDate: faker.date.past(),
-        newsletter: i % 2 == 0 ? true : false,
+        newsletter: i % 2 == 0,
       };
       await this.customerService.createCustomer(target);
     }
