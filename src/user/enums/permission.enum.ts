@@ -48,6 +48,11 @@ export enum Permission {
   CREATE_STOCK = 'c:stock',
   UPDATE_STOCK = 'u:stock',
   DELETE_STOCK = 'd:stock',
+
+  READ_CUSTOMER = 'r:customer',
+  CREATE_CUSTOMER = 'c:customer',
+  UPDATE_CUSTOMER = 'u:customer',
+  DELETE_CUSTOMER = 'd:customer',
 }
 
 export class PermissionUtil {
@@ -154,6 +159,15 @@ export class PermissionUtil {
       Permission.CREATE_STOCK,
       Permission.UPDATE_STOCK,
       Permission.DELETE_STOCK,
+    ];
+  }
+
+  static customerPermissions(): Permission[] {
+    return [
+      Permission.READ_CUSTOMER,
+      Permission.CREATE_CUSTOMER,
+      Permission.UPDATE_CUSTOMER,
+      Permission.DELETE_CUSTOMER,
     ];
   }
 }

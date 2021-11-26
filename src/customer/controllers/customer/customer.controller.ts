@@ -22,12 +22,17 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
+import { UseAdminGuard } from '@app/auth/admin/guard/decorators/use-admin-guard.decorator';
+import { Granted } from '@app/auth/admin/guard/decorators/granted.decorator';
+import { Permission } from '@app/user/enums/permission.enum';
 
 @ApiTags('Customers')
+@UseAdminGuard()
 @Controller({ path: 'customers', version: '1' })
 export class CustomerController {
   constructor(private customerService: CustomerService) {}
 
+  @Granted(Permission.READ_CUSTOMER)
   @ApiSearchQueries()
   @ApiOkPaginatedResponse(Customer)
   @Get('search')
@@ -40,11 +45,13 @@ export class CustomerController {
   }
 
   // find all customers
+  @Granted(Permission.READ_CUSTOMER)
   @Get('all')
   findAll(): Promise<Customer[]> {
     return this.customerService.findAll();
   }
 
+  @Granted(Permission.READ_CUSTOMER)
   @ApiOkPaginatedResponse(Customer)
   @ApiPaginationQueries()
   @Get()
@@ -57,12 +64,14 @@ export class CustomerController {
     return this.customerService.getPage(page, limit, { orderBy, order });
   }
   // create a customer
+  @Granted(Permission.CREATE_CUSTOMER)
   @Post()
   createCustomer(@Body() customer: CustomerCreateDto): Promise<Customer> {
     return this.customerService.createCustomer(customer);
   }
 
   // find a customer by id
+  @Granted(Permission.READ_CUSTOMER)
   @Get(':customerId')
   findCustomerById(@Param('customerId') customerId): Promise<Customer> {
     return this.customerService.getCustomerById(customerId);
@@ -70,6 +79,7 @@ export class CustomerController {
 
   //update a customer
   @Patch(':customerId')
+  @Granted(Permission.UPDATE_CUSTOMER)
   updateCustomer(
     @Param('customerId') customerId: string,
     @Body() customer: CustomerUpdateDto,
@@ -77,6 +87,7 @@ export class CustomerController {
     return this.customerService.updateCustomer(customerId, customer);
   }
   // Delete a customer
+  @Granted(Permission.DELETE_CUSTOMER)
   @Delete(':customerId')
   deleteCustomer(@Param('customerId') customerId): Promise<CustomerDto> {
     return this.customerService.deleteCustomer(customerId);
