@@ -7,6 +7,7 @@ import { mock } from 'jest-mock-extended';
 import { createProductDto, product, updateProductDto } from '@app/test/stub';
 import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
 import { Permission } from '@app/user/enums/permission.enum';
+import { AdminJwtAuthGuard } from '@app/auth/admin/guard/admin-jwt-auth.guard';
 
 describe('ProductController', () => {
   let controller: ProductController;
@@ -24,6 +25,10 @@ describe('ProductController', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
+  });
+
+  it('should use the admin guard', function () {
+    expect(ProductController).toHaveGuard(AdminJwtAuthGuard);
   });
 
   describe('find', () => {

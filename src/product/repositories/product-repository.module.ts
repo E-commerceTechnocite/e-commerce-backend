@@ -12,6 +12,8 @@ import { CountryRepository } from '@app/product/repositories/country/country.rep
 import { TaxRuleRepository } from '@app/product/repositories/tax-rule/tax-rule.repository';
 import { ProductCategoryRepository } from '@app/product/repositories/product-category/product-category.repository';
 import { TaxRuleGroupRepository } from '@app/product/repositories/tax-rule-group/tax-rule-group.repository';
+import { AddressCustomer } from '@app/customer/adress/entity/customer-address.entity';
+import { AddressCustomerRepository } from '@app/customer/adress/repositories/address.repository';
 
 @Module({
   imports: [
@@ -28,6 +30,7 @@ import { TaxRuleGroupRepository } from '@app/product/repositories/tax-rule-group
       ProductCategoryRepository,
       TaxRuleRepository,
       TaxRuleGroupRepository,
+      AddressCustomerRepository,
     ]),
   ],
   exports: [TypeOrmModule],

@@ -9,7 +9,6 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import { ProductCategoryService } from '@app/product/services/product-category/product-category.service';
 import { ProductCategory } from '@app/product/entities/product-category.entity';
@@ -30,22 +29,19 @@ import { IsPositiveIntPipe } from '@app/shared/pipes/is-positive-int.pipe';
 import { Granted } from '@app/auth/admin/guard/decorators/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
 import {
-  ApiAdminAuth,
   ApiOkPaginatedResponse,
   ApiPaginationQueries,
   ApiSearchQueries,
   ErrorSchema,
 } from '@app/shared/swagger';
 import { UpdateProductCategoryDto } from '@app/product/dto/product-category/update-product-category.dto';
-
-import { AdminJwtAuthGuard } from '@app/auth/admin/guard/admin-jwt-auth.guard';
 import { AdminAuthenticated } from '@app/auth/admin/guard/decorators/admin-authenticated.decorator';
+import { UseAdminGuard } from '@app/auth/admin/guard/decorators/use-admin-guard.decorator';
 
-@ApiAdminAuth()
 @ApiTags('Product Categories')
 @ApiUnauthorizedResponse({ type: ErrorSchema })
 @AdminAuthenticated()
-@UseGuards(AdminJwtAuthGuard)
+@UseAdminGuard()
 @Controller({ path: 'product-category', version: '1' })
 export class ProductCategoryController {
   constructor(

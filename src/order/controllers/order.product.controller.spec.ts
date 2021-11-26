@@ -6,7 +6,7 @@ import { PaginationDto } from '@app/shared/dto/pagination/pagination.dto';
 import { mock } from 'jest-mock-extended';
 import { createProductDto, product, updateProductDto } from '@app/test/stub';
 import { PaginationMetadataDto } from '@app/shared/dto/pagination/pagination-metadata.dto';
-import { OrderProductController } from './orderProductController';
+import { OrderProductController } from './order-product.controller';
 import { OrderProductService } from '../services/order-product.service';
 import { createOrderProductDto } from '@app/test/stub/dto/order-product/order-product.Dto';
 

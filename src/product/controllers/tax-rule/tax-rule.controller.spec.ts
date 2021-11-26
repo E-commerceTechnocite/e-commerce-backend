@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TaxRuleController } from './tax-rule.controller';
 import { mock } from 'jest-mock-extended';
 import { TaxRuleService } from '@app/product/services/tax-rule/tax-rule.service';
+import { AdminJwtAuthGuard } from '@app/auth/admin/guard/admin-jwt-auth.guard';
 
 describe('TaxRuleController', () => {
   let controller: TaxRuleController;
@@ -19,5 +20,9 @@ describe('TaxRuleController', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
+  });
+
+  it('should use the admin guard', function () {
+    expect(TaxRuleController).toHaveGuard(AdminJwtAuthGuard);
   });
 });

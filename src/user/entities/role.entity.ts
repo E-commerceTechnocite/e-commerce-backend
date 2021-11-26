@@ -11,6 +11,10 @@ export class Role extends EntitySchema {
   name?: string;
 
   @ApiProperty()
+  @Column({ type: 'boolean', default: () => false })
+  superAdmin?: boolean = false;
+
+  @ApiProperty()
   @Column({ type: 'set', enum: Permission })
   permissions?: Permission[];
 

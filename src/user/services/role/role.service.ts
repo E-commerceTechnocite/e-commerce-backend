@@ -32,6 +32,12 @@ export class RoleService
     private readonly request: Request & Express.Request,
   ) {}
 
+  private checkSuperAdmin(role: Role) {
+    if (role && (role.superAdmin === false || role.superAdmin === undefined))
+      return;
+    throw new ForbiddenException('Cannot modify superadmin role or user');
+  }
+
   private checkAuthenticatedUserPermissions(
     role: RoleDto,
     message = 'Current user is missing required permissions',
@@ -72,9 +78,12 @@ export class RoleService
 
   async create(entity: RoleDto): Promise<Role> {
     this.checkAuthenticatedUserPermissions(entity);
+    this.checkSuperAdmin(entity);
     const target: Role = {
       ...entity,
+      superAdmin: false,
     };
+    this.checkSuperAdmin(target);
     return await this.roleRepo.save(target).catch(() => {
       throw new BadRequestException();
     });
@@ -82,12 +91,9 @@ export class RoleService
 
   async update(id: string | number, entity: UpdateRoleDto): Promise<void> {
     this.checkAuthenticatedUserPermissions(entity);
-    let role: Role;
-    try {
-      role = await this.roleRepo.findOneOrFail({ where: { id: id } });
-    } catch {
-      throw new NotFoundException(`Role does not exist at id : ${id}`);
-    }
+    this.checkSuperAdmin(entity);
+    const role = await this.find(id);
+    this.checkSuperAdmin(role);
 
     this.checkAuthenticatedUserPermissions(role);
 
@@ -95,12 +101,15 @@ export class RoleService
       ...role,
       name: entity.name,
       permissions: entity.permissions,
+      superAdmin: false,
     };
+    this.checkSuperAdmin(target);
 
     await this.roleRepo.save(target);
   }
 
   async deleteFromId(id: string | number): Promise<void> {
+    this.checkSuperAdmin(await this.find(id));
     const result = await this.roleRepo.delete(id);
     if (result.affected < 1) {
       throw new BadRequestException('Role not found or already deleted');
@@ -108,6 +117,7 @@ export class RoleService
   }
 
   async delete(entity: Role): Promise<void> {
+    this.checkSuperAdmin(entity);
     const result = await this.roleRepo.delete(entity);
     if (result.affected < 1) {
       throw new BadRequestException('Role not found or already deleted');

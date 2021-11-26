@@ -14,7 +14,6 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -30,17 +29,15 @@ import { Granted } from '@app/auth/admin/guard/decorators/granted.decorator';
 import { Permission } from '@app/user/enums/permission.enum';
 import { TaxRuleUpdateDto } from '@app/product/dto/tax-rule/tax-rule-update.dto';
 import {
-  ApiAdminAuth,
   ApiOkPaginatedResponse,
   ApiPaginationQueries,
   ErrorSchema,
 } from '@app/shared/swagger';
-import { AdminJwtAuthGuard } from '@app/auth/admin/guard/admin-jwt-auth.guard';
+import { UseAdminGuard } from '@app/auth/admin/guard/decorators/use-admin-guard.decorator';
 
-@ApiAdminAuth()
 @ApiTags('TaxRule')
 @ApiUnauthorizedResponse({ type: ErrorSchema })
-@UseGuards(AdminJwtAuthGuard)
+@UseAdminGuard()
 @Controller({ path: 'tax-rule', version: '1' })
 export class TaxRuleController {
   constructor(private readonly taxRuleService: TaxRuleService) {}
