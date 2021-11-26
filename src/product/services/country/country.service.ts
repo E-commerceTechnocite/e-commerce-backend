@@ -97,10 +97,10 @@ export class CountryService
   }
 
   async deleteFromId(id: string | number): Promise<void> {
-    // const result = await this.countryRepository.delete(id);
-    // if (result.affected < 1) {
-    //   throw new BadRequestException('Country not found or already deleted');
-    // }
+    const result = await this.countryRepository.delete(id);
+    if (result.affected < 1) {
+      throw new BadRequestException('Country not found or already deleted');
+    }
   }
 
   async deleteWithId(id: string | number): Promise<any[]> {
