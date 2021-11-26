@@ -8,9 +8,13 @@ export class CartItem extends EntitySchema {
   @Column({ type: 'integer' })
   quantity: number;
 
-  @ManyToOne(() => Product, (product) => product.cartItems)
+  @ManyToOne(() => Product, (product) => product.cartItems, {
+    onDelete: 'CASCADE',
+  })
   product: Product;
 
-  @ManyToOne(() => ShoppingCart, (shoppingCart) => shoppingCart.cartItems)
+  @ManyToOne(() => ShoppingCart, (shoppingCart) => shoppingCart.cartItems, {
+    onDelete: 'CASCADE',
+  })
   shoppingCart: ShoppingCart;
 }
