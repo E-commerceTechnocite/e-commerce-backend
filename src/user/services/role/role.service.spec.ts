@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { mock } from 'jest-mock-extended';
+import { mock, mockReset } from 'jest-mock-extended';
 import { RoleService } from './role.service';
 import { RoleRepository } from '@app/user/repositories/role/role.repository';
 import { REQUEST } from '@nestjs/core';
@@ -37,6 +37,7 @@ describe('RoleService', () => {
     }).compile();
     await defineUser();
     service = module.get<RoleService>(RoleService);
+    mockReset(roleRepository.findOneOrFail);
   });
 
   it('should be defined', () => {
@@ -65,6 +66,7 @@ describe('RoleService', () => {
       const rDto = createRoleDto();
       const r = role();
       rDto['superAdmin'] = true;
+
       roleRepository.findOneOrFail.mockResolvedValueOnce(r);
 
       const response = service.update(r.id, rDto);
@@ -95,10 +97,11 @@ describe('RoleService', () => {
     it('should have a defined superAdmin property', async () => {
       const r = role();
       delete r.superAdmin;
+      roleRepository.delete.mockResolvedValueOnce({ affected: 1, raw: {} });
 
       const response = service.delete(r);
 
-      await expect(response).rejects.toThrow(ForbiddenException);
+      await expect(response).rejects.not.toThrow(ForbiddenException);
     });
   });
 
